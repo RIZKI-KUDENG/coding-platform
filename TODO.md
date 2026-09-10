@@ -107,7 +107,7 @@ Sebelum memulai setiap fase, Anda dapat merujuk ke dokumen arsitektur yang sudah
 ## 🌐 Fase 4: Backend API Dasar (Rust + Axum)
 > **Tujuan:** Membuat web server Rust yang bisa menerima request HTTP dan terhubung ke database.
 
-- [ ] **Inisialisasi Axum Web Server**:
+- [ x ] **Inisialisasi Axum Web Server**:
   - Tambahkan dependency `axum` dan `tokio` pada `api/Cargo.toml`.
   - Buat endpoint sederhana `GET /api/v1/health` yang mengembalikan `{"status": "ok"}`.
 - [ ] **Koneksikan Axum ke PostgreSQL**:
