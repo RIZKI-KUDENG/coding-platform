@@ -1,3 +1,4 @@
+mod modules;
 mod config;
 mod routes;
 mod state;

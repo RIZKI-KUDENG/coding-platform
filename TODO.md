@@ -110,7 +110,7 @@ Sebelum memulai setiap fase, Anda dapat merujuk ke dokumen arsitektur yang sudah
 - [ x ] **Inisialisasi Axum Web Server**:
   - Tambahkan dependency `axum` dan `tokio` pada `api/Cargo.toml`.
   - Buat endpoint sederhana `GET /api/v1/health` yang mengembalikan `{"status": "ok"}`.
-- [ ] **Koneksikan Axum ke PostgreSQL**:
+- [ x ] **Koneksikan Axum ke PostgreSQL**:
   - Buat connection pool menggunakan `sqlx::PgPool`.
   - Teruskan pool ke dalam Axum Application State.
 - [ ] **Buat Endpoint Autentikasi Dasar**:
