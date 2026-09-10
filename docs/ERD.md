@@ -108,7 +108,7 @@ erDiagram
         varchar language
         int position
         int xp_reward
-        boolean is_published
+        varchar status
         timestamptz created_at
         timestamptz updated_at
     }

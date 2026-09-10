@@ -890,13 +890,13 @@ Migration disimpan di root:
 
 ```text
 migrations/
-├── 0001_identity_users.sql
-├── 0002_learning_courses.sql
-├── 0003_learning_lessons.sql
-├── 0004_learning_exercises.sql
-├── 0005_learning_test_cases.sql
-├── 0006_execution_submissions.sql
-└── 0007_gamification_xp_transactions.sql
+├── 0001_identity_m_users.sql
+├── 0002_learning_m_courses_and_sections.sql
+├── 0003_learning_m_lessons.sql
+├── 0004_learning_m_exercises.sql
+├── 0005_learning_m_exercise_test_cases.sql
+├── 0006_execution_t_submissions.sql
+└── 0007_gamification_t_xp_transactions.sql
 ```
 
 Migration naming mengikuti urutan dependency.
@@ -905,7 +905,7 @@ Migration naming mengikuti urutan dependency.
 
 # 28. Database Schema Ownership
 
-Database menggunakan schema per bounded module:
+Database menggunakan schema per bounded module dengan konvensi `m_` untuk Master Data dan `t_` untuk Transaction Data:
 
 ```text
 PostgreSQL
@@ -922,16 +922,18 @@ PostgreSQL
 Contoh:
 
 ```text
-identity.users
+identity.m_users
 
-learning.courses
-learning.lessons
-learning.exercises
-learning.exercise_test_cases
+learning.m_courses
+learning.m_sections
+learning.m_lessons
+learning.m_section_lessons
+learning.m_exercises
+learning.m_exercise_test_cases
 
-execution.submissions
+execution.t_submissions
 
-gamification.xp_transactions
+gamification.t_xp_transactions
 ```
 
 Module memiliki ownership terhadap schema masing-masing.

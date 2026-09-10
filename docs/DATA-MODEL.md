@@ -66,30 +66,34 @@ Database schema:
 PostgreSQL
 │
 ├── identity
-│   └── users
+│   └── m_users
 │
 ├── learning
-│   ├── courses
-│   ├── sections
-│   ├── section_lessons
-│   ├── lessons
-│   ├── exercises
-│   └── exercise_test_cases
+│   ├── m_courses
+│   ├── m_sections
+│   ├── m_section_lessons
+│   ├── m_lessons
+│   ├── m_exercises
+│   └── m_exercise_test_cases
 │
 ├── execution
-│   └── submissions
+│   └── t_submissions
 │
 ├── gamification
-│   └── xp_transactions
+│   └── t_xp_transactions
 │
 └── practice
-    ├── problems
-    ├── problem_languages
-    ├── problem_test_cases
-    └── problem_submissions
+    ├── m_problems
+    ├── m_problem_languages
+    ├── m_problem_test_cases
+    └── t_problem_submissions
 ```
 
-### Module Ownership
+### Module Ownership & Naming Convention
+
+Konvensi penamaan tabel:
+- **`m_*`** = **Master Data** (Data induk / katalog konten)
+- **`t_*`** = **Transaction Data** (Data aktivitas / append-only event pengguna)
 
 | Module         | Responsibility                       |
 | -------------- | ------------------------------------ |
@@ -118,7 +122,7 @@ identity
 Table:
 
 ```text
-identity.users
+identity.m_users
 ```
 
 Fields:
@@ -167,7 +171,7 @@ ExerciseTestCase
 Table:
 
 ```text
-learning.courses
+learning.m_courses
 ```
 
 Fields:
@@ -202,8 +206,8 @@ Exercise sesuai PRD, dan client tidak dapat menimpanya saat submission.
 
 # 5.1 Section & Reusable Lesson Membership
 
-`learning.sections` mengelompokkan lesson di dalam Course/Learning Path.
-`learning.section_lessons` menyimpan membership dan urutan lesson sehingga satu
+`learning.m_sections` mengelompokkan lesson di dalam Course/Learning Path.
+`learning.m_section_lessons` menyimpan membership dan urutan lesson sehingga satu
 Lesson dapat digunakan oleh lebih dari satu Learning Path tanpa menduplikasi
 content.
 
@@ -214,8 +218,8 @@ Course 1 ── * Section 1 ── * SectionLesson * ── 1 Lesson
 Minimum fields:
 
 ```text
-sections(id, course_id, title, order, created_at, updated_at)
-section_lessons(section_id, lesson_id, order)
+m_sections(id, course_id, title, order, created_at, updated_at)
+m_section_lessons(section_id, lesson_id, order)
 ```
 
 Constraints:
@@ -233,7 +237,7 @@ UNIQUE(section_id, order)
 Table:
 
 ```text
-learning.lessons
+learning.m_lessons
 ```
 
 Fields:
@@ -268,7 +272,7 @@ PUBLISHED
 Table:
 
 ```text
-learning.exercises
+learning.m_exercises
 ```
 
 Fields:
@@ -298,7 +302,7 @@ Constraints:
 
 ```text
 FOREIGN KEY(lesson_id)
-REFERENCES learning.lessons(id)
+REFERENCES learning.m_lessons(id)
 
 UNIQUE(lesson_id, slug)
 
@@ -324,7 +328,7 @@ Tidak ada partial XP.
 Table:
 
 ```text
-learning.exercise_test_cases
+learning.m_exercise_test_cases
 ```
 
 Fields:
@@ -350,7 +354,7 @@ Constraint:
 
 ```text
 FOREIGN KEY(exercise_id)
-REFERENCES learning.exercises(id)
+REFERENCES learning.m_exercises(id)
 
 UNIQUE(exercise_id, order)
 ```
@@ -423,7 +427,7 @@ Execution module bertanggung jawab terhadap:
 Table:
 
 ```text
-execution.submissions
+execution.t_submissions
 ```
 
 Fields:
@@ -443,10 +447,10 @@ Fields:
 
 ```text
 user_id
-    → identity.users.id
+    → identity.m_users.id
 
 exercise_id
-    → learning.exercises.id
+    → learning.m_exercises.id
 ```
 
 Reference tersebut **tidak menggunakan database foreign key lintas schema**.
@@ -674,7 +678,7 @@ Gamification menyimpan XP sebagai transaction history.
 Table:
 
 ```text
-gamification.xp_transactions
+gamification.t_xp_transactions
 ```
 
 Fields:
@@ -692,10 +696,10 @@ Cross-module references:
 
 ```text
 user_id
-    → identity.users.id
+    → identity.m_users.id
 
 exercise_id
-    → learning.exercises.id
+    → learning.m_exercises.id
 ```
 
 Tidak menggunakan database FK lintas module.
@@ -819,41 +823,41 @@ Jika query menjadi bottleneck, caching atau denormalization dapat ditambahkan ke
 # 24. Entity Relationship
 
 ```text
-┌─────────────────────┐
-│ identity.users      │
-└─────────┬───────────┘
-          │
-          │ user_id reference
-          │
-    ┌─────┴───────────┐
-    │                 │
-    ▼                 ▼
-┌──────────────┐  ┌────────────────────┐
-│ submissions  │  │ xp_transactions    │
-│ execution    │  │ gamification       │
-└──────┬───────┘  └─────────┬──────────┘
-       │                    │
-       │ exercise_id        │ exercise_id
-       │ reference          │ reference
-       └──────────┬─────────┘
-                  ▼
-        ┌──────────────────┐
-        │ learning.exercises│
-        └────────┬─────────┘
-                 │
-                 ▼
-        ┌──────────────────────┐
-        │ exercise_test_cases  │
-        └──────────────────────┘
-                 ▲
-                 │
-        ┌────────┴────────┐
-        │ learning.lessons│
-        └────────┬────────┘
-                 │
-        ┌────────┴────────┐
-        │ learning.courses│
-        └─────────────────┘
+┌─────────────────────────┐
+│ identity.m_users        │
+└───────────┬─────────────┘
+            │
+            │ user_id reference
+            │
+      ┌─────┴───────────┐
+      │                 │
+      ▼                 ▼
+┌──────────────────┐  ┌────────────────────────┐
+│ t_submissions    │  │ t_xp_transactions      │
+│ execution        │  │ gamification           │
+└───────┬──────────┘  └───────────┬────────────┘
+        │                         │
+        │ exercise_id             │ exercise_id
+        │ reference               │ reference
+        └───────────┬─────────────┘
+                    ▼
+          ┌─────────────────────┐
+          │ learning.m_exercises│
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌──────────────────────────┐
+          │ m_exercise_test_cases    │
+          └──────────────────────────┘
+                    ▲
+                    │
+          ┌─────────┴───────────┐
+          │ learning.m_lessons  │
+          └─────────┬───────────┘
+                    │
+          ┌─────────┴───────────┐
+          │ learning.m_courses  │
+          └─────────────────────┘
 ```
 
 ---
@@ -861,34 +865,34 @@ Jika query menjadi bottleneck, caching atau denormalization dapat ditambahkan ke
 # 25. Relationship Summary
 
 ```text
-identity.users
-    ├── hasMany execution.submissions
-    └── hasMany gamification.xp_transactions
+identity.m_users
+    ├── hasMany execution.t_submissions
+    └── hasMany gamification.t_xp_transactions
 
-learning.courses
-    └── hasMany learning.sections
+learning.m_courses
+    └── hasMany learning.m_sections
 
-learning.sections
-    └── hasMany learning.section_lessons
+learning.m_sections
+    └── hasMany learning.m_section_lessons
 
-learning.lessons
-    └── reusable through learning.section_lessons
+learning.m_lessons
+    └── reusable through learning.m_section_lessons
 
-learning.lessons
-    └── hasMany learning.exercises
+learning.m_lessons
+    └── hasMany learning.m_exercises
 
-learning.exercises
-    ├── hasMany learning.exercise_test_cases
-    ├── hasMany execution.submissions
-    └── hasMany gamification.xp_transactions
+learning.m_exercises
+    ├── hasMany learning.m_exercise_test_cases
+    ├── hasMany execution.t_submissions
+    └── hasMany gamification.t_xp_transactions
 
-execution.submissions
-    ├── references identity.users
-    └── references learning.exercises
+execution.t_submissions
+    ├── references identity.m_users
+    └── references learning.m_exercises
 
-gamification.xp_transactions
-    ├── references identity.users
-    └── references learning.exercises
+gamification.t_xp_transactions
+    ├── references identity.m_users
+    └── references learning.m_exercises
 ```
 
 ---
