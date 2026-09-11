@@ -1,25 +1,23 @@
+use crate::modules::identity::domain::entities::session::Session;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::modules::identity::domain::entities::session::Session;
 
-pub struct SessionRepository{
-    pool: PgPool
+pub struct SessionRepository {
+    pool: PgPool,
 }
 
-
-impl SessionRepository{
-    pub fn new(pool: PgPool) -> Self{
+impl SessionRepository {
+    pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
 
-
     pub async fn create(
         &self,
-        user_id:Uuid,
+        user_id: Uuid,
         token_hash: String,
         expires_at: DateTime<Utc>,
-    ) -> Result<(), sqlx::Error>{
+    ) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
                 INSERT INTO identity.sessions(
@@ -32,7 +30,8 @@ impl SessionRepository{
             user_id,
             token_hash,
             expires_at,
-        ).execute(&self.pool)
+        )
+        .execute(&self.pool)
         .await?;
 
         Ok(())
@@ -46,7 +45,8 @@ impl SessionRepository{
                 WHERE token_hash = $1
             "#,
             token_hash,
-        ).fetch_optional(&self.pool)
+        )
+        .fetch_optional(&self.pool)
         .await?;
 
         Ok(result)

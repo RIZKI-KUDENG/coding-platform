@@ -1,9 +1,8 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-
-#[derive( Clone, Debug)]
-pub struct User{
+#[derive(Clone, Debug)]
+pub struct User {
     pub id: Uuid,
     pub email: String,
     pub password: String,
@@ -12,10 +11,8 @@ pub struct User{
     pub updated_at: DateTime<Utc>,
 }
 
-impl User{
-    pub fn new(email: String,
-        password_hash: String, username: String
-    ) -> Self {
+impl User {
+    pub fn new(email: String, password_hash: String, username: String) -> Self {
         let now = Utc::now();
         Self {
             id: Uuid::new_v4(),

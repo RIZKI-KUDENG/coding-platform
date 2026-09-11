@@ -35,12 +35,11 @@ impl UserRepository {
         .await
     }
 
-
     pub async fn create_user(
         &self,
         email: &str,
         username: &str,
-        password_hash: &str
+        password_hash: &str,
     ) -> Result<User, sqlx::Error> {
         sqlx::query_as!(
             User,
