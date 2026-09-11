@@ -3,13 +3,16 @@ use serde_json::json;
 
 use crate::{
     modules::identity::{
-        application::use_cases::auth::commands::register::register_user_command::{
-            RegisterCommand, RegisterCommandHandler, RegisterError,
+        application::use_cases::auth::commands::{
+            login::login_user_command::{LoginCommand, LoginCommandHandler, LoginError},
+            register::register_user_command::{
+                RegisterCommand, RegisterCommandHandler, RegisterError,
+            },
         },
         infrastructure::repositories::{
             session_repository::SessionRepository, user_repository::UserRepository,
         },
-        presentation::dtos::register_request::RegisterRequest,
+        presentation::dtos::{LoginRequest, RegisterRequest},
     },
     state::AppState,
 };
@@ -79,6 +82,68 @@ pub async fn register(
         ),
         Err(RegisterError::Database(err)) => {
             eprintln!("Database error during registration: {:?}", err);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected database error occurred."
+                    }
+                })),
+            )
+        }
+    }
+}
+
+pub async fn login(
+    State(state): State<AppState>,
+    Json(request): Json<LoginRequest>
+) -> impl IntoResponse {
+
+    if request.identifier.trim().is_empty() || request.password.trim().is_empty(){
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({
+                "error" : {
+                    "code": "VALIDATION_ERROR",
+                    "message": "email/username and password are required."
+                }
+            })),
+        );
+    }
+
+    let user_repo = UserRepository::new(state.db.clone());
+    let session_repo = SessionRepository::new(state.db.clone());
+
+
+    let handler = LoginCommandHandler::new(
+        user_repo,
+        session_repo,
+    );
+
+    let command = LoginCommand {
+        identifier: request.identifier,
+        password: request.password,
+    };
+
+    match handler.handle(command).await {
+        Ok(result) => (
+            StatusCode::OK,
+            Json(json!({
+                "data": result
+            })),
+        ),
+        Err(LoginError::InvalidCredentials) => (
+            StatusCode::UNAUTHORIZED,
+            Json(json!({
+                "error": {
+                    "code": "INVALID_CREDENTIALS",
+                    "message": "Invalid email/username or password."
+                }
+            })),
+        ),
+        Err(LoginError::DatabaseError(err)) => {
+            eprintln!("Database error during login: {:?}", err);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
