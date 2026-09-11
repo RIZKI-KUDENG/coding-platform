@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
+use crate::modules::identity::domain::entities::session::Session;
 
 pub struct SessionRepository{
     pool: PgPool
@@ -35,5 +36,19 @@ impl SessionRepository{
         .await?;
 
         Ok(())
+    }
+
+    pub async fn find_by_token(&self, token_hash: &str) -> Result<Option<Session>, sqlx::Error> {
+        let result = sqlx::query_as!(
+            Session,
+            r#"
+                SELECT * FROM identity.sessions
+                WHERE token_hash = $1
+            "#,
+            token_hash,
+        ).fetch_optional(&self.pool)
+        .await?;
+
+        Ok(result)
     }
 }
