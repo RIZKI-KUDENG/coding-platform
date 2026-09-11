@@ -119,7 +119,8 @@ Organize backend code by capability, then by layer:
   container-runtime clients, or HTTP types.
 - Application code orchestrates use cases, authorization, transactions,
   repositories, runner ports, and cross-module contracts.
-- Infrastructure implements persistence and external adapters.
+- Infrastructure implements persistence (concrete SQLx repositories) and external adapters.
+  Avoid speculative trait abstractions in domain for repositories when there is only a single PostgreSQL persistence implementation.
 - Presentation translates HTTP requests and responses; it contains no business
   rules.
 - Modules must not import another module's infrastructure, presentation, or
