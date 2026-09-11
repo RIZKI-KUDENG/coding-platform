@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct SessionRepository {
     pool: PgPool,
 }

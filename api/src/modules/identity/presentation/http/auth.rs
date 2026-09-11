@@ -97,10 +97,9 @@ pub async fn register(
 
 pub async fn login(
     State(state): State<AppState>,
-    Json(request): Json<LoginRequest>
+    Json(request): Json<LoginRequest>,
 ) -> impl IntoResponse {
-
-    if request.identifier.trim().is_empty() || request.password.trim().is_empty(){
+    if request.identifier.trim().is_empty() || request.password.trim().is_empty() {
         return (
             StatusCode::BAD_REQUEST,
             Json(json!({
@@ -115,11 +114,7 @@ pub async fn login(
     let user_repo = UserRepository::new(state.db.clone());
     let session_repo = SessionRepository::new(state.db.clone());
 
-
-    let handler = LoginCommandHandler::new(
-        user_repo,
-        session_repo,
-    );
+    let handler = LoginCommandHandler::new(user_repo, session_repo);
 
     let command = LoginCommand {
         identifier: request.identifier,

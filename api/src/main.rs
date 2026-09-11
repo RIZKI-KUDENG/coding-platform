@@ -1,15 +1,14 @@
-mod config;
-mod modules;
-mod routes;
-mod state;
+use api::config::Config;
+use api::routes::create_router;
+use api::state::AppState;
 
 #[tokio::main]
 async fn main() {
-    let config = config::Config::load();
+    let config = Config::load();
 
-    let state = state::AppState::new(&config).await;
+    let state = AppState::new(&config).await;
 
-    let app = routes::create_router(state);
+    let app = create_router(state);
 
     let listener = tokio::net::TcpListener::bind(&config.server_addr)
         .await

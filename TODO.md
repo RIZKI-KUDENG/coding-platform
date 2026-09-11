@@ -113,7 +113,7 @@ Sebelum memulai setiap fase, Anda dapat merujuk ke dokumen arsitektur yang sudah
 - [ x ] **Koneksikan Axum ke PostgreSQL**:
   - Buat connection pool menggunakan `sqlx::PgPool`.
   - Teruskan pool ke dalam Axum Application State.
-- [ ] **Buat Endpoint Autentikasi Dasar**:
+- [ x ] **Buat Endpoint Autentikasi Dasar**:
   - Endpoint Register & Login (hashing password dengan Argon2 / bcrypt, lalu hasilkan token autentikasi).
   - Cek spesifikasi request/response di [API-CONTRACT.md](docs/API-CONTRACT.md).
 
