@@ -1,7 +1,8 @@
 use serde::Deserialize;
-use uuid::Uuid;
 
-#[derive(Debug,Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct SubmissionRequest {
     pub code: String,
+    pub language: String,
 }
+
