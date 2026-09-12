@@ -54,7 +54,8 @@ impl SubmissionRepository{
     pub async fn update_status(
         &self,
         id: Uuid,
-        status: SubmissionStatus
+        status: SubmissionStatus,
+        execution_time_ms: Option<i32>
     ) -> Result<Submission, sqlx::Error> {
         sqlx::query_as!(
             Submission,
@@ -62,6 +63,7 @@ impl SubmissionRepository{
             UPDATE execution.t_submissions
             SET
             status = $2,
+            execution_time_ms = $3,
             updated_at = NOW()
             WHERE id = $1
             RETURNING
@@ -77,6 +79,7 @@ impl SubmissionRepository{
             "#,
             id,
             status.to_string(),
+            execution_time_ms,
         ).fetch_one(&self.pool)
         .await
     }
