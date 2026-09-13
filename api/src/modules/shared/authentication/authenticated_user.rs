@@ -9,8 +9,8 @@ use uuid::Uuid;
 
 use crate::{
     modules::identity::{
-        application::security::session_token::hash_token,
         infrastructure::repositories::session_repository::SessionRepository,
+        ValidateSessionQuery, ValidateSessionQueryHandler,
     },
     state::AppState,
 };
@@ -47,14 +47,16 @@ impl FromRequestParts<AppState> for AuthenticatedUser {
             }
         };
 
-        let token_hash = hash_token(token);
-
         let repo = SessionRepository::new(state.db.clone());
+        let handler = ValidateSessionQueryHandler::new(repo);
 
-        match repo.find_user_by_valid_token(&token_hash).await {
-            Ok(Some(user_id)) => Ok(AuthenticatedUser { user_id }),
+        let query = ValidateSessionQuery {
+            raw_token: token.to_string(),
+        };
 
-            _ => Err((
+        match handler.handle(query).await {
+            Ok(user_id) => Ok(AuthenticatedUser { user_id }),
+            Err(_) => Err((
                 StatusCode::UNAUTHORIZED,
                 Json(json!({
                     "error": {

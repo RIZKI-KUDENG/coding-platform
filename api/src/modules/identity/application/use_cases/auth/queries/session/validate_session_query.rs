@@ -1,4 +1,3 @@
-use chrono::Utc;
 use uuid::Uuid;
 
 use crate::modules::identity::{
@@ -31,17 +30,14 @@ impl ValidateSessionQueryHandler{
     ) -> Result<Uuid, ValidateSessionError> {
        let  token_hash = hash_token(&query.raw_token);
 
-        let session = self.
+        let user_id = self.
             session_repository
-            .find_by_token(&token_hash)
+            .find_user_by_valid_token(&token_hash)
             .await
             .map_err(ValidateSessionError::DatabaseError)?;
-        match session{
-        Some(session) if session.
-        expires_at > Utc::now() => Ok(session.user_id),
-        _ => Err(ValidateSessionError::InvalidOrExpiredToken)
-    }
-    }
 
+
+        user_id.ok_or(ValidateSessionError::InvalidOrExpiredToken)
+    }
 
 }
