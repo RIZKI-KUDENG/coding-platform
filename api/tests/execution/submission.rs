@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use api::config::Config;
 use api::modules::execution::application::ports::code_runner::{CodeRunner, RunRequest, RunResult};
-use api::modules::execution::application::use_cases::commands::execute_code_command::{
+use api::modules::execution::application::use_cases::submission::commands::execute_code_command::{
     ExecuteCodeCommand, ExecuteCodeCommandHandler,
 };
 use api::modules::execution::infrastructure::repositories::submission_repository::SubmissionRepository;

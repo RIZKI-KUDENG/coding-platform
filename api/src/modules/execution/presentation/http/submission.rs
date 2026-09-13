@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::modules::shared::authentication::authenticated_user::AuthenticatedUser;
 
 
-use crate::modules::execution::application::use_cases::commands::execute_code_command::{
+use crate::modules::execution::application::use_cases::submission::commands::execute_code_command::{
     ExecuteCodeCommand, ExecuteCodeCommandHandler,
 };
 use crate::modules::execution::infrastructure::repositories::submission_repository::SubmissionRepository;
