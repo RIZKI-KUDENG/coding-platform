@@ -7,6 +7,9 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
+use crate::modules::shared::authentication::authenticated_user::AuthenticatedUser;
+
+
 use crate::modules::execution::application::use_cases::commands::execute_code_command::{
     ExecuteCodeCommand, ExecuteCodeCommandHandler,
 };
@@ -17,6 +20,7 @@ use crate::state::AppState;
 
 pub async fn submit(
     State(state): State<AppState>,
+    user: AuthenticatedUser,
     Path(exercise_id): Path<Uuid>,
     Json(request): Json<SubmissionRequest>,
 ) -> impl IntoResponse {
@@ -25,7 +29,7 @@ pub async fn submit(
     let handler = ExecuteCodeCommandHandler::new(repo, runner);
 
     let command = ExecuteCodeCommand {
-        user_id: Uuid::new_v4(),
+        user_id: user.user_id,
         exercise_id,
         code: request.code,
         language: request.language,

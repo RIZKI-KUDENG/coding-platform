@@ -29,13 +29,19 @@ project/
 ├── api/
 │   ├── Cargo.toml
 │   └── src/
-│       ├── identity/
-│       ├── learning/
-│       ├── practice/
-│       ├── execution/
-│       ├── gamification/
-│       ├── content_management/
-│       └── shared/
+│       ├── modules/
+│       │   ├── identity/
+│       │   ├── learning/
+│       │   ├── practice/
+│       │   ├── execution/
+│       │   ├── gamification/
+│       │   ├── content_management/
+│       │   └── shared/
+│       ├── config/
+│       ├── routes/
+│       ├── state/
+│       ├── lib.rs
+│       └── main.rs
 │
 ├── runner/
 │   ├── images/
@@ -169,13 +175,14 @@ HTTP Server
 Business capability dibagi berdasarkan bounded context di dalam crate `api`.
 
 ```text
-api/src/
+api/src/modules/
 ├── identity/
 ├── learning/
 ├── practice/
 ├── execution/
 ├── gamification/
-└── content_management/
+├── content_management/
+└── shared/
 ```
 
 ## Identity
@@ -234,7 +241,7 @@ module/
 Example:
 
 ```text
-api/src/learning/
+api/src/modules/learning/
 ├── domain/
 ├── application/
 ├── infrastructure/
@@ -371,7 +378,7 @@ Domain tidak mengetahui implementasi database.
 Implementation:
 
 ```text
-api/src/learning/infrastructure/persistence/
+api/src/modules/learning/infrastructure/persistence/
 └── postgres_exercise_repository.rs
 ```
 
@@ -481,7 +488,7 @@ Domain tidak boleh mengetahui SQLx.
 # 15. Identity Module
 
 ```text
-api/src/identity/
+api/src/modules/identity/
 ├── domain/
 │   ├── entities/
 │   │   └── user.rs
@@ -517,7 +524,7 @@ api/src/identity/
 # 16. Learning Module
 
 ```text
-api/src/learning/
+api/src/modules/learning/
 ├── domain/
 │   ├── entities/
 │   │   ├── course.rs
@@ -562,7 +569,7 @@ api/src/learning/
 Execution memiliki security-sensitive infrastructure.
 
 ```text
-api/src/execution/
+api/src/modules/execution/
 ├── domain/
 │   ├── entities/
 │   │   ├── submission.rs
@@ -685,7 +692,7 @@ Karena itu runner configuration dan image tidak sebaiknya dicampurkan dengan HTT
 # 21. Gamification Module
 
 ```text
-api/src/gamification/
+api/src/modules/gamification/
 ├── domain/
 │   ├── entities/
 │   │   └── xp_transaction.rs
@@ -799,10 +806,10 @@ Jangan memperkenalkan message broker hanya untuk mendapatkan event-driven archit
 
 # 24. Shared Directory
 
-`shared/` digunakan sangat terbatas.
+`shared/` berada di `api/src/modules/shared/` sejajar dengan modul-modul lainnya, dan digunakan sangat terbatas.
 
 ```text
-shared/
+api/src/modules/shared/
 ├── errors/
 ├── http/
 ├── database/
@@ -1131,7 +1138,7 @@ Setiap module memiliki public composition interface.
 Conceptual:
 
 ```text
-api/src/learning/src/lib.rs
+api/src/modules/learning/src/lib.rs
 ```
 
 mengekspos:
@@ -1147,7 +1154,7 @@ tetapi tidak mengekspos seluruh internal implementation.
 Example:
 
 ```text
-api/src/learning/
+api/src/modules/learning/
 └── mod.rs
 ```
 
