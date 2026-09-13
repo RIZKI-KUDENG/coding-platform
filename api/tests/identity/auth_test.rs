@@ -11,7 +11,11 @@ use api::modules::identity::application::use_cases::auth::commands::register::re
 };
 use api::modules::identity::infrastructure::repositories::session_repository::SessionRepository;
 use api::modules::identity::infrastructure::repositories::user_repository::UserRepository;
+use api::modules::identity::{
+    ValidateSessionError, ValidateSessionQuery, ValidateSessionQueryHandler,
+};
 use api::state::AppState;
+use chrono::{Duration, Utc};
 use uuid::Uuid;
 
 #[test]
@@ -138,3 +142,65 @@ async fn test_register_and_login_flow() {
         other => panic!("Expected InvalidCredentials, got {:?}", other),
     }
 }
+
+#[tokio::test]
+async fn test_validate_session_query() {
+    let config = Config::load();
+    let state = AppState::new(&config).await;
+
+    let user_repo = UserRepository::new(state.db.clone());
+    let session_repo = SessionRepository::new(state.db.clone());
+
+    let register_handler = RegisterCommandHandler::new(user_repo, session_repo.clone());
+    let validate_handler = ValidateSessionQueryHandler::new(session_repo.clone());
+
+    let unique_id = Uuid::new_v4().to_string()[..8].to_string();
+    let register_cmd = RegisterCommand {
+        username: format!("val_user_{}", unique_id),
+        email: format!("val_{}@example.com", unique_id),
+        password: "TestPassword123!".to_string(),
+    };
+
+    let register_result = register_handler
+        .handle(register_cmd)
+        .await
+        .expect("Registration should succeed");
+
+    // 1. Valid token should return user_id
+    let valid_query = ValidateSessionQuery {
+        raw_token: register_result.access_token.clone(),
+    };
+    let user_id = validate_handler
+        .handle(valid_query)
+        .await
+        .expect("Session validation should succeed");
+    assert_eq!(user_id, register_result.user.id);
+
+    // 2. Non-existent / invalid token should fail
+    let invalid_query = ValidateSessionQuery {
+        raw_token: "invalid_random_token_999".to_string(),
+    };
+    let invalid_err = validate_handler.handle(invalid_query).await;
+    match invalid_err {
+        Err(ValidateSessionError::InvalidOrExpiredToken) => {}
+        other => panic!("Expected InvalidOrExpiredToken, got {:?}", other),
+    }
+
+    // 3. Expired token should fail
+    let expired_token = generate_session_token();
+    let expired_at = Utc::now() - Duration::hours(1);
+    session_repo
+        .create(register_result.user.id, expired_token.hash, expired_at)
+        .await
+        .expect("Inserting expired session should succeed");
+
+    let expired_query = ValidateSessionQuery {
+        raw_token: expired_token.raw,
+    };
+    let expired_err = validate_handler.handle(expired_query).await;
+    match expired_err {
+        Err(ValidateSessionError::InvalidOrExpiredToken) => {}
+        other => panic!("Expected InvalidOrExpiredToken, got {:?}", other),
+    }
+}
+

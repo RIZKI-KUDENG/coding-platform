@@ -127,16 +127,16 @@ Sebelum memulai setiap fase, Anda dapat merujuk ke dokumen arsitektur yang sudah
 ## ⚡ Fase 5: Menghubungkan Backend ke Runner (Fitur Eksekusi Kode)
 > **Tujuan:** Backend dapat menerima kode dari user, menjalankannya di dalam container, dan mengembalikan outputnya.
 
-- [ ] **Buat fungsi pemanggil process/container di Rust**:
+- [ x ] **Buat fungsi pemanggil process/container di Rust**:
   - Gunakan `tokio::process::Command` untuk memanggil `podman run` (atau `docker run`).
   - Kirim source code user ke dalam container, tangkap hasil `stdout`, `stderr`, dan exit code.
   - create_submission()
   find_by_id()
   update_status()
   update_execution_result()
-- [ ] **Tangani batas waktu (Timeout Handling)**:
+- [ x ] **Tangani batas waktu (Timeout Handling)**:
   - Bungkus pemanggilan proses dengan `tokio::time::timeout` agar backend otomatis mematikan proses jika melebihi batas waktu (misal > 5 detik).
-- [ ] **Buat Endpoint `POST /api/v1/runner/execute`**:
+- [ x ] **Buat Endpoint `POST /api/v1/runner/execute`**:
   - Menerima payload: `{ "language": "python", "code": "..." }`.
   - Mengembalikan output: `{ "stdout": "...", "status": "completed" }`.
 
