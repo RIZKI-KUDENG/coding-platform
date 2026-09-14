@@ -1,0 +1,28 @@
+---
+// web/src/components/organisms/Navbar.astro
+---
+
+<header class="fixed top-0 left-0 w-full z-50 bg-[#0e0e11] border-b-2 border-[#353438]">
+	<div class="h-[60px] w-full px-4 md:px-8 flex items-center justify-between">
+		<div class="flex items-center gap-4">
+			<a href="/" class="flex items-center gap-2">
+				<div class="w-8 h-8 bg-[#facc15] border-2 border-black flex items-center justify-center font-bold text-black text-lg shadow-[2px_2px_0px_#000000]">
+					K
+				</div>
+				<span class="font-['Space_Grotesk'] text-lg text-[#e4e1e6] uppercase tracking-wider font-bold">KODINGAN</span>
+			</a>
+			<span class="font-['JetBrains_Mono'] text-xs bg-[#2a2a2d] text-[#d1c6ab] px-2 py-0.5 border border-[#4d4632] font-medium">v0.1.0</span>
+		</div>
+
+		<nav class="hidden md:flex items-center gap-2">
+			<a class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Jalur Belajar ]</a>
+			<a aria-current="page" class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
+			<a class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
+		</nav>
+
+		<div class="flex items-center gap-3">
+			<a class="hidden sm:inline-block font-['JetBrains_Mono'] text-xs px-3 py-1.5 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] hover:bg-[#2a2a2d] shadow-[2px_2px_0px_#000000]" href="#">[ Masuk ]</a>
+			<a class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[4px_4px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none" href="#">[ Daftar Akun ]</a>
+		</div>
+	</div>
+</header>

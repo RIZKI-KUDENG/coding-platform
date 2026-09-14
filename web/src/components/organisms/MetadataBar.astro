@@ -1,0 +1,35 @@
+---
+// web/src/components/organisms/MetadataBar.astro
+interface Props {
+	workspaceId?: string;
+	runtime?: string;
+	engine?: string;
+}
+
+const {
+	workspaceId = 'WKSP // 01',
+	runtime = 'LINUX x86_64 HARDENED SANDBOX',
+	engine = 'V8 / CPYTHON / RUST',
+} = Astro.props;
+---
+
+<div class="w-full flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b-2 border-[#353438]">
+	<div class="flex items-center gap-2">
+		<span class="font-['JetBrains_Mono'] text-xs bg-[#2a2a2d] text-[#ffecb9] px-2 py-0.5 border border-[#4d4632] uppercase font-bold tracking-wider">
+			[ {workspaceId} ]
+		</span>
+		<span class="font-['JetBrains_Mono'] text-xs text-[#d1c6ab] tracking-widest uppercase">
+			// RUNTIME: {runtime}
+		</span>
+	</div>
+	<div class="flex items-center gap-4 text-xs font-['JetBrains_Mono'] text-[#d1c6ab]">
+		<span class="flex items-center gap-1">
+			<span class="material-symbols-outlined text-[14px] text-[#4edea3]">memory</span>
+			ENGINE: {engine}
+		</span>
+		<span class="flex items-center gap-1">
+			<span class="material-symbols-outlined text-[14px] text-[#facc15]">lock</span>
+			SECURE_MODE: ACTIVE
+		</span>
+	</div>
+</div>

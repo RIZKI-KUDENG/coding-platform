@@ -1,0 +1,86 @@
+---
+// web/src/components/organisms/BentoDock.astro
+---
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 w-full">
+	<!-- BENTO 1: Short-Cut Cheat Sheet -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[4px_4px_0px_#000000] flex flex-col justify-between">
+		<div>
+			<div class="flex items-center justify-between mb-3 border-b border-[#353438] pb-2">
+				<span class="font-['Space_Grotesk'] text-sm text-[#e4e1e6] uppercase font-bold flex items-center gap-1.5">
+					<span class="material-symbols-outlined text-[#facc15] text-[18px]">keyboard</span>
+					PINTASAN KEYBOARD
+				</span>
+				<span class="font-['JetBrains_Mono'] text-xs bg-[#1f1f22] px-1.5 border border-[#353438]">HOTKEYS</span>
+			</div>
+			<ul class="space-y-2 font-['JetBrains_Mono'] text-xs text-[#d1c6ab]">
+				<li class="flex justify-between items-center">
+					<span>Jalankan Skrip:</span>
+					<span class="px-1.5 py-0.5 bg-[#2a2a2d] border border-[#4d4632] text-[#e4e1e6] font-bold">[ Ctrl + Enter ]</span>
+				</li>
+				<li class="flex justify-between items-center">
+					<span>Bersihkan Layar:</span>
+					<span class="px-1.5 py-0.5 bg-[#2a2a2d] border border-[#4d4632] text-[#e4e1e6] font-bold">[ Ctrl + L ]</span>
+				</li>
+				<li class="flex justify-between items-center">
+					<span>Format Kode:</span>
+					<span class="px-1.5 py-0.5 bg-[#2a2a2d] border border-[#4d4632] text-[#e4e1e6] font-bold">[ Shift + Alt + F ]</span>
+				</li>
+			</ul>
+		</div>
+		<div class="mt-4 pt-2 border-t border-[#353438] text-[#d1c6ab] font-['JetBrains_Mono'] text-xs">
+			// BINDINGS: CODEMIRROR 6 ENGINE READY
+		</div>
+	</div>
+
+	<!-- BENTO 2: Sandboxing Diagnostics -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[4px_4px_0px_#000000] flex flex-col justify-between">
+		<div>
+			<div class="flex items-center justify-between mb-3 border-b border-[#353438] pb-2">
+				<span class="font-['Space_Grotesk'] text-sm text-[#e4e1e6] uppercase font-bold flex items-center gap-1.5">
+					<span class="material-symbols-outlined text-[#4edea3] text-[18px]">shield</span>
+					ISOLASI KONTENER
+				</span>
+				<span class="font-['JetBrains_Mono'] text-xs text-[#4edea3] bg-[#003824] px-1.5 border border-[#4edea3] font-bold">LOCKED</span>
+			</div>
+			<div class="space-y-2 font-['JetBrains_Mono'] text-xs">
+				<div class="flex items-center justify-between text-[#d1c6ab]">
+					<span>Network Access:</span>
+					<span class="text-[#ffb4ab] font-bold">DISABLED (--network=none)</span>
+				</div>
+				<div class="flex items-center justify-between text-[#d1c6ab]">
+					<span>Memory Limit:</span>
+					<span class="text-[#4edea3] font-bold">128 MB MAX</span>
+				</div>
+				<div class="flex items-center justify-between text-[#d1c6ab]">
+					<span>Execution Timeout:</span>
+					<span class="text-[#facc15] font-bold">5000 MS HARD LIMIT</span>
+				</div>
+			</div>
+		</div>
+		<div class="mt-4 pt-2 border-t border-[#353438] flex items-center justify-between font-['JetBrains_Mono'] text-xs text-[#d1c6ab]">
+			<span>CONTAINER: PODMAN</span>
+			<span class="text-[#4edea3]">ROOTLESS: OK</span>
+		</div>
+	</div>
+
+	<!-- BENTO 3: Interactive Sandbox Documentation Quicklink -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[4px_4px_0px_#000000] flex flex-col justify-between">
+		<div>
+			<div class="flex items-center justify-between mb-3 border-b border-[#353438] pb-2">
+				<span class="font-['Space_Grotesk'] text-sm text-[#e4e1e6] uppercase font-bold flex items-center gap-1.5">
+					<span class="material-symbols-outlined text-[#ffecb9] text-[18px]">terminal</span>
+					DOKUMENTASI RUNTIME
+				</span>
+				<span class="font-['JetBrains_Mono'] text-xs bg-[#1f1f22] px-1.5 border border-[#353438]">INFO</span>
+			</div>
+			<p class="font-['Space_Grotesk'] text-xs text-[#d1c6ab] mb-3 leading-relaxed">
+				Jalankan script Python, JavaScript, atau Rust secara bebas. Output <code>stdout</code> dan <code>stderr</code> akan ditangkap secara instan dari sandbox Podman.
+			</p>
+		</div>
+		<div class="mt-2 flex items-center justify-between pt-2 border-t border-[#353438]">
+			<span class="font-['JetBrains_Mono'] text-xs text-[#facc15]">// ENDPOINT: /api/v1/playground/run</span>
+			<span class="font-['JetBrains_Mono'] text-xs text-[#d1c6ab]">PORT: 3000</span>
+		</div>
+	</div>
+</div>

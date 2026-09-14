@@ -1,0 +1,113 @@
+---
+// web/src/components/playground/PlaygroundToolbar.astro
+---
+
+<section class="w-full bg-[#0e0e11] border-2 border-[#353438] p-3 mb-6 shadow-[4px_4px_0px_#000000] flex flex-wrap items-center justify-between gap-4">
+	<!-- Kiri: Pilihan Bahasa & Runtime Selector -->
+	<div class="flex items-center gap-3">
+		<div class="relative inline-block text-left" id="lang-menu-wrapper">
+			<button
+				class="font-mono text-xs px-4 py-2 bg-[#2a2a2d] text-[#e4e1e6] border-2 border-[#353438] shadow-[2px_2px_0px_#000000] flex items-center gap-2 hover:bg-[#353438] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer"
+				id="lang-btn"
+				type="button"
+			>
+				<span class="text-base leading-none" id="selected-lang-emoji">🐍</span>
+				<span class="font-bold tracking-wide" id="selected-lang-label">Python 3.11</span>
+				<span class="material-symbols-outlined text-[16px]">expand_more</span>
+			</button>
+
+			<!-- Dropdown Options -->
+			<div
+				class="hidden absolute left-0 mt-1 w-56 bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] z-30 flex-col"
+				id="lang-dropdown"
+			>
+				<button
+					class="w-full text-left px-4 py-2 font-mono text-xs flex items-center justify-between border-b border-[#353438] cursor-pointer hover:bg-[#1f1f22] text-[#facc15] bg-[#1f1f22]"
+					data-lang="python"
+					data-emoji="🐍"
+					data-label="Python 3.11"
+					data-file="main.py"
+					type="button"
+				>
+					<span>🐍 Python 3.11</span>
+					<span class="text-[#4edea3] text-[11px]">Aktif</span>
+				</button>
+				<button
+					class="w-full text-left px-4 py-2 font-mono text-xs flex items-center justify-between border-b border-[#353438] cursor-pointer hover:bg-[#1f1f22] text-[#e4e1e6]"
+					data-lang="javascript"
+					data-emoji="⚡"
+					data-label="JavaScript (Node.js)"
+					data-file="index.js"
+					type="button"
+				>
+					<span>⚡ JavaScript</span>
+					<span class="text-[#d1c6ab] text-[11px]">v20.x</span>
+				</button>
+				<button
+					class="w-full text-left px-4 py-2 font-mono text-xs flex items-center justify-between cursor-pointer hover:bg-[#1f1f22] text-[#e4e1e6]"
+					data-lang="rust"
+					data-emoji="🦀"
+					data-label="Rust (Cargo)"
+					data-file="main.rs"
+					type="button"
+				>
+					<span>🦀 Rust</span>
+					<span class="text-[#d1c6ab] text-[11px]">v1.75</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-[#1f1f22] border border-[#353438] text-[#d1c6ab] font-mono text-xs">
+			<span class="material-symbols-outlined text-[14px]">tune</span>
+			OPT_LEVEL: -O3
+		</div>
+	</div>
+
+	<!-- Tengah: Status Eksekusi Real-Time -->
+	<div class="flex items-center gap-4">
+		<div class="flex items-center gap-2 px-3 py-1.5 bg-[#1f1f22] border-2 border-[#353438] shadow-[2px_2px_0px_#000000]">
+			<span class="w-2.5 h-2.5 bg-[#4edea3] animate-pulse" id="status-dot"></span>
+			<span class="font-mono text-xs text-[#4edea3] tracking-wider font-bold" id="status-text">● SIAP</span>
+		</div>
+		<div class="hidden xl:flex items-center gap-1 font-mono text-xs text-[#d1c6ab]">
+			<span class="material-symbols-outlined text-[15px]">speed</span>
+			<span>LATENCY: ~10ms</span>
+		</div>
+	</div>
+
+	<!-- Kanan: Tombol Aksi -->
+	<div class="flex items-center gap-2">
+		<!-- Clear Console -->
+		<button
+			class="font-mono text-xs px-3 py-2 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] shadow-[2px_2px_0px_#000000] hover:bg-[#353438] flex items-center gap-1 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer"
+			id="btn-clear"
+			title="Bersihkan Output Terminal"
+			type="button"
+		>
+			<span class="material-symbols-outlined text-[16px]">clear_all</span>
+			<span class="hidden md:inline">Bersihkan Konsol</span>
+		</button>
+
+		<!-- Reset Code -->
+		<button
+			class="font-mono text-xs px-3 py-2 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] shadow-[2px_2px_0px_#000000] hover:bg-[#353438] flex items-center gap-1 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer"
+			id="btn-reset"
+			title="Kembalikan Kode Standar"
+			type="button"
+		>
+			<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+			<span class="hidden md:inline">Reset Kode</span>
+		</button>
+
+		<!-- Tombol Utama: Jalankan Kode -->
+		<button
+			class="font-mono text-sm px-5 py-2 bg-[#facc15] text-[#000000] font-bold border-2 border-[#000000] shadow-[4px_4px_0px_#000000] flex items-center gap-2 hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+			id="btn-run"
+			type="button"
+		>
+			<span class="material-symbols-outlined text-[20px] font-bold" id="run-icon">play_arrow</span>
+			<span id="run-label">Jalankan Kode</span>
+			<span class="hidden lg:inline-block font-mono text-xs font-normal opacity-80">(Ctrl + Enter)</span>
+		</button>
+	</div>
+</section>

@@ -1,0 +1,39 @@
+---
+// web/src/components/playground/EditorPane.astro
+---
+
+<section class="lg:col-span-7 flex flex-col w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000]">
+	<!-- Tab Bar Header -->
+	<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-3 pt-2 flex items-center justify-between">
+		<div class="flex items-center gap-1">
+			<div class="bg-[#2a2a2d] px-4 py-1.5 border-t-2 border-x-2 border-b-0 border-[#353438] flex items-center gap-2 shadow-[2px_0px_0px_#000000]">
+				<span class="w-2 h-2 bg-[#facc15] inline-block"></span>
+				<span class="font-mono text-sm text-[#ffecb9] font-bold tracking-tight" id="tab-filename">main.py</span>
+				<span class="font-mono text-xs text-[#d1c6ab] ml-1">[READ/WRITE]</span>
+			</div>
+		</div>
+		<div class="flex items-center gap-3 pb-1.5 text-xs font-mono text-[#d1c6ab]">
+			<span class="hidden sm:inline">UTF-8 | LF | Spaces: 4</span>
+			<div class="flex items-center gap-1 bg-[#1f1f22] px-2 py-0.5 border border-[#353438] text-[#e4e1e6]">
+				<span class="material-symbols-outlined text-[13px] text-[#4edea3]">check_circle</span>
+				SANDBOX: READY
+			</div>
+		</div>
+	</div>
+
+	<!-- CodeMirror 6 Mount Point -->
+	<div id="codemirror-mount" class="w-full bg-[#121215] min-h-[520px] max-h-[640px] overflow-auto"></div>
+
+	<!-- Editor Bottom Status strip -->
+	<div class="w-full bg-[#2a2a2d] border-t-2 border-[#353438] px-4 py-1.5 flex flex-wrap items-center justify-between font-mono text-xs text-[#d1c6ab]">
+		<div class="flex items-center gap-4">
+			<span id="editor-lines-metric">BARIS: 08</span>
+			<span id="editor-chars-metric">PANJANG: 180 KARAKTER</span>
+		</div>
+		<div class="flex items-center gap-2">
+			<span class="text-[#facc15]">● MODE NORMAL</span>
+			<span class="text-[#4d4632]">|</span>
+			<span>ENV: PODMAN_ISOLATED</span>
+		</div>
+	</div>
+</section>

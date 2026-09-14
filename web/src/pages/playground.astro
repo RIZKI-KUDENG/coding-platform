@@ -1,0 +1,44 @@
+---
+// web/src/pages/playground.astro
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/organisms/Navbar.astro';
+import MetadataBar from '@/components/organisms/MetadataBar.astro';
+import PlaygroundToolbar from '@/components/playground/PlaygroundToolbar.astro';
+import EditorPane from '@/components/playground/EditorPane.astro';
+import TerminalPane from '@/components/playground/TerminalPane.astro';
+import BentoDock from '@/components/organisms/BentoDock.astro';
+import Footer from '@/components/organisms/Footer.astro';
+---
+
+<Layout title="KODINGAN — Area Uji Coba Koding Bebas">
+	<!-- TOP NAVBAR -->
+	<Navbar />
+
+	<!-- MAIN VIEWPORT -->
+	<main class="w-full pt-[60px] bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between">
+		<div class="w-full flex flex-col p-4 md:p-8 max-w-[1720px] mx-auto min-w-0">
+			<!-- METADATA SUB-BAR -->
+			<MetadataBar />
+
+			<!-- 1. BILAH KONTROL EDITOR (TOOLBAR) -->
+			<PlaygroundToolbar />
+
+			<!-- 2. LAYOUT KERJA SPLIT (60% EDITOR : 40% TERMINAL) -->
+			<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+				<EditorPane />
+				<TerminalPane />
+			</div>
+
+			<!-- 3. FOOTER DOCK / BENTO SUMMARY TILES -->
+			<BentoDock />
+		</div>
+
+		<!-- FOOTER -->
+		<Footer />
+	</main>
+</Layout>
+
+<script>
+	import { initPlayground } from '@/lib/playground-runner';
+	initPlayground();
+</script>
