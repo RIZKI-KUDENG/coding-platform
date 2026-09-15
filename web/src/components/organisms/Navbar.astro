@@ -11,18 +11,67 @@
 				</div>
 				<span class="font-['Space_Grotesk'] text-lg text-[#e4e1e6] uppercase tracking-wider font-bold">KODINGAN</span>
 			</a>
-			<span class="font-['JetBrains_Mono'] text-xs bg-[#2a2a2d] text-[#d1c6ab] px-2 py-0.5 border border-[#4d4632] font-medium">v0.1.0</span>
+			<span class="font-mono text-xs bg-[#2a2a2d] text-[#d1c6ab] px-2 py-0.5 border border-[#4d4632] font-medium">v0.1.0</span>
 		</div>
 
 		<nav class="hidden md:flex items-center gap-2">
-			<a class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Jalur Belajar ]</a>
-			<a aria-current="page" class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
-			<a class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
+			<a class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Jalur Belajar ]</a>
+			<a class="font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
+			<a class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
 		</nav>
 
-		<div class="flex items-center gap-3">
-			<a class="hidden sm:inline-block font-['JetBrains_Mono'] text-xs px-3 py-1.5 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] hover:bg-[#2a2a2d] shadow-[2px_2px_0px_#000000]" href="#">[ Masuk ]</a>
-			<a class="font-['JetBrains_Mono'] text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[4px_4px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none" href="#">[ Daftar Akun ]</a>
+		<!-- Auth Actions (Guest vs Authenticated) -->
+		<div class="flex items-center gap-3" id="nav-auth-container">
+			<!-- Guest State -->
+			<div class="flex items-center gap-2" id="nav-guest-links">
+				<a class="font-mono text-xs px-3 py-1.5 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] hover:bg-[#2a2a2d] shadow-[2px_2px_0px_#000000] cursor-pointer" href="/login">[ Masuk ]</a>
+				<a class="font-mono text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[4px_4px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer" href="/register">[ Daftar Akun ]</a>
+			</div>
+
+			<!-- Logged-in State (Initially hidden, revealed if token exists) -->
+			<div class="hidden items-center gap-3" id="nav-user-profile">
+				<div class="flex items-center gap-2 px-3 py-1 bg-[#1f1f22] border-2 border-[#353438] shadow-[2px_2px_0px_#000000]">
+					<span class="w-2 h-2 bg-[#4edea3] rounded-full animate-pulse"></span>
+					<span class="font-mono text-xs text-[#e4e1e6] font-bold" id="nav-username">User</span>
+				</div>
+				<button
+					id="nav-btn-logout"
+					class="font-mono text-xs px-3 py-1.5 bg-[#2a2a2d] text-[#ffb4ab] border-2 border-[#353438] hover:bg-[#353438] shadow-[2px_2px_0px_#000000] cursor-pointer"
+					type="button"
+				>
+					[ Keluar ]
+				</button>
+			</div>
 		</div>
 	</div>
 </header>
+
+<script>
+	import { getCurrentUser, clearSession } from '@/lib/auth';
+
+	function syncNavbarAuth() {
+		const user = getCurrentUser();
+		const guestLinks = document.getElementById('nav-guest-links');
+		const userProfile = document.getElementById('nav-user-profile');
+		const usernameEl = document.getElementById('nav-username');
+		const logoutBtn = document.getElementById('nav-btn-logout');
+
+		if (user && guestLinks && userProfile) {
+			guestLinks.classList.add('hidden');
+			userProfile.classList.remove('hidden');
+			userProfile.classList.add('flex');
+			if (usernameEl) usernameEl.textContent = user.username;
+		} else if (guestLinks && userProfile) {
+			guestLinks.classList.remove('hidden');
+			userProfile.classList.add('hidden');
+			userProfile.classList.remove('flex');
+		}
+
+		logoutBtn?.addEventListener('click', () => {
+			clearSession();
+			window.location.href = '/login';
+		});
+	}
+
+	syncNavbarAuth();
+</script>

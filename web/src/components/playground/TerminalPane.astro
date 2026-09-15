@@ -3,67 +3,130 @@
 ---
 
 <section class="lg:col-span-5 flex flex-col w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000]">
-	<!-- Header Bar Terminal -->
-	<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
-		<div class="flex items-center gap-2">
-			<span class="material-symbols-outlined text-[18px] text-[#ffecb9]">terminal</span>
-			<span class="font-mono text-sm font-bold tracking-wider text-[#e4e1e6]">TERMINAL OUTPUT</span>
-			<span class="font-mono text-xs bg-[#353438] px-1.5 text-[#4edea3] border border-[#353438] font-bold">TTY_0</span>
-		</div>
-		<!-- Window Actions -->
-		<div class="flex items-center gap-1">
-			<button class="p-1 hover:bg-[#1f1f22] border border-[#353438] text-[#d1c6ab] hover:text-[#e4e1e6] cursor-pointer" id="btn-copy-logs" title="Salin Log" type="button">
-				<span class="material-symbols-outlined text-[14px]">content_copy</span>
-			</button>
-		</div>
-	</div>
+    <!-- Header Bar Terminal -->
+    <div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-[#ffecb9]">
+                terminal
+            </span>
+            <span class="font-mono text-sm font-bold tracking-wider text-[#e4e1e6]">
+                TERMINAL OUTPUT
+            </span>
+            <span class="font-mono text-xs bg-[#353438] px-1.5 text-[#4edea3] border border-[#353438] font-bold">
+                TTY_0
+            </span>
+        </div>
+        <!-- Window Actions -->
+        <div class="flex items-center gap-1">
+            <button
+                class="p-1 hover:bg-[#1f1f22] border border-[#353438] text-[#d1c6ab] hover:text-[#e4e1e6] cursor-pointer"
+                id="btn-copy-logs"
+                title="Salin Log"
+                type="button"
+            >
+                <span class="material-symbols-outlined text-[14px]">
+                    content_copy
+                </span>
+            </button>
+        </div>
+    </div>
 
-	<!-- Terminal Body Surface -->
-	<div class="w-full bg-[#0A0A0C] p-4 font-mono text-sm min-h-[480px] max-h-[600px] overflow-y-auto space-y-3 select-text flex flex-col justify-between" id="terminal-body">
-		<div class="flex flex-col space-y-3" id="log-feed">
-			<!-- Terminal Initialization Greeting -->
-			<div class="text-[#d1c6ab] pb-2 border-b border-[#353438] text-xs">
-				<div>KODINGAN INTERACTIVE RUNTIME ENVIRONMENT [v0.1.0]</div>
-				<div>Connected to secure ephemeral container runner</div>
-				<div class="text-[#9a9078]">Tekan "Jalankan Kode" (Ctrl + Enter) untuk mengeksekusi script.</div>
-			</div>
+    <!-- Terminal Body Surface -->
+    <div
+        class="w-full bg-[#0A0A0C] p-4 font-mono text-sm min-h-[480px] max-h-[600px] overflow-y-auto space-y-3 select-text flex flex-col justify-between"
+        id="terminal-body"
+    >
+        <div class="flex flex-col space-y-3" id="log-feed">
+            <!-- Terminal Initialization Greeting -->
+            <div class="text-[#d1c6ab] pb-2 border-b border-[#353438] text-xs">
+                <div>KODINGAN INTERACTIVE RUNTIME ENVIRONMENT [v0.1.0]</div>
+                <div>Connected to secure ephemeral container runner</div>
+                <div class="text-[#9a9078]">
+                    Tekan "Jalankan Kode" (Ctrl + Enter) untuk mengeksekusi
+                    script.
+                </div>
+            </div>
 
-			<!-- Live Prompt Ready -->
-			<div class="flex items-center gap-2 pt-1" id="terminal-prompt-line">
-				<span class="text-[#4edea3] font-bold select-none">guest@kodingan:~$</span>
-				<span class="w-2 h-4 bg-[#4edea3] inline-block animate-pulse"></span>
-			</div>
-		</div>
+            <!-- Live Prompt Ready -->
+            <div class="flex items-center gap-2 pt-1" id="terminal-prompt-line">
+                <span
+                    class="text-[#4edea3] font-bold select-none"
+                    id="terminal-prompt"
+                ></span>
+                <span class="w-2 h-4 bg-[#4edea3] inline-block animate-pulse"></span>
+            </div>
+        </div>
 
-		<!-- Bottom Buffer Status -->
-		<div class="pt-3 border-t border-[#353438] flex flex-col gap-1">
-			<div class="flex items-center justify-between text-[#d1c6ab] text-xs">
-				<span>BUFFER: TTY STREAM READY</span>
-				<span class="text-[#4edea3]">SECURE PIPES: CONNECTED</span>
-			</div>
-		</div>
-	</div>
+        <!-- Bottom Buffer Status -->
+        <div class="pt-3 border-t border-[#353438] flex flex-col gap-1">
+            <div class="flex items-center justify-between text-[#d1c6ab] text-xs">
+                <span>BUFFER: TTY STREAM READY</span>
+                <span class="text-[#4edea3]">SECURE PIPES: CONNECTED</span>
+            </div>
+        </div>
+    </div>
 
-	<!-- Bilah Status Telemetri Bergaris Tebal -->
-	<div class="w-full bg-[#2a2a2d] border-t-2 border-[#353438] p-3 flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
-		<div class="flex flex-wrap items-center gap-4">
-			<div class="flex items-center gap-1.5 text-[#e4e1e6]">
-				<span class="material-symbols-outlined text-[15px] text-[#facc15]">timer</span>
-				<span>Waktu: <strong class="text-[#facc15]" id="metric-time">--</strong></span>
-			</div>
-			<span class="text-[#4d4632]">|</span>
-			<div class="flex items-center gap-1.5 text-[#e4e1e6]">
-				<span class="material-symbols-outlined text-[15px] text-[#4edea3]">memory</span>
-				<span>Memori: <strong class="text-[#4edea3]" id="metric-mem">--</strong></span>
-			</div>
-			<span class="text-[#4d4632]">|</span>
-			<div class="flex items-center gap-1.5 text-[#e4e1e6]">
-				<span class="material-symbols-outlined text-[15px] text-[#4edea3]" id="metric-exit-icon">check_circle</span>
-				<span>Exit Code: <strong class="text-[#4edea3]" id="metric-exit">0 (Siap)</strong></span>
-			</div>
-		</div>
-		<div class="bg-[#0e0e11] px-2 py-0.5 border border-[#353438] text-[#d1c6ab]">
-			TIMEOUT: <span class="text-[#e4e1e6] font-bold">5s</span>
-		</div>
-	</div>
+    <!-- Bilah Status Telemetri Bergaris Tebal -->
+    <div class="w-full bg-[#2a2a2d] border-t-2 border-[#353438] p-3 flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-1.5 text-[#e4e1e6]">
+                <span class="material-symbols-outlined text-[15px] text-[#facc15]">
+                    timer
+                </span>
+                <span>
+                    Waktu:{" "}
+                    <strong class="text-[#facc15]" id="metric-time">
+                        --
+                    </strong>
+                </span>
+            </div>
+            <span class="text-[#4d4632]">|</span>
+            <div class="flex items-center gap-1.5 text-[#e4e1e6]">
+                <span class="material-symbols-outlined text-[15px] text-[#4edea3]">
+                    memory
+                </span>
+                <span>
+                    Memori:{" "}
+                    <strong class="text-[#4edea3]" id="metric-mem">
+                        --
+                    </strong>
+                </span>
+            </div>
+            <span class="text-[#4d4632]">|</span>
+            <div class="flex items-center gap-1.5 text-[#e4e1e6]">
+                <span
+                    class="material-symbols-outlined text-[15px] text-[#4edea3]"
+                    id="metric-exit-icon"
+                >
+                    check_circle
+                </span>
+                <span>
+                    Exit Code:{" "}
+                    <strong class="text-[#4edea3]" id="metric-exit">
+                        0 (Siap)
+                    </strong>
+                </span>
+            </div>
+        </div>
+        <div class="bg-[#0e0e11] px-2 py-0.5 border border-[#353438] text-[#d1c6ab]">
+            TIMEOUT: <span class="text-[#e4e1e6] font-bold">5s</span>
+        </div>
+    </div>
 </section>
+
+<script>
+    import { getCurrentUser } from "@/lib/auth";
+
+    function getUsername() {
+        const user = getCurrentUser();
+        const usernameEl = document.getElementById("terminal-prompt");
+        if (user && usernameEl) {
+            usernameEl.textContent = `${user.username}@kodingan:~$`;
+        } else {
+            if (usernameEl) {
+                usernameEl.textContent = `guest@kodingan:~$`;
+            }
+        }
+    }
+    getUsername();
+</script>
