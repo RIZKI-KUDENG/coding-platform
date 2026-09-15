@@ -7,6 +7,7 @@ import { rust } from '@codemirror/lang-rust';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { LANGUAGES } from '@/components/playground/constants';
 import type { SupportedLanguage } from '@/components/playground/types';
+import { getCurrentUser } from '@/lib/auth';
 
 function getLanguageExtension(lang: SupportedLanguage) {
 	switch (lang) {
@@ -157,21 +158,35 @@ export function initPlayground() {
 				statusText.textContent = prev;
 			}, 600);
 		}
-	});
+  });
+
+
 
 	// Clear Console Handler
-	btnClear?.addEventListener('click', () => {
+  btnClear?.addEventListener('click', () => {
+    function getUsername() {
+        const user = getCurrentUser();
+        const usernameEl = document.getElementById("terminal-prompt");
+        if (user && usernameEl) {
+            usernameEl.textContent = `${user.username}@kodingan:~$`;
+        } else {
+            if (usernameEl) {
+                usernameEl.textContent = `guest@kodingan:~$`;
+            }
+        }
+    }
 		if (logFeed) {
 			logFeed.innerHTML = `
 				<div class="text-[#d1c6ab] pb-2 border-b border-[#353438] text-xs">
 					<div>Terminal dibersihkan oleh sinyal pengguna.</div>
 				</div>
 				<div class="flex items-center gap-2 pt-1" id="terminal-prompt-line">
-					<span class="text-[#4edea3] font-bold select-none">guest@kodingan:~$</span>
+					<span class="text-[#4edea3] font-bold select-none" id="terminal-prompt"></span>
 					<span class="w-2 h-4 bg-[#4edea3] inline-block animate-pulse"></span>
 				</div>
 			`;
-		}
+    }
+		getUsername();
 	});
 
 	// Copy Logs Handler

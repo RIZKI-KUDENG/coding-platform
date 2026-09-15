@@ -149,11 +149,11 @@ Sebelum memulai setiap fase, Anda dapat merujuk ke dokumen arsitektur yang sudah
 ## 🖥️ Fase 6: Tampilan Frontend Dasar (Astro + Editor)
 > **Tujuan:** Membuat halaman belajar sederhana tempat pengguna bisa membaca materi dan mengetik kode.
 
-- [ ] **Jalankan Frontend Astro lokal**:
+- [ x ] **Jalankan Frontend Astro lokal**:
   - Masuk ke direktori `web/` dan jalankan `npm run dev`.
-- [ ] **Pasang Web Code Editor**:
+- [ x ] **Pasang Web Code Editor**:
   - Pasang komponen editor sederhana (seperti CodeMirror atau Monaco Editor) pada halaman Astro.
-- [ ] **Buat Tombol "Jalankan Kode" (Run)**:
+- [ x ] **Buat Tombol "Jalankan Kode" (Run)**:
   - Ambil kode dari editor, kirim (`fetch`) ke endpoint `POST /api/v1/runner/execute`, lalu tampilkan hasilnya di output box / terminal mini.
 
 > 🔍 **Keyword Googling untuk Belajar:**
