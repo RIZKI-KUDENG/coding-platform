@@ -203,4 +203,3 @@ async fn test_validate_session_query() {
         other => panic!("Expected InvalidOrExpiredToken, got {:?}", other),
     }
 }
-

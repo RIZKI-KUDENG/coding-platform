@@ -54,9 +54,9 @@ impl SessionRepository {
     }
     pub async fn find_user_by_valid_token(
         &self,
-        token_hash: &str
-    ) -> Result<Option<Uuid>, sqlx::Error>{
-        let row  = sqlx::query!(
+        token_hash: &str,
+    ) -> Result<Option<Uuid>, sqlx::Error> {
+        let row = sqlx::query!(
             r#"
             SELECT user_id
             FROM identity.sessions
@@ -64,7 +64,8 @@ impl SessionRepository {
             AND expires_at > NOW()
             "#,
             token_hash
-        ).fetch_optional(&self.pool)
+        )
+        .fetch_optional(&self.pool)
         .await?;
 
         Ok(row.map(|r| r.user_id))

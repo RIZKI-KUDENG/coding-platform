@@ -5,4 +5,3 @@ pub struct SubmissionRequest {
     pub code: String,
     pub language: String,
 }
-

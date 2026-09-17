@@ -15,9 +15,9 @@
 		</div>
 
 		<nav class="hidden md:flex items-center gap-2">
-			<a class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Jalur Belajar ]</a>
-			<a class="font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
-			<a class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
+			<a id="nav-link-courses" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Jalur Belajar ]</a>
+			<a id="nav-link-playground" class="font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
+			<a id="nav-link-practice" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
 		</nav>
 
 		<!-- Auth Actions (Guest vs Authenticated) -->
@@ -48,6 +48,7 @@
 
 <script>
 	import { getCurrentUser, clearSession } from '@/lib/auth';
+	import { getFeatureFlags } from '@/lib/feature-flags';
 
 	function syncNavbarAuth() {
 		const user = getCurrentUser();
@@ -73,5 +74,56 @@
 		});
 	}
 
+	async function syncNavbarFeatureFlags() {
+		try {
+			const flags = await getFeatureFlags();
+			const linkPlayground = document.getElementById('nav-link-playground') as HTMLAnchorElement | null;
+			const linkCourses = document.getElementById('nav-link-courses') as HTMLAnchorElement | null;
+			const linkPractice = document.getElementById('nav-link-practice') as HTMLAnchorElement | null;
+
+			// Sinkronisasi status Playground
+			if (linkPlayground) {
+				if (flags.playground === false) {
+					linkPlayground.className = 'font-mono text-xs px-3 py-1.5 border border-[#ffb4ab] bg-[#2d1600] text-[#ffb4ab] font-bold shadow-[2px_2px_0px_#000000]';
+					linkPlayground.textContent = '[ Area Uji Coba (Perbaikan) ]';
+					linkPlayground.href = '/maintenance?feature=playground';
+				} else {
+					linkPlayground.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]';
+					linkPlayground.textContent = '[ Area Uji Coba ]';
+					linkPlayground.href = '/playground';
+				}
+			}
+
+			// Sinkronisasi status Courses
+			if (linkCourses) {
+				if (flags.courses || flags.course) {
+					linkCourses.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#1b1b1e] text-[#e4e1e6] hover:bg-[#1f1f22]';
+					linkCourses.textContent = '[ Jalur Belajar ]';
+					linkCourses.href = '/courses';
+				} else {
+					linkCourses.className = 'font-mono text-xs px-3 py-1.5 border border-[#2a2a2d] bg-[#141416] text-[#6f6b64] cursor-not-allowed';
+					linkCourses.textContent = '[ Jalur Belajar (Segera) ]';
+					linkCourses.href = '/maintenance?feature=courses';
+				}
+			}
+
+			// Sinkronisasi status Practice
+			if (linkPractice) {
+				if (flags.practice) {
+					linkPractice.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#1b1b1e] text-[#e4e1e6] hover:bg-[#1f1f22]';
+					linkPractice.textContent = '[ Latihan Soal ]';
+					linkPractice.href = '/practice';
+				} else {
+					linkPractice.className = 'font-mono text-xs px-3 py-1.5 border border-[#2a2a2d] bg-[#141416] text-[#6f6b64] cursor-not-allowed';
+					linkPractice.textContent = '[ Latihan Soal (Segera) ]';
+					linkPractice.href = '/maintenance?feature=practice';
+				}
+			}
+		} catch (err) {
+			console.warn('Gagal sinkronisasi feature flags di navbar:', err);
+		}
+	}
+
 	syncNavbarAuth();
+	syncNavbarFeatureFlags();
 </script>

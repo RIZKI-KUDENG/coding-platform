@@ -1,0 +1,209 @@
+---
+// web/src/pages/maintenance.astro
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/organisms/Navbar.astro';
+import Footer from '@/components/organisms/Footer.astro';
+---
+
+<Layout title="KODINGAN — Fitur Dalam Pemeliharaan">
+	<Navbar />
+
+	<main class="w-full pt-[80px] pb-16 bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between items-center px-4">
+		<div class="w-full max-w-xl my-auto flex flex-col items-center">
+			
+			<!-- Neo-Brutalist Maintenance Container -->
+			<div class="w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[8px_8px_0px_#000000] overflow-hidden">
+				
+				<!-- Window Title Bar -->
+				<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2.5 flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<span class="w-3 h-3 bg-[#ffb4ab] inline-block border border-black animate-pulse"></span>
+						<span class="font-mono text-xs font-bold text-[#ffdad6] tracking-wider uppercase">
+							SYSTEM_ALERT // MAINTENANCE_MODE
+						</span>
+					</div>
+					<div class="font-mono text-[11px] text-[#ffb4ab] bg-[#3f0006] px-2 py-0.5 border border-[#ffb4ab]">
+						STATUS: 503_UNAVAILABLE
+					</div>
+				</div>
+
+				<!-- Card Body -->
+				<div class="p-6 md:p-8 flex flex-col gap-6">
+					
+					<!-- Warning Icon & Main Badge -->
+					<div class="flex items-center gap-3">
+						<div class="w-12 h-12 bg-[#ffb4ab] border-2 border-black flex items-center justify-center font-bold text-black text-2xl shadow-[3px_3px_0px_#000000] shrink-0">
+							⚠️
+						</div>
+						<div>
+							<span class="font-mono text-[11px] text-[#facc15] font-bold tracking-widest uppercase block">
+								[ FEATURE FLAG: DISABLED ]
+							</span>
+							<h1 class="font-['Space_Grotesk'] text-2xl md:text-3xl font-bold text-[#e4e1e6] uppercase tracking-tight" id="feature-title">
+								Fitur Sedang Dalam Perbaikan
+							</h1>
+						</div>
+					</div>
+
+					<!-- Explanation Box -->
+					<div class="bg-[#18181c] border-2 border-[#353438] p-4 text-xs font-mono text-[#d1c6ab] flex flex-col gap-3">
+						<p id="feature-description" class="leading-relaxed">
+							Fitur induk ini untuk sementara dinonaktifkan guna peningkatan sistem, pemeliharaan keamanan, atau perbaikan infrastruktur sandbox eksekusi kode.
+						</p>
+						<p class="text-[11px] text-[#8e8a80]">
+							Mohon maaf atas ketidaknyamanannya. Tim teknis sedang bekerja agar fitur ini dapat segera digunakan kembali secara optimal.
+						</p>
+					</div>
+
+					<!-- Diagnostics Details Box -->
+					<div class="bg-[#121215] border border-[#2a2a2e] p-3 font-mono text-[11px] flex flex-col gap-1.5 text-[#9a9078]">
+						<div class="flex justify-between border-b border-[#232327] pb-1">
+							<span>KODE FITUR (KEY):</span>
+							<span class="text-[#facc15] font-bold" id="diag-feature-key">UNKNOWN</span>
+						</div>
+						<div class="flex justify-between border-b border-[#232327] pb-1">
+							<span>STATUS KONTROL:</span>
+							<span class="text-[#ffb4ab]">is_enabled = 0 (INACTIVE)</span>
+						</div>
+						<div class="flex justify-between">
+							<span>AKSI SISTEM:</span>
+							<span class="text-[#e4e1e6]">REDIRECT_TO_GUARD</span>
+						</div>
+					</div>
+
+					<!-- Dynamic Status Feedback on Check -->
+					<div id="recheck-feedback" class="hidden font-mono text-xs p-3 border-2"></div>
+
+					<!-- Action Buttons -->
+					<div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+						<a
+							href="/"
+							class="w-full sm:w-1/2 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-wider py-3 px-4 bg-[#facc15] hover:bg-[#ffe066] text-black border-2 border-black shadow-[4px_4px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center justify-center gap-2 cursor-pointer transition-all text-center"
+						>
+							&larr; Kembali ke Beranda
+						</a>
+						<button
+							type="button"
+							id="btn-recheck"
+							class="w-full sm:w-1/2 font-mono text-xs font-bold uppercase tracking-wider py-3 px-4 bg-[#1f1f22] hover:bg-[#2a2a2d] text-[#e4e1e6] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none flex items-center justify-center gap-2 cursor-pointer transition-all"
+						>
+							<span id="recheck-spinner" class="inline-block">🔄</span>
+							<span id="recheck-text">Cek Status Kembali</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Card Bottom Diagnostics Strip -->
+				<div class="w-full bg-[#1b1b1e] border-t-2 border-[#353438] px-4 py-2 flex items-center justify-between text-[11px] font-mono text-[#9a9078]">
+					<span>DIAGNOSTIC: MAINTENANCE_ORCHESTRATOR</span>
+					<span class="text-[#facc15]">KODINGAN PLATFORM</span>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</main>
+</Layout>
+
+<script>
+	import { getFeatureFlags } from '@/lib/feature-flags';
+
+	interface FeatureMeta {
+		title: string;
+		desc: string;
+		targetUrl: string;
+	}
+
+	const FEATURE_MAP: Record<string, FeatureMeta> = {
+		playground: {
+			title: 'Playground Sedang Diperbaiki',
+			desc: 'Area Uji Coba Koding Bebas (Playground) sedang dalam pemeliharaan infrastruktur eksekusi sandbox runner. Silakan coba kembali beberapa saat lagi.',
+			targetUrl: '/playground',
+		},
+		courses: {
+			title: 'Jalur Belajar Sedang Diperbarui',
+			desc: 'Modul Jalur Belajar dan Kurikulum Materi sedang dalam pembaruan konten dan sinkronisasi silabus pembelajaran.',
+			targetUrl: '/courses',
+		},
+		practice: {
+			title: 'Latihan Soal Dalam Pemeliharaan',
+			desc: 'Bank Soal Mandiri dan evaluasi test case sedang dalam proses pemeliharaan rutin.',
+			targetUrl: '/practice',
+		},
+		gamification: {
+			title: 'Sistem XP Dalam Pemeliharaan',
+			desc: 'Sistem perhitungan XP, kenaikan level, dan leaderboard sedang dalam kalibrasi ledger data.',
+			targetUrl: '/profile',
+		},
+	};
+
+	function initMaintenancePage() {
+		const params = new URLSearchParams(window.location.search);
+		const featureKey = (params.get('feature') || 'playground').toLowerCase();
+
+		const titleEl = document.getElementById('feature-title');
+		const descEl = document.getElementById('feature-description');
+		const keyEl = document.getElementById('diag-feature-key');
+		const btnRecheck = document.getElementById('btn-recheck') as HTMLButtonElement | null;
+		const recheckText = document.getElementById('recheck-text');
+		const recheckSpinner = document.getElementById('recheck-spinner');
+		const feedbackEl = document.getElementById('recheck-feedback');
+
+		const meta = FEATURE_MAP[featureKey] || {
+			title: `Fitur "${featureKey}" Sedang Diperbaiki`,
+			desc: 'Fitur ini sedang dalam pemeliharaan sementara oleh tim teknis KODINGAN.',
+			targetUrl: '/',
+		};
+
+		if (titleEl) titleEl.textContent = meta.title;
+		if (descEl) descEl.textContent = meta.desc;
+		if (keyEl) keyEl.textContent = featureKey.toUpperCase();
+
+		// Handler tombol Cek Status Kembali
+		btnRecheck?.addEventListener('click', async () => {
+			if (!btnRecheck || !recheckText || !recheckSpinner) return;
+
+			btnRecheck.disabled = true;
+			recheckText.textContent = 'Memeriksa...';
+			recheckSpinner.classList.add('animate-spin');
+
+			if (feedbackEl) {
+				feedbackEl.classList.add('hidden');
+			}
+
+			try {
+				const flags = await getFeatureFlags(true); // forceRefresh = true
+				const isNowActive = Boolean(flags[featureKey]);
+
+				if (isNowActive) {
+					if (feedbackEl) {
+						feedbackEl.className = 'font-mono text-xs p-3 border-2 bg-[#003824] border-[#4edea3] text-[#4edea3] flex items-center gap-2';
+						feedbackEl.textContent = '✓ Fitur telah aktif kembali! Mengalihkan ke halaman...';
+						feedbackEl.classList.remove('hidden');
+					}
+					setTimeout(() => {
+						window.location.href = meta.targetUrl;
+					}, 1200);
+				} else {
+					if (feedbackEl) {
+						feedbackEl.className = 'font-mono text-xs p-3 border-2 bg-[#2d1600] border-[#facc15] text-[#ffecb9] flex items-center gap-2';
+						feedbackEl.textContent = 'ℹ Fitur masih dalam status perbaikan (is_enabled = 0). Silakan coba lagi nanti.';
+						feedbackEl.classList.remove('hidden');
+					}
+				}
+			} catch (err) {
+				if (feedbackEl) {
+					feedbackEl.className = 'font-mono text-xs p-3 border-2 bg-[#3f0006] border-[#ffb4ab] text-[#ffdad6] flex items-center gap-2';
+					feedbackEl.textContent = '⚠️ Gagal terhubung ke server untuk mengecek status fitur.';
+					feedbackEl.classList.remove('hidden');
+				}
+			} finally {
+				btnRecheck.disabled = false;
+				recheckText.textContent = 'Cek Status Kembali';
+				recheckSpinner.classList.remove('animate-spin');
+			}
+		});
+	}
+
+	initMaintenancePage();
+</script>

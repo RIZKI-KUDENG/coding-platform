@@ -1,11 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use std::fmt;
+use uuid::Uuid;
 
-
-#[derive(Clone,Debug)]
-pub struct Submission{
+#[derive(Clone, Debug)]
+pub struct Submission {
     pub id: Uuid,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
@@ -17,16 +16,16 @@ pub struct Submission{
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Clone,Debug, Serialize,Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum SubmissionStatus{
+pub enum SubmissionStatus {
     Pending,
     Running,
     Passed,
     Failed,
     Timeout,
     CompileError,
-    RuntimeError
+    RuntimeError,
 }
 
 impl fmt::Display for SubmissionStatus {

@@ -1,0 +1,48 @@
+---
+// web/src/components/atoms/FeatureMaintenanceAlert.astro
+interface Props {
+    title?: string;
+    message?: string;
+    featureName?: string;
+    class?: string;
+}
+
+const {
+    title = "Fitur Sedang Dalam Perbaikan",
+    message = "Bagian materi / latihan ini sedang dalam penyesuaian oleh tim pengembang. Anda tetap dapat melanjutkan materi lainnya.",
+    featureName,
+    class: className = "",
+} = Astro.props;
+---
+
+<div
+    class:list={[
+        "w-full bg-[#1b170e] border-2 border-[#facc15] p-4 shadow-[4px_4px_0px_#000000] font-mono text-xs text-[#ffecb9] flex flex-col gap-2 relative overflow-hidden",
+        className,
+    ]}
+    role="alert"
+>
+    <!-- Neo-Brutalist Top Tag -->
+    <div class="flex items-center justify-between border-b border-[#4d4632] pb-2">
+        <div class="flex items-center gap-2 font-bold uppercase tracking-wider text-[#facc15]">
+            <span class="w-2.5 h-2.5 bg-[#facc15] inline-block animate-pulse"></span>
+            <span>[ PERBAIKAN LOKAL // SUB-FITUR ]</span>
+        </div>
+        {featureName && (
+            <span class="text-[10px] bg-[#3c2f00] text-[#facc15] px-1.5 py-0.5 border border-[#facc15] font-bold">
+                {featureName}
+            </span>
+        )}
+    </div>
+
+    <!-- Alert Content -->
+    <div class="flex items-start gap-3 pt-1">
+        <span class="text-lg select-none">⚠️</span>
+        <div class="flex flex-col gap-1">
+            <h4 class="font-['Space_Grotesk'] text-sm font-bold text-[#e4e1e6] uppercase tracking-wide">
+                {title}
+            </h4>
+            <p class="text-[11px] text-[#d1c6ab] leading-relaxed">{message}</p>
+        </div>
+    </div>
+</div>

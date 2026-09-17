@@ -1,16 +1,16 @@
 use axum::{
-    extract::FromRequestParts,
-    http::{request::Parts, StatusCode},
-    response::{IntoResponse, Response},
     Json,
+    extract::FromRequestParts,
+    http::{StatusCode, request::Parts},
+    response::{IntoResponse, Response},
 };
 use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
     modules::identity::{
-        infrastructure::repositories::session_repository::SessionRepository,
         ValidateSessionQuery, ValidateSessionQueryHandler,
+        infrastructure::repositories::session_repository::SessionRepository,
     },
     state::AppState,
 };

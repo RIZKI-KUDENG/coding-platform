@@ -4,11 +4,11 @@ use uuid::Uuid;
 use crate::modules::execution::domain::entities::submission::{Submission, SubmissionStatus};
 
 #[derive(Clone)]
-pub struct SubmissionRepository{
-    pool: PgPool
+pub struct SubmissionRepository {
+    pool: PgPool,
 }
 
-impl SubmissionRepository{
+impl SubmissionRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
@@ -18,8 +18,8 @@ impl SubmissionRepository{
         user_id: Uuid,
         exercise_id: Uuid,
         code: &str,
-        language: &str
-    ) -> Result<Submission, sqlx::Error>{
+        language: &str,
+    ) -> Result<Submission, sqlx::Error> {
         sqlx::query_as!(
             Submission,
             r#"
@@ -47,7 +47,8 @@ impl SubmissionRepository{
             code,
             language,
             "PENDING"
-        ).fetch_one(&self.pool)
+        )
+        .fetch_one(&self.pool)
         .await
     }
 
@@ -55,7 +56,7 @@ impl SubmissionRepository{
         &self,
         id: Uuid,
         status: SubmissionStatus,
-        execution_time_ms: Option<i32>
+        execution_time_ms: Option<i32>,
     ) -> Result<Submission, sqlx::Error> {
         sqlx::query_as!(
             Submission,
@@ -80,7 +81,8 @@ impl SubmissionRepository{
             id,
             status.to_string(),
             execution_time_ms,
-        ).fetch_one(&self.pool)
+        )
+        .fetch_one(&self.pool)
         .await
     }
 }

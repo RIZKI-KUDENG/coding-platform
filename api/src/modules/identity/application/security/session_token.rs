@@ -22,7 +22,7 @@ pub fn generate_session_token() -> SessionToken {
     SessionToken { raw, hash }
 }
 
-pub fn hash_token(raw: &str) -> String{
+pub fn hash_token(raw: &str) -> String {
     let mut hasher = Sha256::new();
 
     hasher.update(raw.as_bytes());

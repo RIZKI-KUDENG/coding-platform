@@ -15,7 +15,7 @@ import Footer from '@/components/organisms/Footer.astro';
 	<Navbar />
 
 	<!-- MAIN VIEWPORT -->
-	<main class="w-full pt-[60px] bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between">
+	<main id="playground-viewport" class="w-full pt-[60px] bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between opacity-0 transition-opacity duration-150">
 		<div class="w-full flex flex-col p-4 md:p-8 max-w-[1720px] mx-auto min-w-0">
 			<!-- METADATA SUB-BAR -->
 			<MetadataBar />
@@ -40,5 +40,26 @@ import Footer from '@/components/organisms/Footer.astro';
 
 <script>
 	import { initPlayground } from '@/lib/playground-runner';
-	initPlayground();
+	import { getFeatureFlags } from '@/lib/feature-flags';
+
+	async function guardPlayground() {
+		try {
+			const flags = await getFeatureFlags();
+			if (flags.playground === false) {
+				window.location.replace('/maintenance?feature=playground');
+				return;
+			}
+		} catch (err) {
+			console.warn('Gagal memverifikasi status feature flag playground:', err);
+		}
+
+		// Jika fitur aktif, tampilkan viewport dan inisialisasi playground
+		const rootEl = document.getElementById('playground-viewport');
+		if (rootEl) {
+			rootEl.classList.remove('opacity-0');
+		}
+		initPlayground();
+	}
+
+	guardPlayground();
 </script>
