@@ -2,15 +2,11 @@ use crate::modules::system::infrastructure::repositories::feature_flag_repositor
 
 pub struct IsFeatureEnabledQuery {
     pub key: String,
-    pub default_val: bool,
 }
 
 impl IsFeatureEnabledQuery {
-    pub fn new(key: impl Into<String>, default_val: bool) -> Self {
-        Self {
-            key: key.into(),
-            default_val,
-        }
+    pub fn new(key: impl Into<String>) -> Self {
+        Self { key: key.into() }
     }
 }
 
@@ -31,9 +27,9 @@ impl IsFeatureEnabledQueryHandler {
     pub async fn handle(
         &self,
         query: IsFeatureEnabledQuery,
-    ) -> Result<bool, IsFeatureEnabledError> {
+    ) -> Result<Option<bool>, IsFeatureEnabledError> {
         self.repository
-            .is_enabled(&query.key, query.default_val)
+            .is_enabled(&query.key)
             .await
             .map_err(IsFeatureEnabledError::DatabaseError)
     }

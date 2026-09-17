@@ -1,13 +1,32 @@
-use axum::{Json, http::StatusCode, response::IntoResponse};
+use axum::{
+    Json,
+    extract::State,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 use serde_json::json;
 
-use crate::modules::execution::application::use_cases::playground::commands::run_code_command::{
-    RunCodeCommand, RunCodeCommandHandler,
+use crate::{
+    modules::{
+        execution::{
+            application::use_cases::playground::commands::run_code_command::{
+                RunCodeCommand, RunCodeCommandHandler,
+            },
+            infrastructure::runners::podman_runner::PodmanRunner,
+            presentation::dtos::run_code_request::RunCodeRequest,
+        },
+        shared::check_feature,
+    },
+    state::AppState,
 };
-use crate::modules::execution::infrastructure::runners::podman_runner::PodmanRunner;
-use crate::modules::execution::presentation::dtos::run_code_request::RunCodeRequest;
 
-pub async fn run(Json(request): Json<RunCodeRequest>) -> impl IntoResponse {
+pub async fn run(
+    State(state): State<AppState>,
+    Json(request): Json<RunCodeRequest>,
+) -> Result<impl IntoResponse, Response> {
+    // 1. Cek status fitur di database: Playground
+    check_feature(&state, "playground", Some("Area Uji Coba (Playground)")).await?;
+
     let runner = PodmanRunner::new();
     let handler = RunCodeCommandHandler::new(runner);
 
@@ -17,19 +36,19 @@ pub async fn run(Json(request): Json<RunCodeRequest>) -> impl IntoResponse {
     };
 
     match handler.handle(command).await {
-        Ok(result) => (
+        Ok(result) => Ok((
             StatusCode::OK,
             Json(json!({
                 "data": result
             })),
-        ),
-        Err(err) => (
+        )),
+        Err(err) => Ok((
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!({
-                "error" : {
+                "error": {
                     "message": err.to_string()
                 }
             })),
-        ),
+        )),
     }
 }

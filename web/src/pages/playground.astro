@@ -45,7 +45,7 @@ import Footer from '@/components/organisms/Footer.astro';
 	async function guardPlayground() {
 		try {
 			const flags = await getFeatureFlags();
-			if (flags.playground === false) {
+			if (flags.playground !== true) {
 				window.location.replace('/maintenance?feature=playground');
 				return;
 			}

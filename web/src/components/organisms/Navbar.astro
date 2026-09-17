@@ -83,7 +83,7 @@
 
 			// Sinkronisasi status Playground
 			if (linkPlayground) {
-				if (flags.playground === false) {
+				if (flags.playground !== true) {
 					linkPlayground.className = 'font-mono text-xs px-3 py-1.5 border border-[#ffb4ab] bg-[#2d1600] text-[#ffb4ab] font-bold shadow-[2px_2px_0px_#000000]';
 					linkPlayground.textContent = '[ Area Uji Coba (Perbaikan) ]';
 					linkPlayground.href = '/maintenance?feature=playground';
@@ -96,7 +96,7 @@
 
 			// Sinkronisasi status Courses
 			if (linkCourses) {
-				if (flags.courses || flags.course) {
+				if (flags.courses === true) {
 					linkCourses.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#1b1b1e] text-[#e4e1e6] hover:bg-[#1f1f22]';
 					linkCourses.textContent = '[ Jalur Belajar ]';
 					linkCourses.href = '/courses';
@@ -109,7 +109,7 @@
 
 			// Sinkronisasi status Practice
 			if (linkPractice) {
-				if (flags.practice) {
+				if (flags.practice === true) {
 					linkPractice.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#1b1b1e] text-[#e4e1e6] hover:bg-[#1f1f22]';
 					linkPractice.textContent = '[ Latihan Soal ]';
 					linkPractice.href = '/practice';

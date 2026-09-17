@@ -1,21 +1,12 @@
-export interface FeatureFlags {
-  playground: boolean;
-  courses: boolean;
-  practice: boolean;
-  gamification: boolean;
-  [key: string]: boolean | undefined;
-}
-
-const DEFAULT_FLAGS: FeatureFlags = {
-  playground: true,
-  courses: false,
-  practice: false,
-  gamification: false,
-};
+export type FeatureFlags = Record<string, boolean>;
 
 let cachedFlags: FeatureFlags | null = null;
 let pendingFetch: Promise<FeatureFlags> | null = null;
 
+/**
+ * Mengambil status feature flags murni langsung dari database backend (/api/v1/features).
+ * Tanpa nilai default / fallback tiruan: apa yang ada di database, itulah yang dikembalikan.
+ */
 export async function getFeatureFlags(forceRefresh = false): Promise<FeatureFlags> {
   if (cachedFlags && !forceRefresh) {
     return cachedFlags;
@@ -28,21 +19,18 @@ export async function getFeatureFlags(forceRefresh = false): Promise<FeatureFlag
   pendingFetch = (async () => {
     try {
       const res = await fetch('/api/v1/features');
-      if (!res.ok) return DEFAULT_FLAGS;
+      if (!res.ok) {
+        console.error('API /api/v1/features mengembalikan status non-OK:', res.status);
+        return {};
+      }
       const json = await res.json();
-      const serverData = json.data || {};
+      const serverData: Record<string, boolean> = json.data || {};
 
-      cachedFlags = {
-        ...DEFAULT_FLAGS,
-        ...serverData,
-        // Dukung alias 'course' dan 'courses'
-        course: serverData.courses ?? serverData.course ?? DEFAULT_FLAGS.courses,
-        courses: serverData.courses ?? serverData.course ?? DEFAULT_FLAGS.courses,
-      };
+      cachedFlags = { ...serverData };
       return cachedFlags;
     } catch (err) {
-      console.warn('Gagal memuat status feature flags, menggunakan default:', err);
-      return DEFAULT_FLAGS;
+      console.error('Gagal mengambil data feature flags dari backend server:', err);
+      return {};
     } finally {
       pendingFetch = null;
     }
@@ -51,8 +39,11 @@ export async function getFeatureFlags(forceRefresh = false): Promise<FeatureFlag
   return pendingFetch;
 }
 
-export async function isFeatureEnabled(key: keyof FeatureFlags | string, defaultVal = false): Promise<boolean> {
+/**
+ * Memeriksa apakah suatu fitur bernilai true murni di database.
+ * Jika kunci tidak terdaftar di database atau bernilai false (0), mengembalikan false.
+ */
+export async function isFeatureEnabled(key: string): Promise<boolean> {
   const flags = await getFeatureFlags();
-  const val = flags[key];
-  return typeof val === 'boolean' ? val : defaultVal;
+  return flags[key] === true;
 }

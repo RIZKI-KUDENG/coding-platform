@@ -1,26 +1,17 @@
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-    Json
-};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 
-use serde_json::json;
 use crate::{
     modules::system::{
         application::use_cases::feature_flags::queries::{
-            GetFeatureFlagsQuery,
-            GetFeatureFlagsQueryHandler,
-            GetFeatureFlagsError
+            GetFeatureFlagsError, GetFeatureFlagsQuery, GetFeatureFlagsQueryHandler,
         },
         infrastructure::repositories::feature_flag_repository::FeatureFlagRepository,
     },
-    state::AppState
+    state::AppState,
 };
+use serde_json::json;
 
-pub async fn get_features(
-    State(state): State<AppState>
-) -> impl IntoResponse{
+pub async fn get_features(State(state): State<AppState>) -> impl IntoResponse {
     let repo = FeatureFlagRepository::new(state.db.clone());
 
     let handler = GetFeatureFlagsQueryHandler::new(repo);
