@@ -2,12 +2,13 @@ use axum::{
     Json,
     extract::{Path, State},
     http::StatusCode,
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use serde_json::json;
 use uuid::Uuid;
 
 use crate::modules::shared::authentication::authenticated_user::AuthenticatedUser;
+use crate::modules::shared::check_feature;
 
 use crate::modules::execution::application::use_cases::submission::commands::execute_code_command::{
     ExecuteCodeCommand, ExecuteCodeCommandHandler,
@@ -22,7 +23,15 @@ pub async fn submit(
     user: AuthenticatedUser,
     Path(exercise_id): Path<Uuid>,
     Json(request): Json<SubmissionRequest>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, Response> {
+    let runner_key = format!("runner:{}", request.language);
+    check_feature(
+        &state,
+        &runner_key,
+        Some(&format!("Runner {}", request.language)),
+    )
+    .await?;
+
     let repo = SubmissionRepository::new(state.db.clone());
     let runner = PodmanRunner::new();
     let handler = ExecuteCodeCommandHandler::new(repo, runner);
@@ -35,19 +44,19 @@ pub async fn submit(
     };
 
     match handler.handle(command).await {
-        Ok(result) => (
+        Ok(result) => Ok((
             StatusCode::OK,
             Json(json!({
                 "data": result
             })),
-        ),
-        Err(err) => (
+        )),
+        Err(err) => Ok((
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!({
                 "error": {
                     "message": err.to_string()
                 }
             })),
-        ),
+        )),
     }
 }

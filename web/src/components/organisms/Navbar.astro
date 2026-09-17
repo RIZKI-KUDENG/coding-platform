@@ -48,7 +48,7 @@
 
 <script>
 	import { getCurrentUser, clearSession } from '@/lib/auth';
-	import { getFeatureFlags } from '@/lib/feature-flags';
+	import { isFeatureEnabled } from '@/lib/feature-flags';
 
 	function syncNavbarAuth() {
 		const user = getCurrentUser();
@@ -76,14 +76,17 @@
 
 	async function syncNavbarFeatureFlags() {
 		try {
-			const flags = await getFeatureFlags();
+			const playgroundActive = await isFeatureEnabled('playground');
+			const coursesActive = await isFeatureEnabled('courses');
+			const practiceActive = await isFeatureEnabled('practice');
+
 			const linkPlayground = document.getElementById('nav-link-playground') as HTMLAnchorElement | null;
 			const linkCourses = document.getElementById('nav-link-courses') as HTMLAnchorElement | null;
 			const linkPractice = document.getElementById('nav-link-practice') as HTMLAnchorElement | null;
 
 			// Sinkronisasi status Playground
 			if (linkPlayground) {
-				if (flags.playground !== true) {
+				if (!playgroundActive) {
 					linkPlayground.className = 'font-mono text-xs px-3 py-1.5 border border-[#ffb4ab] bg-[#2d1600] text-[#ffb4ab] font-bold shadow-[2px_2px_0px_#000000]';
 					linkPlayground.textContent = '[ Area Uji Coba (Perbaikan) ]';
 					linkPlayground.href = '/maintenance?feature=playground';
@@ -96,7 +99,7 @@
 
 			// Sinkronisasi status Courses
 			if (linkCourses) {
-				if (flags.courses === true) {
+				if (coursesActive) {
 					linkCourses.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#1b1b1e] text-[#e4e1e6] hover:bg-[#1f1f22]';
 					linkCourses.textContent = '[ Jalur Belajar ]';
 					linkCourses.href = '/courses';
@@ -109,7 +112,7 @@
 
 			// Sinkronisasi status Practice
 			if (linkPractice) {
-				if (flags.practice === true) {
+				if (practiceActive) {
 					linkPractice.className = 'font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#1b1b1e] text-[#e4e1e6] hover:bg-[#1f1f22]';
 					linkPractice.textContent = '[ Latihan Soal ]';
 					linkPractice.href = '/practice';

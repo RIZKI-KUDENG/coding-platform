@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::modules::system::infrastructure::repositories::feature_flag_repository::FeatureFlagRepository;
+use crate::modules::system::{
+    domain::entities::feature_flag::FeatureFlagDetail,
+    infrastructure::repositories::feature_flag_repository::FeatureFlagRepository,
+};
 
 pub struct GetFeatureFlagsQuery;
 
@@ -21,9 +24,9 @@ impl GetFeatureFlagsQueryHandler {
     pub async fn handle(
         &self,
         _query: GetFeatureFlagsQuery,
-    ) -> Result<HashMap<String, bool>, GetFeatureFlagsError> {
+    ) -> Result<HashMap<String, FeatureFlagDetail>, GetFeatureFlagsError> {
         self.repository
-            .get_flags_map()
+            .get_flags_detail_map()
             .await
             .map_err(GetFeatureFlagsError::DatabaseError)
     }

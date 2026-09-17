@@ -106,7 +106,7 @@ import Footer from '@/components/organisms/Footer.astro';
 </Layout>
 
 <script>
-	import { getFeatureFlags } from '@/lib/feature-flags';
+	import { isFeatureEnabled } from '@/lib/feature-flags';
 
 	interface FeatureMeta {
 		title: string;
@@ -172,8 +172,7 @@ import Footer from '@/components/organisms/Footer.astro';
 			}
 
 			try {
-				const flags = await getFeatureFlags(true); // forceRefresh = true
-				const isNowActive = Boolean(flags[featureKey]);
+				const isNowActive = await isFeatureEnabled(featureKey);
 
 				if (isNowActive) {
 					if (feedbackEl) {

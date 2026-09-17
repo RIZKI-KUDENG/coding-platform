@@ -8,6 +8,7 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import { LANGUAGES } from '@/components/playground/constants';
 import type { SupportedLanguage } from '@/components/playground/types';
 import { getCurrentUser } from '@/lib/auth';
+import { isFeatureEnabled, getFeatureFlags } from '@/lib/feature-flags';
 
 function getLanguageExtension(lang: SupportedLanguage) {
 	switch (lang) {
@@ -88,6 +89,57 @@ export function initPlayground() {
 
 	updateEditorMetrics();
 
+	async function updateLanguageFeatureStatus(skipStatusText = false) {
+		try {
+			const isCurrentActive = await isFeatureEnabled(`runner:${currentLang}`);
+			if (!isCurrentActive) {
+				if (btnRun) {
+					btnRun.disabled = true;
+					if (runLabel) runLabel.textContent = 'Runner Dalam Perbaikan';
+				}
+				if (!skipStatusText && statusText && statusDot) {
+					statusText.textContent = '● RUNNER NON-AKTIF';
+					statusText.className = 'font-mono text-xs text-[#ffb4ab] tracking-wider font-bold';
+					statusDot.className = 'w-2.5 h-2.5 bg-[#ffb4ab]';
+				}
+			} else {
+				if (btnRun) {
+					btnRun.disabled = false;
+					if (runLabel) runLabel.textContent = 'Jalankan Kode';
+				}
+				if (!skipStatusText && statusText && statusDot) {
+					statusText.textContent = '● SIAP';
+					statusText.className = 'font-mono text-xs text-[#4edea3] tracking-wider font-bold';
+					statusDot.className = 'w-2.5 h-2.5 bg-[#4edea3] animate-pulse';
+				}
+			}
+
+			if (langDropdown) {
+				const buttons = langDropdown.querySelectorAll('button');
+				for (const btn of Array.from(buttons)) {
+					const lang = btn.getAttribute('data-lang');
+					if (lang) {
+						const active = await isFeatureEnabled(`runner:${lang}`);
+						const badge = btn.querySelector('span:last-child');
+						if (badge) {
+							if (!active) {
+								badge.textContent = '[Perbaikan]';
+								badge.className = 'text-[#ffb4ab] text-[11px] font-bold';
+							} else {
+								badge.textContent = lang === 'python' ? 'Aktif' : (LANGUAGES[lang as SupportedLanguage]?.version || 'Aktif');
+								badge.className = 'text-[#4edea3] text-[11px]';
+							}
+						}
+					}
+				}
+			}
+		} catch (err) {
+			console.warn('Gagal sinkronisasi status runner bahasa:', err);
+		}
+	}
+
+	updateLanguageFeatureStatus();
+
 	// Dropdown Handler
 	if (langBtn && langDropdown) {
 		langBtn.addEventListener('click', (e) => {
@@ -137,6 +189,8 @@ export function initPlayground() {
 						statusDot.className = 'w-2.5 h-2.5 bg-[#4edea3] animate-pulse';
 					}, 350);
 				}
+
+				updateLanguageFeatureStatus();
 			});
 		});
 	}
@@ -234,11 +288,51 @@ export function initPlayground() {
 				}),
 			});
 
-			const json = await response.json();
+			const json = await response.json().catch(() => ({}));
 			const duration = Math.round(performance.now() - startTime);
 
 			if (!response.ok) {
-				throw new Error(json.error?.message || `HTTP ${response.status}: Eksekusi gagal`);
+				const errMsg = json.error?.message || `HTTP ${response.status}: Eksekusi gagal`;
+				const isMaintenance = response.status === 503;
+
+				if (isMaintenance) {
+					await getFeatureFlags(true);
+					await updateLanguageFeatureStatus();
+				}
+
+				if (statusText && statusDot) {
+					statusText.textContent = isMaintenance ? '● PEMELIHARAAN' : `● ERROR (${response.status})`;
+					statusText.className = `font-mono text-xs ${isMaintenance ? 'text-[#facc15]' : 'text-[#ffb4ab]'} tracking-wider font-bold`;
+					statusDot.className = `w-2.5 h-2.5 ${isMaintenance ? 'bg-[#facc15]' : 'bg-[#ffb4ab]'}`;
+				}
+
+				if (logFeed) {
+					const errorEntry = document.createElement('div');
+					errorEntry.className = isMaintenance
+						? 'bg-[#1f170b] border-2 border-[#facc15] p-3 text-xs text-[#ffecb9] shadow-[3px_3px_0px_#000000] font-mono'
+						: 'bg-[#1F080A] border-2 border-[#ffb4ab] p-3 text-xs text-[#ffb4ab] shadow-[2px_2px_0px_#93000a]';
+
+					errorEntry.innerHTML = `
+						<div class="font-bold uppercase flex items-center gap-1.5 pb-1 border-b ${isMaintenance ? 'border-[#facc15]/40 text-[#facc15]' : 'border-[#ffb4ab]/30'}">
+							<span class="material-symbols-outlined text-[16px]">${isMaintenance ? 'build' : 'error'}</span>
+							${isMaintenance ? '[STATUS: 503 FITUR DALAM PEMELIHARAAN]' : '[GAGAL MENGEKSEKUSI KODE]'}
+						</div>
+						<div class="pt-1.5 leading-relaxed">${escapeHtml(errMsg)}</div>
+						${isMaintenance ? '<div class="text-[10px] text-[#9a9078] pt-1">Bahasa pemrograman ini sedang dinonaktifkan sementara di database.</div>' : ''}
+					`;
+
+					const promptLine = document.getElementById('terminal-prompt-line');
+					if (promptLine) {
+						logFeed.insertBefore(errorEntry, promptLine);
+					} else {
+						logFeed.appendChild(errorEntry);
+					}
+
+					if (terminalBody) {
+						terminalBody.scrollTop = terminalBody.scrollHeight;
+					}
+				}
+				return;
 			}
 
 			const result = json.data;
@@ -341,8 +435,7 @@ export function initPlayground() {
 				}
 			}
 		} finally {
-			btnRun.disabled = false;
-			if (runLabel) runLabel.textContent = 'Jalankan Kode';
+			await updateLanguageFeatureStatus(true);
 			if (runIcon) runIcon.textContent = 'play_arrow';
 		}
 	}

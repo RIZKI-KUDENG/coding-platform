@@ -40,12 +40,12 @@ import Footer from '@/components/organisms/Footer.astro';
 
 <script>
 	import { initPlayground } from '@/lib/playground-runner';
-	import { getFeatureFlags } from '@/lib/feature-flags';
+	import { getFeatureAction } from '@/lib/feature-flags';
 
 	async function guardPlayground() {
 		try {
-			const flags = await getFeatureFlags();
-			if (flags.playground !== true) {
+			const action = await getFeatureAction('playground');
+			if (action === 'redirect_maintenance') {
 				window.location.replace('/maintenance?feature=playground');
 				return;
 			}
