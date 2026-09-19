@@ -2,7 +2,9 @@ use axum::{Router, routing::get};
 
 use crate::modules::execution::execution_routes;
 use crate::modules::identity::identity_routes;
+use crate::modules::learning::learning_routes;
 use crate::modules::system::system_routes;
+
 
 use crate::state::AppState;
 
@@ -14,5 +16,6 @@ pub fn create_router(state: AppState) -> Router {
         .merge(identity_routes())
         .merge(execution_routes())
         .merge(system_routes())
+        .merge(learning_routes())
         .with_state(state)
 }
