@@ -31,11 +31,40 @@ export interface CourseProgress {
 }
 
 /**
+ * Memeriksa apakah respons API mengindikasikan fitur dinonaktifkan (HTTP 503).
+ * Jika ya, otomatis me-redirect browser ke halaman /maintenance?feature=courses.
+ */
+async function checkMaintenanceResponse(res: Response): Promise<boolean> {
+	if (res.status === 503) {
+		try {
+			const json = await res.clone().json();
+			const code = json?.error?.code;
+			const feature = json?.error?.feature || 'courses';
+			if (code === 'FEATURE_MAINTENANCE' || code === 'FEATURE_NOT_FOUND') {
+				if (typeof window !== 'undefined') {
+					window.location.replace(`/maintenance?feature=${encodeURIComponent(feature)}`);
+					return true;
+				}
+			}
+		} catch {
+			if (typeof window !== 'undefined') {
+				window.location.replace('/maintenance?feature=courses');
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/**
  * Mengambil daftar seluruh course yang dipublikasikan dari backend API.
  */
 export async function fetchCourses(): Promise<Course[]> {
 	try {
 		const res = await fetch('/api/v1/courses');
+		if (await checkMaintenanceResponse(res)) {
+			return [];
+		}
 		if (!res.ok) {
 			console.error(`Gagal mengambil data courses: HTTP ${res.status}`);
 			return [];
@@ -54,6 +83,9 @@ export async function fetchCourses(): Promise<Course[]> {
 export async function fetchCourseBySlug(slug: string): Promise<Course | null> {
 	try {
 		const res = await fetch(`/api/v1/courses/slug/${encodeURIComponent(slug)}`);
+		if (await checkMaintenanceResponse(res)) {
+			return null;
+		}
 		if (!res.ok) {
 			if (res.status === 404) return null;
 			console.error(`Gagal mengambil course slug ${slug}: HTTP ${res.status}`);
@@ -73,6 +105,9 @@ export async function fetchCourseBySlug(slug: string): Promise<Course | null> {
 export async function fetchCourseById(id: string): Promise<Course | null> {
 	try {
 		const res = await fetch(`/api/v1/courses/${encodeURIComponent(id)}`);
+		if (await checkMaintenanceResponse(res)) {
+			return null;
+		}
 		if (!res.ok) {
 			if (res.status === 404) return null;
 			console.error(`Gagal mengambil course id ${id}: HTTP ${res.status}`);
@@ -92,6 +127,9 @@ export async function fetchCourseById(id: string): Promise<Course | null> {
 export async function fetchCourseLessons(courseId: string): Promise<Lesson[]> {
 	try {
 		const res = await fetch(`/api/v1/courses/${encodeURIComponent(courseId)}/lessons`);
+		if (await checkMaintenanceResponse(res)) {
+			return [];
+		}
 		if (!res.ok) {
 			console.error(`Gagal mengambil lessons untuk course ${courseId}: HTTP ${res.status}`);
 			return [];
@@ -110,6 +148,9 @@ export async function fetchCourseLessons(courseId: string): Promise<Lesson[]> {
 export async function fetchLessonBySlug(slug: string): Promise<Lesson | null> {
 	try {
 		const res = await fetch(`/api/v1/lessons/slug/${encodeURIComponent(slug)}`);
+		if (await checkMaintenanceResponse(res)) {
+			return null;
+		}
 		if (!res.ok) {
 			if (res.status === 404) return null;
 			console.error(`Gagal mengambil lesson slug ${slug}: HTTP ${res.status}`);
@@ -129,6 +170,9 @@ export async function fetchLessonBySlug(slug: string): Promise<Lesson | null> {
 export async function fetchLessonById(id: string): Promise<Lesson | null> {
 	try {
 		const res = await fetch(`/api/v1/lessons/${encodeURIComponent(id)}`);
+		if (await checkMaintenanceResponse(res)) {
+			return null;
+		}
 		if (!res.ok) {
 			if (res.status === 404) return null;
 			console.error(`Gagal mengambil lesson id ${id}: HTTP ${res.status}`);
