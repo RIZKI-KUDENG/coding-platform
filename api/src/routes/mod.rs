@@ -16,6 +16,6 @@ pub fn create_router(state: AppState) -> Router {
         .merge(identity_routes())
         .merge(execution_routes())
         .merge(system_routes())
-        .merge(learning_routes())
+        .merge(learning_routes(state.clone()))
         .with_state(state)
 }
