@@ -1,5 +1,6 @@
 use super::course;
 use super::lesson;
+use super::exercise;
 use crate::modules::shared::feature_flags::check_feature;
 use crate::state::AppState;
 use axum::{
@@ -25,6 +26,15 @@ async fn require_lessons_feature(
     next: Next,
 ) -> Result<Response, Response> {
     check_feature(&state, "courses:lessons", Some("Materi Pelajaran")).await?;
+    Ok(next.run(req).await)
+}
+
+async fn require_exercise_feature(
+    State(state): State<AppState>,
+    req: Request,
+    next: Next,
+) -> Result<Response, Response> {
+    check_feature(&state, "lesson:exercise", Some("console.log")).await?;
     Ok(next.run(req).await)
 }
 
@@ -55,9 +65,23 @@ pub fn learning_routes(state: AppState) -> Router<AppState> {
             get(lesson::get_lesson_by_slug),
         )
         .route_layer(middleware::from_fn_with_state(
-            state,
+            state.clone(),
             require_lessons_feature,
         ));
 
-    course_routes.merge(lesson_routes)
+        let exercise_route = Router::new()
+            .route(
+                "/api/v1/lessons/{lesson_id}/exercise",
+                get(exercise::get_exercise_by_lesson_id)
+            )
+            .route(
+                "/api/v1/exercise/{exercise_id}",
+                get(exercise::get_exercise_by_id)
+            )
+            .route_layer(middleware::from_fn_with_state(
+                state.clone(),
+                require_exercise_feature,
+            ));
+
+    course_routes.merge(lesson_routes).merge(exercise_route)
 }
