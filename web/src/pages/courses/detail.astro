@@ -1,0 +1,288 @@
+---
+// web/src/pages/courses/detail.astro
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/organisms/Navbar.astro';
+import Footer from '@/components/organisms/Footer.astro';
+---
+
+<Layout title="KODINGAN — Detail Jalur Belajar">
+	<Navbar />
+
+	<main class="w-full pt-[80px] pb-16 bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between items-center px-4 md:px-8">
+		<div class="w-full max-w-5xl mx-auto flex flex-col gap-6">
+			
+			<!-- BREADCRUMB & BACK -->
+			<div class="flex items-center justify-between">
+				<a
+					href="/courses"
+					class="font-mono text-xs text-[#d1c6ab] hover:text-[#facc15] flex items-center gap-1.5 transition-colors"
+				>
+					<span>&larr;</span>
+					<span>[ KEMBALI KE DAFTAR JALUR ]</span>
+				</a>
+				<span class="font-mono text-[11px] text-[#9a9078] bg-[#0e0e11] px-2 py-0.5 border border-[#353438]">
+					SILABUS_VIEWER
+				</span>
+			</div>
+
+			<!-- LOADING STATE -->
+			<div id="course-loading" class="w-full py-20 flex flex-col items-center justify-center gap-3">
+				<div class="w-8 h-8 border-4 border-[#353438] border-t-[#facc15] rounded-full animate-spin"></div>
+				<p class="font-mono text-xs text-[#d1c6ab] tracking-wider uppercase animate-pulse">
+					MEMUAT_DETAIL_SILABUS...
+				</p>
+			</div>
+
+			<!-- ERROR / NOT FOUND STATE -->
+			<div id="course-error" class="hidden w-full bg-[#1F080A] border-2 border-[#ffb4ab] p-8 text-center flex-col items-center gap-3 shadow-[6px_6px_0px_#93000a]">
+				<span class="material-symbols-outlined text-4xl text-[#ffb4ab]">error</span>
+				<h3 class="font-mono text-sm font-bold text-[#ffb4ab] uppercase" id="course-error-title">Jalur Belajar Tidak Ditemukan</h3>
+				<p id="course-error-msg" class="font-mono text-xs text-[#ffdad6] max-w-md">
+					Jalur belajar yang Anda tuju tidak ditemukan atau belum tersedia di sistem.
+				</p>
+				<a
+					href="/courses"
+					class="mt-3 font-mono text-xs font-bold px-4 py-2 bg-[#ffb4ab] text-[#690005] border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 uppercase"
+				>
+					[ Kembali ke Daftar Kursus ]
+				</a>
+			</div>
+
+			<!-- MAIN CONTENT (Initially Hidden) -->
+			<div id="course-content" class="hidden flex-col gap-8 w-full">
+				
+				<!-- COURSE HERO BANNER -->
+				<div class="w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[8px_8px_0px_#000000] overflow-hidden">
+					<!-- Title Bar -->
+					<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2.5 flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
+							<span id="course-slug-badge" class="font-mono text-xs font-bold text-[#ffecb9] tracking-wider uppercase">
+								COURSE // DETAIL
+							</span>
+						</div>
+						<div id="course-status-badge">
+							<!-- Injected by JS -->
+						</div>
+					</div>
+
+					<div class="p-6 md:p-8 flex flex-col gap-4">
+						<h1 id="course-title" class="font-['Space_Grotesk'] text-3xl md:text-4xl font-bold text-[#e4e1e6] uppercase tracking-tight">
+							Nama Jalur Belajar
+						</h1>
+						<p id="course-desc" class="font-mono text-sm text-[#d1c6ab] leading-relaxed max-w-3xl">
+							Deskripsi lengkap jalur belajar akan ditampilkan di sini.
+						</p>
+
+						<!-- PROGRESS & STATS METRICS -->
+						<div class="mt-4 pt-4 border-t-2 border-[#353438] grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<div class="bg-[#1b1b1e] border border-[#353438] p-3 flex flex-col gap-1">
+								<span class="font-mono text-[10px] text-[#9a9078] uppercase">TOTAL PELAJARAN</span>
+								<span id="stat-total-lessons" class="font-mono text-xl font-bold text-[#facc15]">0</span>
+							</div>
+							<div class="bg-[#1b1b1e] border border-[#353438] p-3 flex flex-col gap-1">
+								<span class="font-mono text-[10px] text-[#9a9078] uppercase">STATUS AKSES</span>
+								<span class="font-mono text-xs font-bold text-[#4edea3]">TERBUKA BEBAS (NO LOCK)</span>
+							</div>
+							<div class="bg-[#1b1b1e] border border-[#353438] p-3 flex flex-col gap-1">
+								<span class="font-mono text-[10px] text-[#9a9078] uppercase">REKOMENDASI</span>
+								<span id="stat-recommended" class="font-mono text-xs font-bold text-[#e4e1e6] truncate">Pelajaran 1</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- LESSONS SYLLABUS SECTION -->
+				<div class="flex flex-col gap-4">
+					<div class="flex items-center justify-between border-b-2 border-[#353438] pb-3">
+						<div class="flex items-center gap-2">
+							<span class="w-2.5 h-2.5 bg-[#4edea3] inline-block border border-black"></span>
+							<h2 class="font-['Space_Grotesk'] text-xl font-bold text-[#e4e1e6] uppercase tracking-tight">
+								Daftar Silabus & Modul
+							</h2>
+						</div>
+						<span class="font-mono text-xs text-[#d1c6ab]">
+							URUTAN REKOMENDASI // FLEKSIBEL
+						</span>
+					</div>
+
+					<!-- EMPTY LESSONS -->
+					<div id="lessons-empty" class="hidden w-full bg-[#0e0e11] border-2 border-[#353438] p-8 text-center flex-col items-center gap-2 shadow-[4px_4px_0px_#000000]">
+						<span class="font-mono text-xs text-[#d1c6ab]">
+							Belum ada materi pelajaran yang dipublikasikan untuk jalur belajar ini.
+						</span>
+					</div>
+
+					<!-- LESSONS LIST -->
+					<div id="lessons-list" class="flex flex-col gap-3 w-full">
+						<!-- Injected by JavaScript -->
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+
+		<!-- FOOTER -->
+		<div class="w-full max-w-5xl mx-auto mt-16">
+			<Footer />
+		</div>
+	</main>
+</Layout>
+
+<script>
+	import { fetchCourseBySlug, fetchCourseById, fetchCourseLessons, type Course, type Lesson } from '@/lib/courses';
+	import { isFeatureEnabled } from '@/lib/feature-flags';
+
+	async function initDetailPage() {
+		// Guard with feature flags
+		try {
+			const active = await isFeatureEnabled('courses');
+			if (!active) {
+				window.location.replace('/maintenance?feature=courses');
+				return;
+			}
+		} catch (err) {
+			console.warn('Feature flag check error:', err);
+		}
+
+		const params = new URLSearchParams(window.location.search);
+		const slug = params.get('slug');
+		const id = params.get('id');
+
+		const loadingEl = document.getElementById('course-loading');
+		const errorEl = document.getElementById('course-error');
+		const errorMsgEl = document.getElementById('course-error-msg');
+		const contentEl = document.getElementById('course-content');
+		const lessonsListEl = document.getElementById('lessons-list');
+		const lessonsEmptyEl = document.getElementById('lessons-empty');
+
+		if (!slug && !id) {
+			if (loadingEl) loadingEl.classList.add('hidden');
+			if (errorEl) {
+				errorEl.classList.remove('hidden');
+				if (errorMsgEl) errorMsgEl.textContent = 'Parameter slug atau id jalur belajar tidak disertakan pada URL.';
+			}
+			return;
+		}
+
+		try {
+			// Fetch Course
+			let course: Course | null = null;
+			if (slug) {
+				course = await fetchCourseBySlug(slug);
+			} else if (id) {
+				course = await fetchCourseById(id);
+			}
+
+			if (!course) {
+				if (loadingEl) loadingEl.classList.add('hidden');
+				if (errorEl) errorEl.classList.remove('hidden');
+				return;
+			}
+
+			// Render Course Info
+			renderCourseInfo(course);
+
+			// Fetch Lessons
+			const lessons = await fetchCourseLessons(course.id);
+			renderLessons(course, lessons);
+
+			if (loadingEl) loadingEl.classList.add('hidden');
+			if (contentEl) contentEl.classList.remove('hidden');
+		} catch (err: any) {
+			if (loadingEl) loadingEl.classList.add('hidden');
+			if (errorEl) {
+				errorEl.classList.remove('hidden');
+				if (errorMsgEl) errorMsgEl.textContent = err.message || 'Gagal memuat data kursus.';
+			}
+		}
+
+		function renderCourseInfo(c: Course) {
+			const titleEl = document.getElementById('course-title');
+			const descEl = document.getElementById('course-desc');
+			const slugBadge = document.getElementById('course-slug-badge');
+			const statusBadge = document.getElementById('course-status-badge');
+
+			if (titleEl) titleEl.textContent = c.title;
+			if (descEl) descEl.textContent = c.description || 'Tidak ada deskripsi rinci untuk kursus ini.';
+			if (slugBadge) slugBadge.textContent = `COURSE // ${c.slug}`;
+			if (statusBadge) {
+				statusBadge.innerHTML =
+					c.status === 'PUBLISHED'
+						? '<span class="font-mono text-[10px] bg-[#003824] text-[#4edea3] px-2 py-0.5 border border-[#4edea3]">PUBLISHED</span>'
+						: `<span class="font-mono text-[10px] bg-[#2a2a2d] text-[#d1c6ab] px-2 py-0.5 border border-[#4d4632]">${c.status}</span>`;
+			}
+		}
+
+		function renderLessons(course: Course, lessons: Lesson[]) {
+			const totalLessonsEl = document.getElementById('stat-total-lessons');
+			const recommendedEl = document.getElementById('stat-recommended');
+
+			if (totalLessonsEl) totalLessonsEl.textContent = String(lessons.length);
+			if (recommendedEl) {
+				recommendedEl.textContent = lessons.length > 0 ? lessons[0].title : 'Belum tersedia';
+			}
+
+			if (!lessonsListEl || !lessonsEmptyEl) return;
+
+			if (lessons.length === 0) {
+				lessonsEmptyEl.classList.remove('hidden');
+				lessonsListEl.innerHTML = '';
+				return;
+			}
+
+			lessonsEmptyEl.classList.add('hidden');
+			lessonsListEl.innerHTML = '';
+
+			lessons.forEach((lesson, index) => {
+				const orderNum = String(index + 1).padStart(2, '0');
+				const isRecommended = index === 0; // First incomplete / starting lesson is recommended
+
+				const item = document.createElement('div');
+				item.className =
+					'w-full bg-[#0e0e11] border-2 border-[#353438] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[4px_4px_0px_#000000] hover:border-[#facc15] transition-colors';
+
+				const recommendedBadge = isRecommended
+					? '<span class="font-mono text-[10px] bg-[#facc15] text-[#3c2f00] font-bold px-2 py-0.5 border border-black shadow-[1px_1px_0px_#000000]">REKOMENDASI</span>'
+					: '';
+
+				item.innerHTML = `
+					<div class="flex items-start gap-4">
+						<div class="font-mono text-lg font-bold text-[#9a9078] bg-[#1b1b1e] border border-[#353438] w-10 h-10 flex items-center justify-center shrink-0">
+							${orderNum}
+						</div>
+						<div class="flex flex-col gap-1">
+							<div class="flex items-center gap-2 flex-wrap">
+								<h3 class="font-['Space_Grotesk'] text-base font-bold text-[#e4e1e6] uppercase">
+									${lesson.title}
+								</h3>
+								${recommendedBadge}
+							</div>
+							<p class="font-mono text-xs text-[#d1c6ab] leading-relaxed">
+								${lesson.description || 'Pelajari konsep inti dan latihan modul ini.'}
+							</p>
+						</div>
+					</div>
+
+					<div class="flex items-center gap-3 shrink-0 self-end md:self-center">
+						<a
+							href="/courses/lesson?course=${encodeURIComponent(course.slug)}&lesson=${encodeURIComponent(lesson.slug)}"
+							class="font-mono text-xs font-bold px-3 py-1.5 bg-[#1f1f22] text-[#e4e1e6] border border-[#353438] hover:bg-[#facc15] hover:text-[#3c2f00] hover:border-black shadow-[2px_2px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 transition-all uppercase"
+						>
+							[ Buka Pelajaran &rarr; ]
+						</a>
+					</div>
+				`;
+
+				lessonsListEl.appendChild(item);
+			});
+		}
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initDetailPage);
+	} else {
+		initDetailPage();
+	}
+</script>

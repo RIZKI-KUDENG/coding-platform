@@ -1,0 +1,262 @@
+---
+// web/src/pages/courses/lesson.astro
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/organisms/Navbar.astro';
+import Footer from '@/components/organisms/Footer.astro';
+---
+
+<Layout title="KODINGAN — Pelajaran & Materi">
+	<Navbar />
+
+	<main class="w-full pt-[80px] pb-16 bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between items-center px-4 md:px-8">
+		<div class="w-full max-w-5xl mx-auto flex flex-col gap-6">
+			
+			<!-- TOP NAVIGATION & BREADCRUMB -->
+			<div class="flex items-center justify-between">
+				<a
+					id="btn-back-course"
+					href="/courses"
+					class="font-mono text-xs text-[#d1c6ab] hover:text-[#facc15] flex items-center gap-1.5 transition-colors"
+				>
+					<span>&larr;</span>
+					<span>[ KEMBALI KE SILABUS ]</span>
+				</a>
+				<span class="font-mono text-[11px] text-[#4edea3] bg-[#003824] px-2 py-0.5 border border-[#4edea3]">
+					LESSON_WORKSPACE
+				</span>
+			</div>
+
+			<!-- LOADING STATE -->
+			<div id="lesson-loading" class="w-full py-20 flex flex-col items-center justify-center gap-3">
+				<div class="w-8 h-8 border-4 border-[#353438] border-t-[#facc15] rounded-full animate-spin"></div>
+				<p class="font-mono text-xs text-[#d1c6ab] tracking-wider uppercase animate-pulse">
+					MEMUAT_MATERI_PELAJARAN...
+				</p>
+			</div>
+
+			<!-- ERROR STATE -->
+			<div id="lesson-error" class="hidden w-full bg-[#1F080A] border-2 border-[#ffb4ab] p-8 text-center flex-col items-center gap-3 shadow-[6px_6px_0px_#93000a]">
+				<span class="material-symbols-outlined text-4xl text-[#ffb4ab]">error</span>
+				<h3 class="font-mono text-sm font-bold text-[#ffb4ab] uppercase">Pelajaran Tidak Ditemukan</h3>
+				<p id="lesson-error-msg" class="font-mono text-xs text-[#ffdad6] max-w-md">
+					Materi pelajaran yang Anda tuju tidak ditemukan atau belum tersedia di sistem.
+				</p>
+				<a
+					href="/courses"
+					class="mt-3 font-mono text-xs font-bold px-4 py-2 bg-[#ffb4ab] text-[#690005] border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 uppercase"
+				>
+					[ Kembali ke Daftar Kursus ]
+				</a>
+			</div>
+
+			<!-- LESSON MAIN CONTAINER -->
+			<div id="lesson-content" class="hidden flex-col gap-6 w-full">
+				
+				<!-- LESSON HEADER WINDOW -->
+				<div class="w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[8px_8px_0px_#000000] overflow-hidden">
+					<!-- Window Bar -->
+					<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2.5 flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
+							<span id="lesson-header-badge" class="font-mono text-xs font-bold text-[#ffecb9] tracking-wider uppercase">
+								LESSON // VIEW
+							</span>
+						</div>
+						<div class="font-mono text-[11px] text-[#4edea3] bg-[#003824] px-1.5 py-0.5 border border-[#4edea3]">
+							NO_HARD_LOCK
+						</div>
+					</div>
+
+					<!-- Header Body -->
+					<div class="p-6 md:p-8 flex flex-col gap-3">
+						<h1 id="lesson-title" class="font-['Space_Grotesk'] text-3xl font-bold text-[#e4e1e6] uppercase tracking-tight">
+							Judul Pelajaran
+						</h1>
+						<p id="lesson-desc" class="font-mono text-xs md:text-sm text-[#d1c6ab] leading-relaxed max-w-3xl">
+							Deskripsi dan pengantar modul pelajaran.
+						</p>
+					</div>
+				</div>
+
+				<!-- CONTENT & LAB SPLIT -->
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+					
+					<!-- Left: Learning Material / Theory -->
+					<div class="lg:col-span-7 bg-[#0e0e11] border-2 border-[#353438] p-6 shadow-[6px_6px_0px_#000000] flex flex-col gap-5">
+						<div class="flex items-center gap-2 border-b-2 border-[#353438] pb-3">
+							<span class="w-2.5 h-2.5 bg-[#facc15] inline-block border border-black"></span>
+							<h2 class="font-['Space_Grotesk'] text-lg font-bold text-[#e4e1e6] uppercase tracking-wider">
+								Materi & Penjelasan
+							</h2>
+						</div>
+
+						<div class="font-mono text-xs text-[#d1c6ab] leading-relaxed flex flex-col gap-4">
+							<p>
+								Selamat datang di modul ini! Pelajari konsep dasar yang disajikan di bawah ini sebelum melanjutkan ke latihan kode interaktif.
+							</p>
+
+							<div class="bg-[#1b1b1e] border-l-4 border-[#facc15] p-4 text-[#e4e1e6]">
+								<p class="font-bold uppercase text-[11px] text-[#ffecb9] mb-1">PANDUAN PEMBELAJARAN:</p>
+								<p class="text-xs">
+									Platform KODINGAN mengutamakan praktik langsung (hands-on). Anda dapat mengeksplorasi kode melalui tombol uji coba atau menjalankan latihan di modul terkait.
+								</p>
+							</div>
+
+							<p id="lesson-instruction-detail">
+								Simak sintaks dan struktur dasar kode pada panel di samping kanan, lalu jalankan di Area Uji Coba untuk melihat hasil eksekusinya secara nyata.
+							</p>
+						</div>
+					</div>
+
+					<!-- Right: Interactive Playground Card -->
+					<div class="lg:col-span-5 bg-[#0e0e11] border-2 border-[#353438] shadow-[6px_6px_0px_#000000] flex flex-col justify-between">
+						<div>
+							<div class="bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
+								<span class="font-mono text-xs font-bold text-[#ffecb9] uppercase tracking-wider">
+									LAB_INTERAKTIF
+								</span>
+								<span class="font-mono text-[10px] text-[#4edea3]">LIVE_TEST</span>
+							</div>
+
+							<div class="p-5 flex flex-col gap-4">
+								<h3 class="font-['Space_Grotesk'] text-base font-bold text-[#e4e1e6] uppercase">
+									Praktik Mandiri di Playground
+								</h3>
+								<p class="font-mono text-xs text-[#d1c6ab] leading-relaxed">
+									Gunakan Area Uji Coba KODINGAN untuk bereksperimen dengan bahasa pemrograman yang Anda pelajari tanpa batasan.
+								</p>
+
+								<div class="bg-[#131316] border border-[#353438] p-3 font-mono text-[11px] text-[#4edea3] overflow-x-auto">
+									<code>// Eksekusi kode secara instan di sandbox aman</code>
+								</div>
+							</div>
+						</div>
+
+						<div class="p-5 pt-0">
+							<a
+								href="/playground"
+								class="w-full flex items-center justify-center font-mono text-xs font-bold px-4 py-3 bg-[#facc15] text-[#3c2f00] border-2 border-black shadow-[4px_4px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all uppercase"
+							>
+								[ Buka Area Uji Coba &rarr; ]
+							</a>
+						</div>
+					</div>
+
+				</div>
+
+				<!-- BOTTOM ACTIONS -->
+				<div class="w-full bg-[#1b1b1e] border-2 border-[#353438] p-4 flex items-center justify-between shadow-[4px_4px_0px_#000000]">
+					<a
+						id="bottom-back-link"
+						href="/courses"
+						class="font-mono text-xs text-[#d1c6ab] hover:text-[#e4e1e6] px-3 py-2 bg-[#0e0e11] border border-[#353438] transition-colors"
+					>
+						&larr; Silabus Kursus
+					</a>
+
+					<a
+						href="/playground"
+						class="font-mono text-xs font-bold text-[#facc15] hover:underline"
+					>
+						Lanjut Praktik Bebas &rarr;
+					</a>
+				</div>
+
+			</div>
+
+		</div>
+
+		<!-- FOOTER -->
+		<div class="w-full max-w-5xl mx-auto mt-16">
+			<Footer />
+		</div>
+	</main>
+</Layout>
+
+<script>
+	import { fetchLessonBySlug, fetchLessonById, fetchCourseBySlug, type Lesson, type Course } from '@/lib/courses';
+	import { isFeatureEnabled } from '@/lib/feature-flags';
+
+	async function initLessonPage() {
+		// Guard with feature flags
+		try {
+			const active = await isFeatureEnabled('courses');
+			if (!active) {
+				window.location.replace('/maintenance?feature=courses');
+				return;
+			}
+		} catch (err) {
+			console.warn('Feature flag check error:', err);
+		}
+
+		const params = new URLSearchParams(window.location.search);
+		const courseSlug = params.get('course');
+		const lessonSlug = params.get('lesson');
+		const lessonId = params.get('id');
+
+		const loadingEl = document.getElementById('lesson-loading');
+		const errorEl = document.getElementById('lesson-error');
+		const errorMsgEl = document.getElementById('lesson-error-msg');
+		const contentEl = document.getElementById('lesson-content');
+		const backBtn = document.getElementById('btn-back-course') as HTMLAnchorElement | null;
+		const bottomBackBtn = document.getElementById('bottom-back-link') as HTMLAnchorElement | null;
+
+		if (courseSlug) {
+			const backUrl = `/courses/detail?slug=${encodeURIComponent(courseSlug)}`;
+			if (backBtn) backBtn.href = backUrl;
+			if (bottomBackBtn) bottomBackBtn.href = backUrl;
+		}
+
+		if (!lessonSlug && !lessonId) {
+			if (loadingEl) loadingEl.classList.add('hidden');
+			if (errorEl) {
+				errorEl.classList.remove('hidden');
+				if (errorMsgEl) errorMsgEl.textContent = 'Parameter materi pelajaran tidak disertakan pada URL.';
+			}
+			return;
+		}
+
+		try {
+			let lesson: Lesson | null = null;
+			if (lessonSlug) {
+				lesson = await fetchLessonBySlug(lessonSlug);
+			} else if (lessonId) {
+				lesson = await fetchLessonById(lessonId);
+			}
+
+			if (!lesson) {
+				if (loadingEl) loadingEl.classList.add('hidden');
+				if (errorEl) errorEl.classList.remove('hidden');
+				return;
+			}
+
+			// Render Lesson
+			const titleEl = document.getElementById('lesson-title');
+			const descEl = document.getElementById('lesson-desc');
+			const badgeEl = document.getElementById('lesson-header-badge');
+			const instructionEl = document.getElementById('lesson-instruction-detail');
+
+			if (titleEl) titleEl.textContent = lesson.title;
+			if (descEl) descEl.textContent = lesson.description || 'Tidak ada ringkasan materi tambahan untuk pelajaran ini.';
+			if (badgeEl) badgeEl.textContent = `LESSON // ${lesson.slug}`;
+			if (instructionEl && lesson.description) {
+				instructionEl.textContent = `Fokus utama modul ini adalah memahami: ${lesson.description}`;
+			}
+
+			if (loadingEl) loadingEl.classList.add('hidden');
+			if (contentEl) contentEl.classList.remove('hidden');
+		} catch (err: any) {
+			if (loadingEl) loadingEl.classList.add('hidden');
+			if (errorEl) {
+				errorEl.classList.remove('hidden');
+				if (errorMsgEl) errorMsgEl.textContent = err.message || 'Gagal memuat materi pelajaran.';
+			}
+		}
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initLessonPage);
+	} else {
+		initLessonPage();
+	}
+</script>

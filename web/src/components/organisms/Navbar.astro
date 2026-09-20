@@ -15,32 +15,45 @@
 		</div>
 
 		<nav class="hidden md:flex items-center gap-2">
-			<a id="nav-link-courses" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Jalur Belajar ]</a>
+			<a id="nav-link-courses" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="/courses">[ Jalur Belajar ]</a>
 			<a id="nav-link-playground" class="font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
 			<a id="nav-link-practice" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
 		</nav>
 
-		<!-- Auth Actions (Guest vs Authenticated) -->
-		<div class="flex items-center gap-3" id="nav-auth-container">
-			<!-- Guest State -->
-			<div class="flex items-center gap-2" id="nav-guest-links">
-				<a class="font-mono text-xs px-3 py-1.5 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] hover:bg-[#2a2a2d] shadow-[2px_2px_0px_#000000] cursor-pointer" href="/login">[ Masuk ]</a>
-				<a class="font-mono text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[4px_4px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer" href="/register">[ Daftar Akun ]</a>
-			</div>
+		<!-- Theme Toggle & Auth Actions -->
+		<div class="flex items-center gap-3">
+			<button
+				id="theme-toggle-btn"
+				type="button"
+				title="Ganti Mode Terang / Gelap"
+				aria-label="Ganti Mode Terang / Gelap"
+				class="font-mono text-xs px-2.5 py-1.5 bg-[#1b1b1e] text-[#e4e1e6] border-2 border-[#353438] hover:border-[#facc15] shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 cursor-pointer select-none transition-all active:translate-x-0.5 active:translate-y-0.5"
+			>
+				<span class="material-symbols-outlined text-[16px] leading-none" id="theme-toggle-icon">dark_mode</span>
+				<span class="font-bold text-[11px] hidden sm:inline" id="theme-toggle-label">DARK</span>
+			</button>
 
-			<!-- Logged-in State (Initially hidden, revealed if token exists) -->
-			<div class="hidden items-center gap-3" id="nav-user-profile">
-				<div class="flex items-center gap-2 px-3 py-1 bg-[#1f1f22] border-2 border-[#353438] shadow-[2px_2px_0px_#000000]">
-					<span class="w-2 h-2 bg-[#4edea3] rounded-full animate-pulse"></span>
-					<span class="font-mono text-xs text-[#e4e1e6] font-bold" id="nav-username">User</span>
+			<div class="flex items-center gap-3" id="nav-auth-container">
+				<!-- Guest State -->
+				<div class="flex items-center gap-2" id="nav-guest-links">
+					<a class="font-mono text-xs px-3 py-1.5 bg-[#1f1f22] text-[#e4e1e6] border-2 border-[#353438] hover:bg-[#2a2a2d] shadow-[2px_2px_0px_#000000] cursor-pointer" href="/login">[ Masuk ]</a>
+					<a class="font-mono text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[4px_4px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer" href="/register">[ Daftar Akun ]</a>
 				</div>
-				<button
-					id="nav-btn-logout"
-					class="font-mono text-xs px-3 py-1.5 bg-[#2a2a2d] text-[#ffb4ab] border-2 border-[#353438] hover:bg-[#353438] shadow-[2px_2px_0px_#000000] cursor-pointer"
-					type="button"
-				>
-					[ Keluar ]
-				</button>
+
+				<!-- Logged-in State (Initially hidden, revealed if token exists) -->
+				<div class="hidden items-center gap-3" id="nav-user-profile">
+					<div class="flex items-center gap-2 px-3 py-1 bg-[#1f1f22] border-2 border-[#353438] shadow-[2px_2px_0px_#000000]">
+						<span class="w-2 h-2 bg-[#4edea3] rounded-full animate-pulse"></span>
+						<span class="font-mono text-xs text-[#e4e1e6] font-bold" id="nav-username">User</span>
+					</div>
+					<button
+						id="nav-btn-logout"
+						class="font-mono text-xs px-3 py-1.5 bg-[#2a2a2d] text-[#ffb4ab] border-2 border-[#353438] hover:bg-[#353438] shadow-[2px_2px_0px_#000000] cursor-pointer"
+						type="button"
+					>
+						[ Keluar ]
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -127,6 +140,43 @@
 		}
 	}
 
+	function initThemeToggle() {
+		const toggleBtn = document.getElementById('theme-toggle-btn');
+		const iconEl = document.getElementById('theme-toggle-icon');
+		const labelEl = document.getElementById('theme-toggle-label');
+
+		function updateUI(theme: string) {
+			const isDark = theme === 'dark';
+			if (iconEl) iconEl.textContent = isDark ? 'dark_mode' : 'light_mode';
+			if (labelEl) labelEl.textContent = isDark ? 'DARK' : 'LIGHT';
+			if (toggleBtn) {
+				toggleBtn.setAttribute('title', isDark ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap');
+			}
+		}
+
+		const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+		updateUI(currentTheme);
+
+		if (toggleBtn) {
+			toggleBtn.addEventListener('click', () => {
+				const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+				const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+				document.documentElement.setAttribute('data-theme', newTheme);
+				localStorage.setItem('kodingan_theme', newTheme);
+				updateUI(newTheme);
+			});
+		}
+
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+			if (!localStorage.getItem('kodingan_theme')) {
+				const newTheme = e.matches ? 'dark' : 'light';
+				document.documentElement.setAttribute('data-theme', newTheme);
+				updateUI(newTheme);
+			}
+		});
+	}
+
+	initThemeToggle();
 	syncNavbarAuth();
 	syncNavbarFeatureFlags();
 </script>

@@ -1,0 +1,271 @@
+---
+// web/src/pages/courses/index.astro
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/organisms/Navbar.astro';
+import Footer from '@/components/organisms/Footer.astro';
+---
+
+<Layout title="KODINGAN — Jalur Belajar & Kurikulum">
+	<Navbar />
+
+	<main class="w-full pt-[80px] pb-16 bg-[#131316] min-h-[calc(100vh-60px)] flex flex-col justify-between items-center px-4 md:px-8">
+		<div class="w-full max-w-6xl mx-auto flex flex-col gap-8">
+			
+			<!-- HEADER SECTION -->
+			<div class="w-full bg-[#0e0e11] border-2 border-[#353438] p-6 md:p-8 shadow-[6px_6px_0px_#000000] relative overflow-hidden">
+				<div class="absolute -right-8 -bottom-8 opacity-5 select-none pointer-events-none font-mono text-9xl font-bold text-white">
+					&lt;/&gt;
+				</div>
+
+				<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-[#353438] pb-6 mb-6">
+					<div>
+						<div class="flex items-center gap-2 mb-2">
+							<span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
+							<span class="font-mono text-xs font-bold text-[#ffecb9] tracking-wider uppercase">
+								KURIKULUM_TERSTRUKTUR // TRACKS
+							</span>
+						</div>
+						<h1 class="font-['Space_Grotesk'] text-3xl md:text-4xl font-bold text-[#e4e1e6] uppercase tracking-tight">
+							Jalur Belajar
+						</h1>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<span class="font-mono text-xs text-[#4edea3] bg-[#003824] px-2.5 py-1 border border-[#4edea3]">
+							MODE: NO_HARD_LOCK
+						</span>
+					</div>
+				</div>
+
+				<p class="font-mono text-sm text-[#d1c6ab] max-w-3xl leading-relaxed">
+					Pelajari konsep dasar hingga tingkat mahir dengan hands-on coding langsung di browser. Jalur belajar didesain tanpa penguncian kaku — Anda dapat mengeksplorasi modul mana pun sesuai kebutuhan.
+				</p>
+			</div>
+
+			<!-- CONTROLS & FILTER BAR -->
+			<div class="w-full bg-[#1b1b1e] border-2 border-[#353438] p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-[4px_4px_0px_#000000]">
+				<!-- Search Input -->
+				<div class="relative flex-1">
+					<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#9a9078] font-mono text-sm">
+						&gt;
+					</span>
+					<input
+						type="text"
+						id="courses-search"
+						placeholder="Cari jalur belajar berdasarkan nama atau topik..."
+						class="w-full bg-[#0e0e11] border-2 border-[#353438] pl-8 pr-4 py-2 text-xs font-mono text-[#e4e1e6] placeholder-[#9a9078] focus:border-[#facc15] focus:outline-none transition-colors"
+					/>
+				</div>
+
+				<!-- Stats Counter -->
+				<div class="flex items-center gap-3">
+					<div class="font-mono text-xs text-[#d1c6ab] px-3 py-2 bg-[#0e0e11] border border-[#353438]">
+						TERSEDIA: <span id="courses-count" class="text-[#facc15] font-bold">0</span> JALUR
+					</div>
+				</div>
+			</div>
+
+			<!-- LOADING STATE -->
+			<div id="courses-loading" class="w-full py-16 flex flex-col items-center justify-center gap-3">
+				<div class="w-8 h-8 border-4 border-[#353438] border-t-[#facc15] rounded-full animate-spin"></div>
+				<p class="font-mono text-xs text-[#d1c6ab] tracking-wider uppercase animate-pulse">
+					MEMUAT_DAFTAR_KURSUS...
+				</p>
+			</div>
+
+			<!-- ERROR STATE -->
+			<div id="courses-error" class="hidden w-full bg-[#1F080A] border-2 border-[#ffb4ab] p-6 text-center flex-col items-center gap-3 shadow-[6px_6px_0px_#93000a]">
+				<span class="material-symbols-outlined text-4xl text-[#ffb4ab]">error</span>
+				<h3 class="font-mono text-sm font-bold text-[#ffb4ab] uppercase">Gagal Memuat Data Kursus</h3>
+				<p id="courses-error-msg" class="font-mono text-xs text-[#ffdad6] max-w-md"></p>
+				<button
+					id="courses-btn-retry"
+					type="button"
+					class="mt-2 font-mono text-xs font-bold px-4 py-2 bg-[#ffb4ab] text-[#690005] border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 cursor-pointer uppercase"
+				>
+					[ Muat Ulang ]
+				</button>
+			</div>
+
+			<!-- EMPTY STATE -->
+			<div id="courses-empty" class="hidden w-full bg-[#0e0e11] border-2 border-[#353438] p-12 text-center flex-col items-center gap-3 shadow-[6px_6px_0px_#000000]">
+				<div class="w-12 h-12 bg-[#1b1b1e] border border-[#353438] flex items-center justify-center font-mono text-xl text-[#facc15]">
+					?
+				</div>
+				<h3 class="font-mono text-sm font-bold text-[#e4e1e6] uppercase">Tidak Ada Jalur Belajar Ditemukan</h3>
+				<p class="font-mono text-xs text-[#d1c6ab] max-w-md">
+					Belum ada jalur belajar yang cocok dengan kata kunci pencarian Anda atau belum ada kursus yang aktif saat ini.
+				</p>
+			</div>
+
+			<!-- COURSES GRID -->
+			<div id="courses-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+				<!-- Injected by JavaScript -->
+			</div>
+
+		</div>
+
+		<!-- FOOTER -->
+		<div class="w-full max-w-6xl mx-auto mt-16">
+			<Footer />
+		</div>
+	</main>
+</Layout>
+
+<script>
+	import { fetchCourses, type Course } from '@/lib/courses';
+	import { isFeatureEnabled } from '@/lib/feature-flags';
+
+	let allCourses: Course[] = [];
+
+	async function initCoursesPage() {
+		// Guard with feature flags
+		try {
+			const active = await isFeatureEnabled('courses');
+			if (!active) {
+				window.location.replace('/maintenance?feature=courses');
+				return;
+			}
+		} catch (err) {
+			console.warn('Feature flag check error for courses:', err);
+		}
+
+		const loadingEl = document.getElementById('courses-loading');
+		const errorEl = document.getElementById('courses-error');
+		const errorMsgEl = document.getElementById('courses-error-msg');
+		const emptyEl = document.getElementById('courses-empty');
+		const gridEl = document.getElementById('courses-grid');
+		const countEl = document.getElementById('courses-count');
+		const searchInput = document.getElementById('courses-search') as HTMLInputElement | null;
+		const retryBtn = document.getElementById('courses-btn-retry');
+
+		if (retryBtn) {
+			retryBtn.addEventListener('click', () => {
+				loadCourses();
+			});
+		}
+
+		if (searchInput) {
+			searchInput.addEventListener('input', () => {
+				filterAndRenderCourses(searchInput.value.trim().toLowerCase());
+			});
+		}
+
+		async function loadCourses() {
+			if (loadingEl) loadingEl.classList.remove('hidden');
+			if (errorEl) errorEl.classList.add('hidden');
+			if (emptyEl) emptyEl.classList.add('hidden');
+			if (gridEl) gridEl.classList.add('hidden');
+
+			try {
+				allCourses = await fetchCourses();
+				if (loadingEl) loadingEl.classList.add('hidden');
+
+				if (allCourses.length === 0) {
+					if (emptyEl) emptyEl.classList.remove('hidden');
+					if (countEl) countEl.textContent = '0';
+					return;
+				}
+
+				filterAndRenderCourses(searchInput?.value.trim().toLowerCase() || '');
+			} catch (err: any) {
+				if (loadingEl) loadingEl.classList.add('hidden');
+				if (errorEl) {
+					errorEl.classList.remove('hidden');
+					if (errorMsgEl) {
+						errorMsgEl.textContent = err.message || 'Terjadi gangguan jaringan saat memuat daftar kursus.';
+					}
+				}
+			}
+		}
+
+		function filterAndRenderCourses(query: string) {
+			if (!gridEl || !countEl || !emptyEl) return;
+
+			const filtered = allCourses.filter((course) => {
+				const titleMatch = course.title.toLowerCase().includes(query);
+				const descMatch = course.description?.toLowerCase().includes(query) || false;
+				const slugMatch = course.slug.toLowerCase().includes(query);
+				return titleMatch || descMatch || slugMatch;
+			});
+
+			countEl.textContent = String(filtered.length);
+
+			if (filtered.length === 0) {
+				gridEl.classList.add('hidden');
+				emptyEl.classList.remove('hidden');
+				return;
+			}
+
+			emptyEl.classList.add('hidden');
+			gridEl.classList.remove('hidden');
+			gridEl.innerHTML = '';
+
+			filtered.forEach((course) => {
+				const card = createCourseCard(course);
+				gridEl.appendChild(card);
+			});
+		}
+
+		function createCourseCard(course: Course): HTMLElement {
+			const el = document.createElement('div');
+			el.className =
+				'bg-[#0e0e11] border-2 border-[#353438] flex flex-col justify-between shadow-[6px_6px_0px_#000000] hover:border-[#facc15] transition-all duration-150';
+
+			const statusBadge =
+				course.status === 'PUBLISHED'
+					? '<span class="font-mono text-[10px] bg-[#003824] text-[#4edea3] px-1.5 py-0.5 border border-[#4edea3]">PUBLISHED</span>'
+					: `<span class="font-mono text-[10px] bg-[#2a2a2d] text-[#d1c6ab] px-1.5 py-0.5 border border-[#4d4632]">${course.status}</span>`;
+
+			el.innerHTML = `
+				<div class="w-full">
+					<!-- Title Bar -->
+					<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
+						<div class="flex items-center gap-1.5">
+							<span class="w-2.5 h-2.5 bg-[#facc15] inline-block border border-black"></span>
+							<span class="font-mono text-[11px] font-bold text-[#ffecb9] uppercase tracking-wider">
+								${course.slug}
+							</span>
+						</div>
+						${statusBadge}
+					</div>
+
+					<!-- Body Content -->
+					<div class="p-5 flex flex-col gap-3">
+						<h2 class="font-['Space_Grotesk'] text-xl font-bold text-[#e4e1e6] uppercase tracking-tight line-clamp-2">
+							${course.title}
+						</h2>
+						<p class="font-mono text-xs text-[#d1c6ab] leading-relaxed line-clamp-3">
+							${course.description || 'Tidak ada deskripsi singkat untuk jalur belajar ini.'}
+						</p>
+					</div>
+				</div>
+
+				<!-- Footer Action -->
+				<div class="p-5 pt-0 mt-auto">
+					<div class="border-t border-[#353438] pt-4 flex items-center justify-between">
+						<span class="font-mono text-[11px] text-[#9a9078]">
+							JALUR // SILABUS
+						</span>
+						<a
+							href="/courses/detail?slug=${encodeURIComponent(course.slug)}"
+							class="font-mono text-xs font-bold px-3 py-1.5 bg-[#facc15] text-[#3c2f00] border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all uppercase"
+						>
+							[ Buka Silabus &rarr; ]
+						</a>
+					</div>
+				</div>
+			`;
+
+			return el;
+		}
+
+		loadCourses();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initCoursesPage);
+	} else {
+		initCoursesPage();
+	}
+</script>

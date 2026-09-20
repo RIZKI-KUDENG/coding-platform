@@ -96,3 +96,137 @@
   background-color: #1f1f22 !important;
   color: #facc15 !important;
 }
+
+/* ==========================================================================
+   Light Mode Neo-Brutalist Theme Overrides
+   ========================================================================== */
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="light"] body {
+  background-color: #f6f5f0 !important;
+  color: #121215 !important;
+}
+
+/* Background overrides */
+[data-theme="light"] .bg-\[\#131316\],
+[data-theme="light"] [class*="bg-[#131316]"] {
+  background-color: #f6f5f0 !important;
+}
+
+[data-theme="light"] .bg-\[\#0e0e11\],
+[data-theme="light"] [class*="bg-[#0e0e11]"] {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-\[\#1b1b1e\],
+[data-theme="light"] [class*="bg-[#1b1b1e]"] {
+  background-color: #edebe2 !important;
+}
+
+[data-theme="light"] .bg-\[\#1f1f22\],
+[data-theme="light"] [class*="bg-[#1f1f22]"] {
+  background-color: #e2dfd5 !important;
+}
+
+[data-theme="light"] .bg-\[\#2a2a2d\],
+[data-theme="light"] [class*="bg-[#2a2a2d]"] {
+  background-color: #d7d4c8 !important;
+}
+
+/* Border overrides - sharp high-contrast neo-brutalist dark borders */
+[data-theme="light"] .border-\[\#353438\],
+[data-theme="light"] [class*="border-[#353438]"] {
+  border-color: #18181b !important;
+}
+
+[data-theme="light"] .border-\[\#4d4632\],
+[data-theme="light"] [class*="border-[#4d4632]"] {
+  border-color: #18181b !important;
+}
+
+/* Text color overrides */
+[data-theme="light"] .text-\[\#e4e1e6\],
+[data-theme="light"] [class*="text-[#e4e1e6]"] {
+  color: #121215 !important;
+}
+
+[data-theme="light"] .text-\[\#d1c6ab\],
+[data-theme="light"] [class*="text-[#d1c6ab]"] {
+  color: #3f3e3a !important;
+}
+
+[data-theme="light"] .text-\[\#9a9078\],
+[data-theme="light"] [class*="text-[#9a9078]"] {
+  color: #57554d !important;
+}
+
+[data-theme="light"] .text-\[\#ffecb9\],
+[data-theme="light"] [class*="text-[#ffecb9]"] {
+  color: #18181b !important;
+}
+
+/* Green badge overrides */
+[data-theme="light"] .bg-\[\#003824\],
+[data-theme="light"] [class*="bg-[#003824]"] {
+  background-color: #d1fae5 !important;
+}
+
+[data-theme="light"] .text-\[\#4edea3\],
+[data-theme="light"] [class*="text-[#4edea3]"] {
+  color: #065f46 !important;
+}
+
+[data-theme="light"] .border-\[\#4edea3\],
+[data-theme="light"] [class*="border-[#4edea3]"] {
+  border-color: #059669 !important;
+}
+
+/* Error / Alert box overrides */
+[data-theme="light"] .bg-\[\#1F080A\],
+[data-theme="light"] [class*="bg-[#1F080A]"] {
+  background-color: #fee2e2 !important;
+}
+
+[data-theme="light"] .text-\[\#ffb4ab\],
+[data-theme="light"] [class*="text-[#ffb4ab]"] {
+  color: #991b1b !important;
+}
+
+[data-theme="light"] .border-\[\#ffb4ab\],
+[data-theme="light"] [class*="border-[#ffb4ab]"] {
+  border-color: #b91c1c !important;
+}
+
+[data-theme="light"] .text-\[\#ffdad6\],
+[data-theme="light"] [class*="text-[#ffdad6]"] {
+  color: #7f1d1d !important;
+}
+
+/* Light mode CodeMirror */
+[data-theme="light"] .cm-editor {
+  background-color: #ffffff !important;
+  color: #121215 !important;
+}
+
+[data-theme="light"] .cm-scroller {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .cm-gutters {
+  background-color: #f6f5f0 !important;
+  color: #71717a !important;
+  border-right: 2px solid #18181b !important;
+}
+
+[data-theme="light"] .cm-activeLine {
+  background-color: #fef9c3 !important;
+}
+
+[data-theme="light"] .cm-activeLineGutter {
+  background-color: #fef08a !important;
+  color: #000000 !important;
+}
+
