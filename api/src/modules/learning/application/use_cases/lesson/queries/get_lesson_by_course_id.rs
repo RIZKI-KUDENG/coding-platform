@@ -13,11 +13,11 @@ pub enum GetLessonByCourseIdError {
     DatabaseError(sqlx::Error),
 }
 
-pub struct GetLessonByCourseIdHandler {
+pub struct GetLessonByCourseIdQueryHandler {
     repository: LessonRepository,
 }
 
-impl GetLessonByCourseIdHandler{
+impl GetLessonByCourseIdQueryHandler{
     pub fn new(repository: LessonRepository) -> Self{
         Self { repository }
     }

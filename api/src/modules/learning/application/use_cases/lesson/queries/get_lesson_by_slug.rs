@@ -3,7 +3,7 @@ use crate::modules::learning::domain::entities::lesson::Lesson;
 
 
 pub struct GetLessonBySlugQuery{
-    slug: String,
+    pub slug: String,
 }
 
 #[derive(Debug)]
