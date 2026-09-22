@@ -1,12 +1,7 @@
-use axum::{
-    extract::Request,
-    middleware::Next,
-    response::Response,
-};
 use crate::state::AppState;
+use axum::{extract::Request, middleware::Next, response::Response};
 pub mod require_feature;
 pub use require_feature::check_feature;
-
 
 pub async fn require_feature(
     state: AppState,

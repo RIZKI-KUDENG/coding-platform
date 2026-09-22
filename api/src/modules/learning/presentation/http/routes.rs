@@ -1,14 +1,14 @@
 use super::course;
-use super::lesson;
 use super::exercise;
+use super::lesson;
 use crate::modules::shared::feature_flags::check_feature;
 use crate::state::AppState;
 use axum::{
+    Router,
     extract::{Request, State},
     middleware::{self, Next},
     response::Response,
     routing::get,
-    Router,
 };
 
 async fn require_courses_feature(
@@ -56,10 +56,7 @@ pub fn learning_routes(state: AppState) -> Router<AppState> {
             "/api/v1/courses/{course_id}/lessons",
             get(lesson::get_lesson_by_course_id),
         )
-        .route(
-            "/api/v1/lessons/{lesson_id}",
-            get(lesson::get_lesson_by_id),
-        )
+        .route("/api/v1/lessons/{lesson_id}", get(lesson::get_lesson_by_id))
         .route(
             "/api/v1/lessons/slug/{slug}",
             get(lesson::get_lesson_by_slug),
@@ -69,19 +66,19 @@ pub fn learning_routes(state: AppState) -> Router<AppState> {
             require_lessons_feature,
         ));
 
-        let exercise_route = Router::new()
-            .route(
-                "/api/v1/lessons/{lesson_id}/exercise",
-                get(exercise::get_exercise_by_lesson_id)
-            )
-            .route(
-                "/api/v1/exercise/{exercise_id}",
-                get(exercise::get_exercise_by_id)
-            )
-            .route_layer(middleware::from_fn_with_state(
-                state.clone(),
-                require_exercise_feature,
-            ));
+    let exercise_route = Router::new()
+        .route(
+            "/api/v1/lessons/{lesson_id}/exercise",
+            get(exercise::get_exercise_by_lesson_id),
+        )
+        .route(
+            "/api/v1/exercise/{exercise_id}",
+            get(exercise::get_exercise_by_id),
+        )
+        .route_layer(middleware::from_fn_with_state(
+            state.clone(),
+            require_exercise_feature,
+        ));
 
     course_routes.merge(lesson_routes).merge(exercise_route)
 }

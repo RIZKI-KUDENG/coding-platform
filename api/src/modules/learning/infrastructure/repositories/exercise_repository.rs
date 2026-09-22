@@ -1,9 +1,7 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-
 use crate::modules::learning::domain::entities::exercise::Exercise;
-
 
 pub struct ExerciseRepository {
     db: PgPool,
@@ -14,7 +12,10 @@ impl ExerciseRepository {
         Self { db }
     }
 
-    pub async fn get_exercise_by_lesson_id(&self, lesson_id: Uuid) -> Result<Vec<Exercise>, sqlx::Error> {
+    pub async fn get_exercise_by_lesson_id(
+        &self,
+        lesson_id: Uuid,
+    ) -> Result<Vec<Exercise>, sqlx::Error> {
         sqlx::query_as!(
             Exercise,
             r#"
@@ -36,10 +37,12 @@ impl ExerciseRepository {
             ORDER BY e."order" ASC
             "#,
             lesson_id,
-        ).fetch_all(&self.db).await
+        )
+        .fetch_all(&self.db)
+        .await
     }
 
-    pub async fn get_exercise_by_id(&self, id:Uuid) -> Result<Option<Exercise>, sqlx::Error> {
+    pub async fn get_exercise_by_id(&self, id: Uuid) -> Result<Option<Exercise>, sqlx::Error> {
         sqlx::query_as!(
             Exercise,
             r#"
@@ -60,7 +63,8 @@ impl ExerciseRepository {
             WHERE id = $1
             "#,
             id
-        ).fetch_optional(&self.db)
+        )
+        .fetch_optional(&self.db)
         .await
     }
 }

@@ -1,3 +1,4 @@
 pub mod course;
-pub mod lesson;
 pub mod exercise;
+pub mod exercise_test_case;
+pub mod lesson;

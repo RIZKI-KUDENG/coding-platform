@@ -29,6 +29,7 @@ impl CodeRunner for PodmanRunner {
         let mut cmd = Command::new("podman");
         cmd.arg("run")
             .arg("--rm")
+            .arg("-i")
             .arg("--network=none")
             .arg("--memory=128m")
             .arg("--cpus=1")
@@ -37,9 +38,18 @@ impl CodeRunner for PodmanRunner {
 
         cmd.stdout(Stdio::piped());
         cmd.stderr(Stdio::piped());
+        cmd.stdin(Stdio::piped());
 
         let execution_timeout = Duration::from_secs(5);
-        let output = match timeout(execution_timeout, cmd.output()).await {
+        let mut child = cmd.spawn()?;
+
+        if let (Some(input), Some(mut stdin)) = (request.input, child.stdin.take()) {
+            use tokio::io::AsyncWriteExt;
+            let _ = stdin.write_all(input.as_bytes()).await;
+            let _ = stdin.flush().await;
+        }
+
+        let output = match timeout(execution_timeout, child.wait_with_output()).await {
             Ok(Ok(output)) => output,
             Ok(Err(err)) => return Err(format!("Failed to execute podman: {}", err).into()),
             Err(_) => {

@@ -29,6 +29,7 @@ where
         let request = RunRequest {
             language: command.language.clone(),
             code: command.code.clone(),
+            input: None,
         };
         let result = self.code_runner.run(request).await?;
         Ok(result)

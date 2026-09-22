@@ -1,7 +1,6 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-
 use crate::modules::learning::domain::entities::lesson::Lesson;
 
 pub struct LessonRepository {
@@ -14,9 +13,9 @@ impl LessonRepository {
     }
 
     pub async fn get_by_course_id(&self, course_id: Uuid) -> Result<Vec<Lesson>, sqlx::Error> {
-       sqlx::query_as!(
-           Lesson,
-           r#"
+        sqlx::query_as!(
+            Lesson,
+            r#"
            SELECT
            l.id,
            l.title,
@@ -32,12 +31,13 @@ impl LessonRepository {
            WHERE s.course_id = $1
            ORDER BY s."order" ASC, sl."order" ASC
            "#,
-           course_id,
-       ).fetch_all(&self.db)
-    .await
+            course_id,
+        )
+        .fetch_all(&self.db)
+        .await
     }
 
-    pub async fn get_by_id(&self, id: Uuid) -> Result<Option<Lesson>, sqlx::Error>{
+    pub async fn get_by_id(&self, id: Uuid) -> Result<Option<Lesson>, sqlx::Error> {
         sqlx::query_as!(
             Lesson,
             r#"
@@ -53,11 +53,12 @@ impl LessonRepository {
             WHERE id = $1
             "#,
             id
-        ).fetch_optional(&self.db)
+        )
+        .fetch_optional(&self.db)
         .await
     }
 
-    pub async fn get_by_slug(&self, slug: &str) -> Result<Option<Lesson>, sqlx::Error>{
+    pub async fn get_by_slug(&self, slug: &str) -> Result<Option<Lesson>, sqlx::Error> {
         sqlx::query_as!(
             Lesson,
             r#"
@@ -73,7 +74,8 @@ impl LessonRepository {
             WHERE slug = $1
             "#,
             slug
-        ).fetch_optional(&self.db)
+        )
+        .fetch_optional(&self.db)
         .await
     }
 }

@@ -1,29 +1,28 @@
-use axum::{
-   Json,
-   extract::{Path, State},
-   response::IntoResponse,
-   http::StatusCode,
-};
-use uuid::Uuid;
-use serde_json::json;
-use crate::state::AppState;
 use crate::modules::learning::{
     application::use_cases::course::queries::{
-      get_course_by_id::{GetCourseByIdQuery, GetCourseByIdQueryHandler, GetCourseByIdError},
-      get_all_course::{GetAllCourseQuery, GetAllCourseQueryHandler, GetAllCourseError},
-      get_course_by_slug::{GetCourseBySlugQuery, GetCourseBySlugQueryHandler, GetCourseBySlugError}
+        get_all_course::{GetAllCourseError, GetAllCourseQuery, GetAllCourseQueryHandler},
+        get_course_by_id::{GetCourseByIdError, GetCourseByIdQuery, GetCourseByIdQueryHandler},
+        get_course_by_slug::{
+            GetCourseBySlugError, GetCourseBySlugQuery, GetCourseBySlugQueryHandler,
+        },
     },
-    infrastructure::repositories::course_repository::CourseRepository
+    infrastructure::repositories::course_repository::CourseRepository,
 };
-
-
+use crate::state::AppState;
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+};
+use serde_json::json;
+use uuid::Uuid;
 
 pub async fn get_all_course(State(state): State<AppState>) -> impl IntoResponse {
     let repo = CourseRepository::new(state.db.clone());
     let handler = GetAllCourseQueryHandler::new(repo);
 
-
-    match handler.handle(GetAllCourseQuery).await{
+    match handler.handle(GetAllCourseQuery).await {
         Ok(course) => (
             StatusCode::OK,
             Json(json!({
@@ -39,16 +38,19 @@ pub async fn get_all_course(State(state): State<AppState>) -> impl IntoResponse 
     }
 }
 
-pub async fn get_course_by_id(State(state): State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
+pub async fn get_course_by_id(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> impl IntoResponse {
     let repo = CourseRepository::new(state.db.clone());
     let handler = GetCourseByIdQueryHandler::new(repo);
 
-    match handler.handle(GetCourseByIdQuery{id}).await{
+    match handler.handle(GetCourseByIdQuery { id }).await {
         Ok(course) => (
             StatusCode::OK,
             Json(json!({
                 "data": course,
-            }))
+            })),
         ),
         Err(GetCourseByIdError::CourseNotFound) => (
             StatusCode::NOT_FOUND,
@@ -65,11 +67,14 @@ pub async fn get_course_by_id(State(state): State<AppState>, Path(id): Path<Uuid
     }
 }
 
-pub async fn get_course_by_slug(State(state): State<AppState>, Path(slug): Path<String>) -> impl IntoResponse {
+pub async fn get_course_by_slug(
+    State(state): State<AppState>,
+    Path(slug): Path<String>,
+) -> impl IntoResponse {
     let repo = CourseRepository::new(state.db.clone());
     let handler = GetCourseBySlugQueryHandler::new(repo);
 
-    match handler.handle(GetCourseBySlugQuery{slug}).await{
+    match handler.handle(GetCourseBySlugQuery { slug }).await {
         Ok(course) => (
             StatusCode::OK,
             Json(json!({

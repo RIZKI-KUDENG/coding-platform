@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
-use uuid::Uuid;
 use serde::Serialize;
-
+use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
-pub struct ExerciseTestCase{
+pub struct ExerciseTestCase {
     pub id: Uuid,
     pub exercise_id: Uuid,
+    pub input: String,
     pub expected_output: String,
     pub is_hidden: bool,
     pub order: i32,

@@ -1,5 +1,5 @@
-use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
 use crate::modules::learning::domain::entities::course::Course;
+use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
 use uuid::Uuid;
 
 pub struct GetCourseByIdQuery {
@@ -8,13 +8,12 @@ pub struct GetCourseByIdQuery {
 #[derive(Debug)]
 pub enum GetCourseByIdError {
     CourseNotFound,
-    DatabaseError(sqlx::Error)
+    DatabaseError(sqlx::Error),
 }
 
 pub struct GetCourseByIdQueryHandler {
     course_repository: CourseRepository,
 }
-
 
 impl GetCourseByIdQueryHandler {
     pub fn new(course_repository: CourseRepository) -> Self {
@@ -22,10 +21,10 @@ impl GetCourseByIdQueryHandler {
     }
 
     pub async fn handle(&self, query: GetCourseByIdQuery) -> Result<Course, GetCourseByIdError> {
-        self.course_repository.get_course_by_id(query.id).await
-            .map_err(|e| GetCourseByIdError::DatabaseError(e))
-            .and_then(|course| {
-                course.ok_or(GetCourseByIdError::CourseNotFound)
-            })
+        self.course_repository
+            .get_course_by_id(query.id)
+            .await
+            .map_err(GetCourseByIdError::DatabaseError)
+            .and_then(|course| course.ok_or(GetCourseByIdError::CourseNotFound))
     }
 }

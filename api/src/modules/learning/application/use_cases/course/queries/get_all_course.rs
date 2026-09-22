@@ -19,7 +19,10 @@ impl GetAllCourseQueryHandler {
         Self { repository }
     }
 
-    pub async fn handle(&self, _query: GetAllCourseQuery) -> Result<Vec<Course>, GetAllCourseError> {
+    pub async fn handle(
+        &self,
+        _query: GetAllCourseQuery,
+    ) -> Result<Vec<Course>, GetAllCourseError> {
         self.repository
             .get_all()
             .await

@@ -17,6 +17,9 @@ use crate::modules::execution::infrastructure::repositories::submission_reposito
 use crate::modules::execution::infrastructure::runners::podman_runner::PodmanRunner;
 use crate::modules::execution::presentation::dtos::submission_request::SubmissionRequest;
 use crate::state::AppState;
+use crate::modules::learning::{
+    ExerciseTestCaseRepository, GetTestCaseByExerciseIdQueryHandler,
+};
 
 pub async fn submit(
     State(state): State<AppState>,
@@ -33,8 +36,10 @@ pub async fn submit(
     .await?;
 
     let repo = SubmissionRepository::new(state.db.clone());
+    let test_case_repo = ExerciseTestCaseRepository::new(state.db.clone());
+    let test_case_handler = GetTestCaseByExerciseIdQueryHandler::new(test_case_repo);
     let runner = PodmanRunner::new();
-    let handler = ExecuteCodeCommandHandler::new(repo, runner);
+    let handler = ExecuteCodeCommandHandler::new(repo, test_case_handler, runner);
 
     let command = ExecuteCodeCommand {
         user_id: user.user_id,

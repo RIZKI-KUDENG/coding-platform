@@ -3,7 +3,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Clone)]
-pub struct Lesson{
+pub struct Lesson {
     pub id: Uuid,
     pub title: String,
     pub slug: String,

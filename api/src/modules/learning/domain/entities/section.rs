@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Serialize, Clone)]
-pub struct Section{
+pub struct Section {
     pub id: Uuid,
     pub course_id: Uuid,
     pub title: String,

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct RunRequest {
     pub language: String,
     pub code: String,
+    pub input: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

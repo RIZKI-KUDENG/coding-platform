@@ -5,7 +5,6 @@ use crate::modules::identity::identity_routes;
 use crate::modules::learning::learning_routes;
 use crate::modules::system::system_routes;
 
-
 use crate::state::AppState;
 
 mod health;

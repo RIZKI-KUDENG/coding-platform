@@ -1,10 +1,9 @@
-use crate::modules::learning::infrastructure::repositories::lesson_repository::LessonRepository;
 use crate::modules::learning::domain::entities::lesson::Lesson;
+use crate::modules::learning::infrastructure::repositories::lesson_repository::LessonRepository;
 
 use uuid::Uuid;
 
-
-pub struct GetLessonByCourseIdQuery{
+pub struct GetLessonByCourseIdQuery {
     pub id: Uuid,
 }
 
@@ -17,8 +16,8 @@ pub struct GetLessonByCourseIdQueryHandler {
     repository: LessonRepository,
 }
 
-impl GetLessonByCourseIdQueryHandler{
-    pub fn new(repository: LessonRepository) -> Self{
+impl GetLessonByCourseIdQueryHandler {
+    pub fn new(repository: LessonRepository) -> Self {
         Self { repository }
     }
 
