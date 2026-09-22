@@ -1,0 +1,63 @@
+---
+// web/src/components/lesson/ExerciseInstructionPane.astro
+---
+
+<div class="lg:col-span-5 flex flex-col gap-5">
+	
+	<!-- Exercise Task & Instructions Card -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] overflow-hidden">
+		<div class="bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
+			<div class="flex items-center gap-2">
+				<span class="w-2.5 h-2.5 bg-[#4edea3] inline-block border border-black"></span>
+				<span class="font-mono text-xs font-bold text-[#4edea3] tracking-wider uppercase" id="exercise-instruction-header">
+					TUGAS_LATIHAN
+				</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<span id="exercise-xp-badge" class="font-mono text-[10px] bg-[#3c2f00] text-[#facc15] font-bold px-1.5 py-0.5 border border-[#facc15]">
+					+100 XP
+				</span>
+				<span id="exercise-lang-badge" class="font-mono text-[10px] bg-[#2a2a2d] text-[#e4e1e6] px-1.5 py-0.5 border border-[#353438]">
+					PYTHON
+				</span>
+			</div>
+		</div>
+
+		<div class="p-5 flex flex-col gap-4">
+			<div>
+				<h2 id="exercise-title" class="font-['Space_Grotesk'] text-lg font-bold text-[#e4e1e6] uppercase">
+					Instruksi Latihan
+				</h2>
+				<p id="exercise-desc" class="font-mono text-xs text-[#d1c6ab] mt-2 leading-relaxed whitespace-pre-line">
+					Tuliskan solusi Anda pada editor di sebelah kanan sesuai petunjuk soal.
+				</p>
+			</div>
+
+			<div class="bg-[#1b1b1e] border-l-4 border-[#4edea3] p-3 text-[#e4e1e6] font-mono text-xs flex flex-col gap-1">
+				<span class="text-[#4edea3] font-bold uppercase text-[10px]">KRITERIA KELULUSAN BINER:</span>
+				<span>100% test cases harus lolos. Tidak ada nilai parsial (All-or-Nothing).</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Lesson Theory / Context Card -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] overflow-hidden">
+		<div class="bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
+			<span class="font-mono text-xs font-bold text-[#ffecb9] uppercase tracking-wider">
+				MATERI // REFERENSI
+			</span>
+			<span class="font-mono text-[10px] text-[#9a9078]">TEORI_PENUNJANG</span>
+		</div>
+
+		<div class="p-5 font-mono text-xs text-[#d1c6ab] leading-relaxed flex flex-col gap-3">
+			<p id="lesson-material-text">
+				Pelajari konsep materi pada pelajaran ini untuk membantu Anda menyelesaikan tugas kode yang diberikan.
+			</p>
+			<div class="bg-[#131316] border border-[#353438] p-3 text-[11px] text-[#9a9078] flex flex-col gap-1">
+				<span class="text-[#ffecb9] font-bold uppercase">Tips Menjawab:</span>
+				<span>Pastikan output program mencetak nilai yang tepat ke stdout (misalnya via print() atau console.log()).</span>
+			</div>
+		</div>
+	</div>
+
+</div>

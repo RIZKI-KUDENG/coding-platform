@@ -34,7 +34,7 @@ async fn require_exercise_feature(
     req: Request,
     next: Next,
 ) -> Result<Response, Response> {
-    check_feature(&state, "lesson:exercise", Some("console.log")).await?;
+    check_feature(&state, "courses:exercise", Some("Latihan Koding")).await?;
     Ok(next.run(req).await)
 }
 

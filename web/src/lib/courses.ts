@@ -185,3 +185,156 @@ export async function fetchLessonById(id: string): Promise<Lesson | null> {
 		return null;
 	}
 }
+
+export interface Exercise {
+	id: string;
+	lesson_id: string;
+	slug: string;
+	title: string;
+	description: string | null;
+	starter_code: string | null;
+	language: string;
+	order: number;
+	xp_reward: number;
+	status: string;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface SubmissionResult {
+	success: boolean;
+	stdout: string;
+	stderr: string;
+	exit_code: number | null;
+	duration_ms: number;
+}
+
+/**
+ * Mengambil daftar exercises untuk sebuah lesson.
+ */
+export async function fetchLessonExercises(lessonId: string): Promise<Exercise[]> {
+	try {
+		const res = await fetch(`/api/v1/lessons/${encodeURIComponent(lessonId)}/exercise`);
+		if (await checkMaintenanceResponse(res)) {
+			return [];
+		}
+		if (!res.ok) {
+			if (res.status === 404) return [];
+			console.error(`Gagal mengambil exercises untuk lesson ${lessonId}: HTTP ${res.status}`);
+			return [];
+		}
+		const json = await res.json();
+		return json.data || [];
+	} catch (err) {
+		console.error(`Error saat fetchLessonExercises (${lessonId}):`, err);
+		return [];
+	}
+}
+
+/**
+ * Mengambil detail exercise berdasarkan ID.
+ */
+export async function fetchExerciseById(exerciseId: string): Promise<Exercise | null> {
+	try {
+		const res = await fetch(`/api/v1/exercise/${encodeURIComponent(exerciseId)}`);
+		if (await checkMaintenanceResponse(res)) {
+			return null;
+		}
+		if (!res.ok) {
+			if (res.status === 404) return null;
+			console.error(`Gagal mengambil exercise ${exerciseId}: HTTP ${res.status}`);
+			return null;
+		}
+		const json = await res.json();
+		return json.data || null;
+	} catch (err) {
+		console.error(`Error saat fetchExerciseById (${exerciseId}):`, err);
+		return null;
+	}
+}
+
+/**
+ * Mengirimkan submission kode untuk exercise (uji terhadap seluruh test cases).
+ */
+export async function submitExerciseCode(
+	exerciseId: string,
+	code: string,
+	language: string,
+	token?: string | null,
+): Promise<{ ok: boolean; status: number; data?: SubmissionResult; error?: string }> {
+	try {
+		const headers: Record<string, string> = {
+			'Content-Type': 'application/json',
+		};
+		if (token) {
+			headers['Authorization'] = `Bearer ${token}`;
+		}
+
+		const res = await fetch(`/api/v1/exercises/${encodeURIComponent(exerciseId)}/submissions`, {
+			method: 'POST',
+			headers,
+			body: JSON.stringify({ code, language }),
+		});
+
+		const json = await res.json().catch(() => ({}));
+		if (!res.ok) {
+			return {
+				ok: false,
+				status: res.status,
+				error: json.error?.message || `HTTP ${res.status}: Gagal mengirim solusi.`,
+			};
+		}
+
+		return {
+			ok: true,
+			status: res.status,
+			data: json.data,
+		};
+	} catch (err: any) {
+		return {
+			ok: false,
+			status: 500,
+			error: err.message || 'Terjadi kesalahan jaringan saat mengirim solusi.',
+		};
+	}
+}
+
+/**
+ * Menjalankan kode secara bebas tanpa evaluasi test case (Run/Playground runner).
+ */
+export async function runPlaygroundCode(
+	code: string,
+	language: string,
+): Promise<{ ok: boolean; status: number; data?: SubmissionResult; error?: string }> {
+	try {
+		const res = await fetch('/api/v1/playground/run', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ code, language }),
+		});
+
+		const json = await res.json().catch(() => ({}));
+		if (!res.ok) {
+			return {
+				ok: false,
+				status: res.status,
+				error: json.error?.message || `HTTP ${res.status}: Gagal mengeksekusi kode.`,
+			};
+		}
+
+		return {
+			ok: true,
+			status: res.status,
+			data: json.data,
+		};
+	} catch (err: any) {
+		return {
+			ok: false,
+			status: 500,
+			error: err.message || 'Terjadi kesalahan jaringan saat mengeksekusi kode.',
+		};
+	}
+}
+

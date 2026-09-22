@@ -24,10 +24,7 @@ pub async fn run(
     State(state): State<AppState>,
     Json(request): Json<RunCodeRequest>,
 ) -> Result<impl IntoResponse, Response> {
-    // 1. Cek status fitur induk di database: Playground
-    check_feature(&state, "playground", Some("Area Uji Coba (Playground)")).await?;
-
-    // 2. Cek status sub-fitur bahasa runner di database: runner:<language> (misal: "runner:python")
+    // Cek status dinamis sub-fitur bahasa runner berdasarkan request payload
     let runner_key = format!("runner:{}", request.language);
     check_feature(
         &state,

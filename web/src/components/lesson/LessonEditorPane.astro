@@ -1,0 +1,96 @@
+---
+// web/src/components/lesson/LessonEditorPane.astro
+---
+
+<div class="lg:col-span-7 flex flex-col gap-4">
+	
+	<!-- Editor Box -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] flex flex-col overflow-hidden">
+		
+		<!-- Editor Toolbar -->
+		<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-3 pt-2 flex items-center justify-between flex-wrap gap-2">
+			<div class="flex items-center gap-1">
+				<div class="bg-[#2a2a2d] px-3 py-1.5 border-t-2 border-x-2 border-b-0 border-[#353438] flex items-center gap-2">
+					<span class="w-2 h-2 bg-[#facc15] inline-block"></span>
+					<span class="font-mono text-xs text-[#ffecb9] font-bold" id="editor-tab-filename">solution.py</span>
+					<span class="font-mono text-[10px] text-[#4edea3]">[SOLUSI]</span>
+				</div>
+			</div>
+
+			<div class="flex items-center gap-2 pb-1.5">
+				<button
+					id="btn-editor-reset"
+					type="button"
+					class="font-mono text-xs px-2.5 py-1 bg-[#1f1f22] text-[#d1c6ab] hover:text-[#e4e1e6] border border-[#353438] cursor-pointer"
+					title="Kembalikan ke Starter Code"
+				>
+					Reset
+				</button>
+			</div>
+		</div>
+
+		<!-- CodeMirror Mount Area -->
+		<div id="lesson-codemirror-mount" class="w-full bg-[#121215] min-h-[360px] max-h-[480px] overflow-auto"></div>
+
+		<!-- Action Buttons Bar: Run vs Submit -->
+		<div class="w-full bg-[#1b1b1e] border-t-2 border-[#353438] p-3 flex items-center justify-between flex-wrap gap-3">
+			<div class="flex items-center gap-3">
+				<button
+					id="btn-run-code"
+					type="button"
+					class="font-mono text-xs font-bold px-4 py-2 bg-[#2a2a2d] text-[#e4e1e6] border-2 border-[#353438] hover:border-[#facc15] shadow-[2px_2px_0px_#000000] flex items-center gap-2 cursor-pointer transition-all active:translate-x-0.5 active:translate-y-0.5"
+				>
+					<span class="material-symbols-outlined text-[15px] text-[#facc15]">play_arrow</span>
+					<span id="btn-run-label">Uji Coba Kode (Run)</span>
+				</button>
+
+				<button
+					id="btn-submit-code"
+					type="button"
+					class="font-mono text-xs font-bold px-5 py-2 bg-[#facc15] text-[#3c2f00] border-2 border-black shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center gap-2 cursor-pointer transition-all uppercase"
+				>
+					<span class="material-symbols-outlined text-[15px]">task_alt</span>
+					<span id="btn-submit-label">Kirim Solusi (Submit)</span>
+				</button>
+			</div>
+
+			<div id="execution-status-pill" class="font-mono text-xs text-[#d1c6ab] flex items-center gap-2">
+				<span class="w-2 h-2 bg-[#4edea3] rounded-full inline-block"></span>
+				<span id="execution-status-text">Siap Menguji</span>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Results & Output Console Window -->
+	<div class="bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] flex flex-col overflow-hidden">
+		<div class="w-full bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2 flex items-center justify-between">
+			<div class="flex items-center gap-2">
+				<span class="material-symbols-outlined text-[16px] text-[#ffecb9]">terminal</span>
+				<span class="font-mono text-xs font-bold text-[#e4e1e6] uppercase">
+					Hasil Evaluasi & Output
+				</span>
+			</div>
+			<span id="eval-mode-label" class="font-mono text-[10px] text-[#9a9078]">
+				STANDBY
+			</span>
+		</div>
+
+		<!-- Output Container -->
+		<div id="eval-console-output" class="p-4 bg-[#0A0A0C] font-mono text-xs min-h-[160px] max-h-[300px] overflow-y-auto flex flex-col gap-2">
+			<div class="text-[#9a9078]">
+				Tekan "Uji Coba Kode (Run)" untuk mengecek output bebas, atau "Kirim Solusi (Submit)" untuk penilaian otomatis terhadap semua test case.
+			</div>
+		</div>
+
+		<!-- Footer Metrics Bar -->
+		<div class="w-full bg-[#1b1b1e] border-t-2 border-[#353438] px-4 py-1.5 flex items-center justify-between font-mono text-[11px] text-[#d1c6ab]">
+			<div class="flex items-center gap-4">
+				<span>Durasi: <strong id="metric-exec-time" class="text-[#facc15]">--</strong></span>
+				<span>Status: <strong id="metric-exec-status" class="text-[#4edea3]">Siap</strong></span>
+			</div>
+			<span class="text-[#9a9078]">Sandbox: Podman (5s timeout)</span>
+		</div>
+	</div>
+
+</div>

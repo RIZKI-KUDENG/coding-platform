@@ -27,6 +27,7 @@ pub async fn submit(
     Path(exercise_id): Path<Uuid>,
     Json(request): Json<SubmissionRequest>,
 ) -> Result<impl IntoResponse, Response> {
+    // Cek status dinamis sub-fitur bahasa runner berdasarkan request payload
     let runner_key = format!("runner:{}", request.language);
     check_feature(
         &state,

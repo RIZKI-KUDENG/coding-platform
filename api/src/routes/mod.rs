@@ -13,7 +13,7 @@ pub fn create_router(state: AppState) -> Router {
     Router::new()
         .route("/api/v1/health", get(health::health_check))
         .merge(identity_routes())
-        .merge(execution_routes())
+        .merge(execution_routes(state.clone()))
         .merge(system_routes())
         .merge(learning_routes(state.clone()))
         .with_state(state)
