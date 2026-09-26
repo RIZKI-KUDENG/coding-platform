@@ -138,8 +138,8 @@ impl CourseRepository {
         .await
         .map(|_| ())
     }
-    pub async fn delete_course(&self, uuid: Uuid) -> Result<(), sqlx::Error> {
-        sqlx::query!(
+    pub async fn delete_course(&self, uuid: Uuid) -> Result<bool, sqlx::Error> {
+        let result =sqlx::query!(
             r#"
             DELETE FROM learning.m_courses
             WHERE id = $1
@@ -147,7 +147,9 @@ impl CourseRepository {
             uuid
         )
         .execute(&self.pool)
-        .await
-        .map(|_| ())
+        .await?;
+
+        Ok(result.rows_affected() > 0)
+
     }
 }
