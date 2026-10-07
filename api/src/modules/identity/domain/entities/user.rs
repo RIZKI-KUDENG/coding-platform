@@ -9,6 +9,7 @@ pub struct User {
     pub username: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub role: Option<String>,
 }
 
 impl User {
@@ -21,6 +22,7 @@ impl User {
             username,
             created_at: now,
             updated_at: now,
+            role: None,
         }
     }
 }
