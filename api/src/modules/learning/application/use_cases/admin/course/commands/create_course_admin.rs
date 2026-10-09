@@ -12,6 +12,10 @@ pub struct CreateCourseCommandHandler {
 }
 
 impl CreateCourseCommandHandler {
+    pub fn new(repository: CourseRepository) -> Self {
+        Self { repository }
+    }
+
     pub async fn handle(&self, command: CreateCourseCommand) -> Result<(), sqlx::Error> {
         self.repository
             .create_course(

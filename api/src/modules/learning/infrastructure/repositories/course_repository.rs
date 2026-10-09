@@ -139,7 +139,7 @@ impl CourseRepository {
         .map(|_| ())
     }
     pub async fn delete_course(&self, uuid: Uuid) -> Result<bool, sqlx::Error> {
-        let result =sqlx::query!(
+        let result = sqlx::query!(
             r#"
             DELETE FROM learning.m_courses
             WHERE id = $1
@@ -150,6 +150,5 @@ impl CourseRepository {
         .await?;
 
         Ok(result.rows_affected() > 0)
-
     }
 }

@@ -1,7 +1,6 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-
 use crate::modules::identity::domain::entities::user::User;
 
 #[derive(Clone)]
@@ -60,10 +59,7 @@ impl UserRepository {
         .await
     }
 
-    pub async fn find_by_id(
-        &self,
-        id: Uuid,
-    ) -> Result<Option<User>, sqlx::Error> {
+    pub async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, sqlx::Error> {
         sqlx::query_as!(
             User,
             r#"

@@ -1,6 +1,8 @@
+use super::admin_course;
 use super::course;
 use super::exercise;
 use super::lesson;
+use crate::modules::identity::require_admin;
 use crate::modules::shared::feature_flags::check_feature;
 use crate::state::AppState;
 use axum::{
@@ -8,7 +10,7 @@ use axum::{
     extract::{Request, State},
     middleware::{self, Next},
     response::Response,
-    routing::get,
+    routing::{get, put},
 };
 
 async fn require_courses_feature(
@@ -80,5 +82,19 @@ pub fn learning_routes(state: AppState) -> Router<AppState> {
             require_exercise_feature,
         ));
 
-    course_routes.merge(lesson_routes).merge(exercise_route)
+    let admin_course_routes = Router::new()
+        .route(
+            "/api/v1/admin/courses",
+            get(admin_course::get_all_courses_admin).post(admin_course::create_course_admin),
+        )
+        .route(
+            "/api/v1/admin/courses/{id}",
+            put(admin_course::edit_course_admin).delete(admin_course::delete_course_admin),
+        )
+        .route_layer(middleware::from_fn_with_state(state.clone(), require_admin));
+
+    course_routes
+        .merge(lesson_routes)
+        .merge(exercise_route)
+        .merge(admin_course_routes)
 }
