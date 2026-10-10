@@ -31,6 +31,7 @@ pub struct UserSummary {
     pub id: Uuid,
     pub email: String,
     pub username: String,
+    pub role: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,6 +85,7 @@ impl RegisterCommandHandler {
                 id: user.id,
                 email: user.email,
                 username: user.username,
+                role: user.role,
             },
             access_token: session_token.raw,
         })

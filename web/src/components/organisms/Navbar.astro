@@ -18,6 +18,7 @@
 			<a id="nav-link-courses" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="/courses">[ Jalur Belajar ]</a>
 			<a id="nav-link-playground" class="font-mono text-xs px-3 py-1.5 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold shadow-[2px_2px_0px_#000000]" href="/playground">[ Area Uji Coba ]</a>
 			<a id="nav-link-practice" class="font-mono text-xs px-3 py-1.5 text-[#d1c6ab] bg-[#1b1b1e] border border-[#353438] hover:bg-[#1f1f22] hover:text-[#e4e1e6]" href="#">[ Latihan Soal ]</a>
+			<a id="nav-link-admin" class="hidden font-mono text-xs px-3 py-1.5 text-[#ffecb9] bg-[#3c2f00] border border-[#facc15] hover:bg-[#6c5700]" href="/admin/courses">[ Admin Panel ]</a>
 		</nav>
 
 		<!-- Theme Toggle & Auth Actions -->
@@ -70,15 +71,26 @@
 		const usernameEl = document.getElementById('nav-username');
 		const logoutBtn = document.getElementById('nav-btn-logout');
 
+		const adminLink = document.getElementById('nav-link-admin');
+
 		if (user && guestLinks && userProfile) {
 			guestLinks.classList.add('hidden');
 			userProfile.classList.remove('hidden');
 			userProfile.classList.add('flex');
 			if (usernameEl) usernameEl.textContent = user.username;
+
+			if (user.role === 'admin' && adminLink) {
+				adminLink.classList.remove('hidden');
+				adminLink.classList.add('inline-flex');
+			}
 		} else if (guestLinks && userProfile) {
 			guestLinks.classList.remove('hidden');
 			userProfile.classList.add('hidden');
 			userProfile.classList.remove('flex');
+			if (adminLink) {
+				adminLink.classList.add('hidden');
+				adminLink.classList.remove('inline-flex');
+			}
 		}
 
 		logoutBtn?.addEventListener('click', () => {

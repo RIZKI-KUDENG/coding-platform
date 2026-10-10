@@ -151,3 +151,41 @@ pub async fn login(
         }
     }
 }
+
+pub async fn get_me(
+    State(state): State<AppState>,
+    user: crate::modules::shared::authentication::authenticated_user::AuthenticatedUser,
+) -> impl IntoResponse {
+    let user_repo = UserRepository::new(state.db.clone());
+    match user_repo.find_by_id(user.user_id).await {
+        Ok(Some(u)) => (
+            StatusCode::OK,
+            Json(json!({
+                "data": {
+                    "id": u.id,
+                    "email": u.email,
+                    "username": u.username,
+                    "role": u.role,
+                }
+            })),
+        ),
+        Ok(None) => (
+            StatusCode::NOT_FOUND,
+            Json(json!({
+                "error": {
+                    "code": "USER_NOT_FOUND",
+                    "message": "User not found"
+                }
+            })),
+        ),
+        Err(err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": err.to_string()
+                }
+            })),
+        ),
+    }
+}

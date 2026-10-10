@@ -1,4 +1,7 @@
-use axum::{Router, routing::post};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 
 use super::auth;
 use crate::state::AppState;
@@ -8,6 +11,7 @@ pub fn identity_routes() -> Router<AppState> {
         "/api/v1/auth",
         Router::new()
             .route("/register", post(auth::register))
-            .route("/login", post(auth::login)),
+            .route("/login", post(auth::login))
+            .route("/me", get(auth::get_me)),
     )
 }

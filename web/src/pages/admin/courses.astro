@@ -1,0 +1,766 @@
+---
+// web/src/pages/admin/courses.astro
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/organisms/Navbar.astro';
+import Footer from '@/components/organisms/Footer.astro';
+---
+
+<Layout title="KODINGAN — Admin: Kelola Kursus">
+	<Navbar />
+
+	<main class="w-full pt-[76px] pb-16 bg-[#131316] min-h-[calc(100vh-60px)] px-4 md:px-8">
+		<div class="max-w-7xl mx-auto flex flex-col gap-6">
+
+			<!-- Access Denied Banner (Hidden by default, shown if non-admin) -->
+			<div
+				id="admin-denied-box"
+				class="hidden bg-[#1F080A] border-2 border-[#ffb4ab] p-6 shadow-[6px_6px_0px_#93000a] flex-col items-center justify-center text-center gap-3 font-mono my-8"
+			>
+				<span class="material-symbols-outlined text-4xl text-[#ffb4ab]">lock</span>
+				<h2 class="text-xl font-bold text-[#ffdad6] uppercase tracking-wider font-['Space_Grotesk']">
+					Akses Ditolak — Khusus Administrator
+				</h2>
+				<p class="text-xs text-[#d1c6ab] max-w-md">
+					Akun Anda tidak memiliki role <span class="text-[#ffb4ab] font-bold">admin</span> untuk mengelola konten kurikulum platform.
+				</p>
+				<div class="flex items-center gap-3 mt-2">
+					<a
+						href="/courses"
+						class="px-4 py-2 bg-[#facc15] text-[#3c2f00] font-bold text-xs border border-black shadow-[3px_3px_0px_#000000]"
+					>
+						[ Kembali ke Jalur Belajar ]
+					</a>
+					<a
+						href="/login"
+						class="px-4 py-2 bg-[#2a2a2d] text-[#e4e1e6] text-xs border border-[#353438] hover:bg-[#353438]"
+					>
+						[ Ganti Akun ]
+					</a>
+				</div>
+			</div>
+
+			<!-- Main Admin Container -->
+			<div id="admin-main-container" class="flex flex-col gap-6">
+
+				<!-- Window Title Bar & Navigation Breadcrumbs -->
+				<div class="w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+					<div class="flex items-center gap-2.5">
+						<span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
+						<span class="font-mono text-xs font-bold text-[#ffecb9] tracking-wider uppercase">
+							PANEL_ADMIN // MANAJEMEN_KURSUS
+						</span>
+						<span class="font-mono text-[10px] text-[#4edea3] bg-[#003824] px-1.5 py-0.5 border border-[#4edea3]">
+							ROLE: ADMIN
+						</span>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<a
+							href="/courses"
+							class="font-mono text-xs px-3 py-1.5 bg-[#1b1b1e] text-[#d1c6ab] border border-[#353438] hover:bg-[#2a2a2d] hover:text-[#e4e1e6]"
+						>
+							[ Lihat Tampilan Siswa ]
+						</a>
+						<button
+							id="btn-open-create-modal"
+							type="button"
+							class="font-mono text-xs px-3.5 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 cursor-pointer flex items-center gap-1"
+						>
+							<span class="material-symbols-outlined text-[16px] leading-none">add</span>
+							<span>+ Tambah Kursus Baru</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Stats Counter Bar -->
+				<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+					<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[3px_3px_0px_#000000]">
+						<div class="font-mono text-xs text-[#9a9078] uppercase">Total Kursus</div>
+						<div class="text-2xl font-bold font-mono text-[#e4e1e6] mt-1" id="stat-total-courses">0</div>
+					</div>
+					<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[3px_3px_0px_#000000]">
+						<div class="font-mono text-xs text-[#4edea3] uppercase flex items-center gap-1.5">
+							<span class="w-2 h-2 bg-[#4edea3] inline-block"></span>
+							<span>Terpublikasi (Published)</span>
+						</div>
+						<div class="text-2xl font-bold font-mono text-[#4edea3] mt-1" id="stat-published-courses">0</div>
+					</div>
+					<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[3px_3px_0px_#000000]">
+						<div class="font-mono text-xs text-[#facc15] uppercase flex items-center gap-1.5">
+							<span class="w-2 h-2 bg-[#facc15] inline-block"></span>
+							<span>Konsep (Draft)</span>
+						</div>
+						<div class="text-2xl font-bold font-mono text-[#facc15] mt-1" id="stat-draft-courses">0</div>
+					</div>
+				</div>
+
+				<!-- Notification Toast -->
+				<div
+					id="toast-box"
+					class="hidden p-3 border-2 text-xs font-mono shadow-[3px_3px_0px_#000000] flex-row items-center justify-between gap-3"
+				>
+					<span id="toast-message"></span>
+					<button id="toast-close" type="button" class="cursor-pointer font-bold text-sm">✕</button>
+				</div>
+
+				<!-- Filter & Search Toolbar -->
+				<div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[4px_4px_0px_#000000] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+					<div class="flex-1 max-w-md relative">
+						<input
+							type="text"
+							id="search-input"
+							placeholder="Cari judul atau slug kursus..."
+							class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-xs font-mono text-[#e4e1e6] placeholder-[#6f6b64] focus:outline-none focus:border-[#facc15]"
+						/>
+					</div>
+
+					<div class="flex items-center gap-1.5">
+						<span class="font-mono text-xs text-[#9a9078] mr-1">Status:</span>
+						<button
+							type="button"
+							class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold"
+							data-status="ALL"
+						>
+							Semua
+						</button>
+						<button
+							type="button"
+							class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]"
+							data-status="PUBLISHED"
+						>
+							Published
+						</button>
+						<button
+							type="button"
+							class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]"
+							data-status="DRAFT"
+						>
+							Draft
+						</button>
+					</div>
+				</div>
+
+				<!-- Course List Container -->
+				<div class="bg-[#0e0e11] border-2 border-[#353438] shadow-[6px_6px_0px_#000000] overflow-hidden">
+					<div class="w-full overflow-x-auto">
+						<table class="w-full text-left font-mono text-xs border-collapse">
+							<thead>
+								<tr class="bg-[#1b1b1e] border-b-2 border-[#353438] text-[#9a9078] uppercase text-[11px]">
+									<th class="py-3 px-4">Kursus & Slug</th>
+									<th class="py-3 px-4">Deskripsi</th>
+									<th class="py-3 px-4 w-32">Status</th>
+									<th class="py-3 px-4 w-40">Diperbarui</th>
+									<th class="py-3 px-4 w-44 text-right">Aksi</th>
+								</tr>
+							</thead>
+							<tbody id="course-table-body" class="divide-y divide-[#2a2a2d]">
+								<!-- Loading State Placeholder -->
+								<tr id="loading-row">
+									<td colspan="5" class="py-8 text-center text-[#9a9078]">
+										<div class="flex items-center justify-center gap-2">
+											<span class="w-2 h-2 bg-[#facc15] inline-block animate-ping"></span>
+											<span>Memuat daftar kursus dari backend...</span>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Empty State -->
+					<div id="empty-state" class="hidden py-12 px-4 flex-col items-center justify-center text-center font-mono gap-2">
+						<span class="material-symbols-outlined text-4xl text-[#9a9078]">menu_book</span>
+						<p class="text-sm font-bold text-[#e4e1e6]">Tidak ada data kursus yang sesuai.</p>
+						<p class="text-xs text-[#9a9078]">Klik tombol "+ Tambah Kursus Baru" untuk mulai menyusun materi.</p>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<!-- ================= Modal Create / Edit Course ================= -->
+		<div
+			id="course-modal"
+			class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden backdrop-blur-xs"
+		>
+			<div class="w-full max-w-xl bg-[#0e0e11] border-2 border-[#353438] shadow-[8px_8px_0px_#000000] flex flex-col overflow-hidden">
+				
+				<!-- Modal Header -->
+				<div class="bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2.5 flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
+						<span id="modal-title" class="font-mono text-xs font-bold text-[#ffecb9] uppercase tracking-wider">
+							TAMBAH KURSUS BARU
+						</span>
+					</div>
+					<button
+						id="btn-close-modal"
+						type="button"
+						class="text-[#d1c6ab] hover:text-[#ffb4ab] font-mono text-base font-bold cursor-pointer"
+					>
+						✕
+					</button>
+				</div>
+
+				<!-- Modal Form -->
+				<form id="course-form" class="p-6 flex flex-col gap-4 font-mono text-xs">
+					<input type="hidden" id="course-id" value="" />
+
+					<!-- Error alert in modal -->
+					<div id="modal-error-box" class="hidden bg-[#1F080A] border-2 border-[#ffb4ab] p-3 text-[11px] text-[#ffdad6]"></div>
+
+					<!-- Title Input -->
+					<div class="flex flex-col gap-1.5">
+						<label for="course-title" class="font-bold text-[#d1c6ab] uppercase">
+							Judul Kursus <span class="text-[#facc15]">*</span>
+						</label>
+						<input
+							type="text"
+							id="course-title"
+							required
+							placeholder="Contoh: Pemrograman Python Modern"
+							class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-[#e4e1e6] focus:outline-none focus:border-[#facc15]"
+						/>
+					</div>
+
+					<!-- Slug Input -->
+					<div class="flex flex-col gap-1.5">
+						<div class="flex items-center justify-between">
+							<label for="course-slug" class="font-bold text-[#d1c6ab] uppercase">
+								Slug URL <span class="text-[#facc15]">*</span>
+							</label>
+							<button
+								type="button"
+								id="btn-generate-slug"
+								class="text-[11px] text-[#facc15] hover:underline cursor-pointer"
+							>
+								[ Auto-generate dari Judul ]
+							</button>
+						</div>
+						<input
+							type="text"
+							id="course-slug"
+							required
+							placeholder="contoh: python-modern"
+							class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-[#e4e1e6] focus:outline-none focus:border-[#facc15]"
+						/>
+						<span class="text-[10px] text-[#9a9078]">Akan diakses pada rute: /courses/&lt;slug&gt;</span>
+					</div>
+
+					<!-- Status Radio / Select -->
+					<div class="flex flex-col gap-1.5">
+						<label class="font-bold text-[#d1c6ab] uppercase">Status Publikasi</label>
+						<div class="grid grid-cols-2 gap-3">
+							<label class="flex items-center gap-2 p-2.5 bg-[#1b1b1e] border border-[#353438] cursor-pointer hover:border-[#facc15]">
+								<input type="radio" name="course-status" value="DRAFT" checked class="accent-[#facc15]" />
+								<div>
+									<div class="font-bold text-[#facc15]">DRAFT</div>
+									<div class="text-[10px] text-[#9a9078]">Hanya terlihat oleh admin</div>
+								</div>
+							</label>
+							<label class="flex items-center gap-2 p-2.5 bg-[#1b1b1e] border border-[#353438] cursor-pointer hover:border-[#4edea3]">
+								<input type="radio" name="course-status" value="PUBLISHED" class="accent-[#4edea3]" />
+								<div>
+									<div class="font-bold text-[#4edea3]">PUBLISHED</div>
+									<div class="text-[10px] text-[#9a9078]">Bisa diakses oleh semua siswa</div>
+								</div>
+							</label>
+						</div>
+					</div>
+
+					<!-- Description Textarea -->
+					<div class="flex flex-col gap-1.5">
+						<label for="course-description" class="font-bold text-[#d1c6ab] uppercase">
+							Deskripsi Kursus
+						</label>
+						<textarea
+							id="course-description"
+							rows="3"
+							placeholder="Tuliskan gambaran materi yang dipelajari dalam kursus ini..."
+							class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-[#e4e1e6] focus:outline-none focus:border-[#facc15]"
+						></textarea>
+					</div>
+
+					<!-- Modal Actions -->
+					<div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[#353438]">
+						<button
+							type="button"
+							id="btn-cancel-modal"
+							class="px-4 py-2 bg-[#2a2a2d] text-[#d1c6ab] hover:text-[#e4e1e6] border border-[#353438] cursor-pointer"
+						>
+							Batal
+						</button>
+						<button
+							type="submit"
+							id="btn-save-course"
+							class="px-4 py-2 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 cursor-pointer flex items-center gap-1.5"
+						>
+							<span class="material-symbols-outlined text-[16px]">save</span>
+							<span id="btn-save-text">Simpan Kursus</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- ================= Modal Delete Confirmation ================= -->
+		<div
+			id="delete-modal"
+			class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden backdrop-blur-xs"
+		>
+			<div class="w-full max-w-md bg-[#0e0e11] border-2 border-[#ffb4ab] shadow-[8px_8px_0px_#93000a] flex flex-col font-mono">
+				<div class="bg-[#1F080A] border-b-2 border-[#ffb4ab] px-4 py-2.5 flex items-center justify-between text-[#ffb4ab]">
+					<div class="flex items-center gap-2">
+						<span class="material-symbols-outlined text-[18px]">warning</span>
+						<span class="text-xs font-bold uppercase">KONFIRMASI PENGHAPUSAN</span>
+					</div>
+					<button id="btn-close-delete-modal" type="button" class="cursor-pointer font-bold">✕</button>
+				</div>
+				<div class="p-6 flex flex-col gap-4 text-xs">
+					<p class="text-[#ffdad6]">
+						Apakah Anda yakin ingin menghapus kursus:
+					</p>
+					<div class="p-3 bg-[#1b1b1e] border border-[#353438] font-bold text-[#e4e1e6] text-sm" id="delete-course-title">
+						-
+					</div>
+					<p class="text-[11px] text-[#9a9078] leading-relaxed">
+						Tindakan ini permanen. Semua bab, materi pelajaran, dan soal latihan yang terhubung akan ikut terhapus jika tidak ditautkan ke kursus lain.
+					</p>
+					<div class="flex items-center justify-end gap-2 pt-2">
+						<button
+							type="button"
+							id="btn-cancel-delete"
+							class="px-3.5 py-1.5 bg-[#2a2a2d] text-[#e4e1e6] border border-[#353438] cursor-pointer"
+						>
+							Batal
+						</button>
+						<button
+							type="button"
+							id="btn-confirm-delete"
+							class="px-4 py-1.5 bg-[#93000a] text-[#ffdad6] font-bold border-2 border-[#ffb4ab] shadow-[2px_2px_0px_#000000] hover:bg-[#b2131f] cursor-pointer"
+						>
+							Ya, Hapus Kursus
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+	<Footer />
+</Layout>
+
+<script>
+	import { getCurrentUser, isAdmin, isAuthenticated, syncCurrentUser } from '@/lib/auth';
+	import {
+		fetchAdminCourses,
+		createAdminCourse,
+		editAdminCourse,
+		deleteAdminCourse,
+		type AdminCourse,
+	} from '@/lib/admin-courses';
+
+	let allCourses: AdminCourse[] = [];
+	let activeFilter: string = 'ALL';
+	let searchQuery: string = '';
+	let courseToDeleteId: string | null = null;
+
+	const deniedBox = document.getElementById('admin-denied-box');
+	const mainContainer = document.getElementById('admin-main-container');
+	const tableBody = document.getElementById('course-table-body');
+	const emptyState = document.getElementById('empty-state');
+	const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+	const filterBtns = document.querySelectorAll('.filter-btn');
+
+	const statTotal = document.getElementById('stat-total-courses');
+	const statPublished = document.getElementById('stat-published-courses');
+	const statDraft = document.getElementById('stat-draft-courses');
+
+	const toastBox = document.getElementById('toast-box');
+	const toastMessage = document.getElementById('toast-message');
+	const toastClose = document.getElementById('toast-close');
+
+	// Modal elements
+	const courseModal = document.getElementById('course-modal');
+	const modalTitle = document.getElementById('modal-title');
+	const courseForm = document.getElementById('course-form') as HTMLFormElement | null;
+	const courseIdInput = document.getElementById('course-id') as HTMLInputElement | null;
+	const courseTitleInput = document.getElementById('course-title') as HTMLInputElement | null;
+	const courseSlugInput = document.getElementById('course-slug') as HTMLInputElement | null;
+	const courseDescInput = document.getElementById('course-description') as HTMLTextAreaElement | null;
+	const modalErrorBox = document.getElementById('modal-error-box');
+	const btnSaveText = document.getElementById('btn-save-text');
+	const btnOpenCreateModal = document.getElementById('btn-open-create-modal');
+	const btnCloseModal = document.getElementById('btn-close-modal');
+	const btnCancelModal = document.getElementById('btn-cancel-modal');
+	const btnGenerateSlug = document.getElementById('btn-generate-slug');
+
+	// Delete modal elements
+	const deleteModal = document.getElementById('delete-modal');
+	const deleteCourseTitle = document.getElementById('delete-course-title');
+	const btnCloseDeleteModal = document.getElementById('btn-close-delete-modal');
+	const btnCancelDelete = document.getElementById('btn-cancel-delete');
+	const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+	function showToast(message: string, isError = false) {
+		if (!toastBox || !toastMessage) return;
+		toastMessage.textContent = message;
+		toastBox.className = isError
+			? 'p-3 border-2 text-xs font-mono shadow-[3px_3px_0px_#000000] flex flex-row items-center justify-between gap-3 bg-[#1F080A] border-[#ffb4ab] text-[#ffdad6]'
+			: 'p-3 border-2 text-xs font-mono shadow-[3px_3px_0px_#000000] flex flex-row items-center justify-between gap-3 bg-[#003824] border-[#4edea3] text-[#4edea3]';
+		toastBox.classList.remove('hidden');
+	}
+
+	toastClose?.addEventListener('click', () => {
+		toastBox?.classList.add('hidden');
+	});
+
+	function slugify(text: string): string {
+		return text
+			.toLowerCase()
+			.trim()
+			.replace(/[\s\W-]+/g, '-')
+			.replace(/^-+|-+$/g, '');
+	}
+
+	async function checkAdminAccess(): Promise<boolean> {
+		if (!isAuthenticated()) {
+			window.location.href = '/login';
+			return false;
+		}
+
+		// Sinkronkan data user dengan backend (/api/v1/auth/me) agar jika role
+		// baru saja diubah di database, otomatis ter-update di browser tanpa harus relogin manual!
+		const syncedUser = await syncCurrentUser();
+		const userRole = syncedUser?.role || getCurrentUser()?.role;
+
+		if (userRole !== 'admin') {
+			if (deniedBox && mainContainer) {
+				deniedBox.classList.remove('hidden');
+				deniedBox.classList.add('flex');
+				mainContainer.classList.add('hidden');
+			}
+			return false;
+		}
+
+		if (deniedBox && mainContainer) {
+			deniedBox.classList.add('hidden');
+			deniedBox.classList.remove('flex');
+			mainContainer.classList.remove('hidden');
+		}
+
+		return true;
+	}
+
+	function updateStats() {
+		const total = allCourses.length;
+		const published = allCourses.filter((c) => c.status === 'PUBLISHED').length;
+		const draft = allCourses.filter((c) => c.status === 'DRAFT').length;
+
+		if (statTotal) statTotal.textContent = String(total);
+		if (statPublished) statPublished.textContent = String(published);
+		if (statDraft) statDraft.textContent = String(draft);
+	}
+
+	function renderTable() {
+		if (!tableBody) return;
+
+		let filtered = allCourses;
+
+		// Filter status
+		if (activeFilter !== 'ALL') {
+			filtered = filtered.filter((c) => c.status === activeFilter);
+		}
+
+		// Filter search query
+		if (searchQuery.trim()) {
+			const q = searchQuery.toLowerCase().trim();
+			filtered = filtered.filter(
+				(c) => c.title.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q),
+			);
+		}
+
+		if (filtered.length === 0) {
+			tableBody.innerHTML = '';
+			emptyState?.classList.remove('hidden');
+			emptyState?.classList.add('flex');
+			return;
+		}
+
+		emptyState?.classList.add('hidden');
+		emptyState?.classList.remove('flex');
+
+		tableBody.innerHTML = filtered
+			.map((course) => {
+				const isPublished = course.status === 'PUBLISHED';
+				const statusBadge = isPublished
+					? `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#003824] text-[#4edea3] border border-[#4edea3]">PUBLISHED</span>`
+					: `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#3c2f00] text-[#facc15] border border-[#facc15]">DRAFT</span>`;
+
+				const desc = course.description
+					? course.description.length > 70
+						? course.description.slice(0, 70) + '...'
+						: course.description
+					: '<span class="text-[#6f6b64] italic">Tidak ada deskripsi</span>';
+
+				const updatedDate = new Date(course.updated_at).toLocaleDateString('id-ID', {
+					day: '2-digit',
+					month: 'short',
+					year: 'numeric',
+				});
+
+				return `
+					<tr class="hover:bg-[#1b1b1e] transition-colors">
+						<td class="py-3 px-4">
+							<div class="font-bold text-[#e4e1e6] font-['Space_Grotesk'] text-sm">${escapeHtml(course.title)}</div>
+							<div class="text-[11px] text-[#9a9078] mt-0.5">/courses/${escapeHtml(course.slug)}</div>
+						</td>
+						<td class="py-3 px-4 text-[#d1c6ab] text-[11px]">${escapeHtml(desc)}</td>
+						<td class="py-3 px-4">${statusBadge}</td>
+						<td class="py-3 px-4 text-[#9a9078] text-[11px]">${updatedDate}</td>
+						<td class="py-3 px-4 text-right">
+							<div class="flex items-center justify-end gap-1.5">
+								<button
+									type="button"
+									class="btn-edit-course px-2.5 py-1 bg-[#2a2a2d] text-[#ffecb9] hover:bg-[#353438] border border-[#353438] cursor-pointer"
+									data-id="${course.id}"
+								>
+									[ Edit ]
+								</button>
+								<button
+									type="button"
+									class="btn-delete-course px-2 py-1 bg-[#1F080A] text-[#ffb4ab] hover:bg-[#93000a] border border-[#ffb4ab] cursor-pointer"
+									data-id="${course.id}"
+									data-title="${escapeHtml(course.title)}"
+								>
+									[ Hapus ]
+								</button>
+							</div>
+						</td>
+					</tr>
+				`;
+			})
+			.join('');
+
+		// Attach edit & delete listeners
+		document.querySelectorAll('.btn-edit-course').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const id = btn.getAttribute('data-id');
+				if (id) openEditModal(id);
+			});
+		});
+
+		document.querySelectorAll('.btn-delete-course').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const id = btn.getAttribute('data-id');
+				const title = btn.getAttribute('data-title') || 'Kursus';
+				if (id) openDeleteModal(id, title);
+			});
+		});
+	}
+
+	function escapeHtml(str: string): string {
+		return str
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;');
+	}
+
+	async function loadCourses() {
+		const res = await fetchAdminCourses();
+		if (!res.ok) {
+			if (res.status === 401) {
+				window.location.href = '/login';
+				return;
+			}
+			if (res.status === 403) {
+				if (deniedBox && mainContainer) {
+					deniedBox.classList.remove('hidden');
+					deniedBox.classList.add('flex');
+					mainContainer.classList.add('hidden');
+				}
+				return;
+			}
+			showToast(res.error || 'Gagal memuat kursus dari server.', true);
+			return;
+		}
+
+		allCourses = res.data;
+		updateStats();
+		renderTable();
+	}
+
+	function openCreateModal() {
+		if (courseForm) courseForm.reset();
+		if (courseIdInput) courseIdInput.value = '';
+		if (modalTitle) modalTitle.textContent = 'TAMBAH KURSUS BARU';
+		if (btnSaveText) btnSaveText.textContent = 'Simpan Kursus Baru';
+		hideModalError();
+		courseModal?.classList.remove('hidden');
+	}
+
+	function openEditModal(id: string) {
+		const course = allCourses.find((c) => c.id === id);
+		if (!course) return;
+
+		if (courseIdInput) courseIdInput.value = course.id;
+		if (courseTitleInput) courseTitleInput.value = course.title;
+		if (courseSlugInput) courseSlugInput.value = course.slug;
+		if (courseDescInput) courseDescInput.value = course.description || '';
+
+		const radio = document.querySelector(
+			`input[name="course-status"][value="${course.status}"]`,
+		) as HTMLInputElement | null;
+		if (radio) radio.checked = true;
+
+		if (modalTitle) modalTitle.textContent = 'EDIT KURSUS // ' + course.title;
+		if (btnSaveText) btnSaveText.textContent = 'Perbarui Kursus';
+		hideModalError();
+		courseModal?.classList.remove('hidden');
+	}
+
+	function closeModal() {
+		courseModal?.classList.add('hidden');
+	}
+
+	function showModalError(msg: string) {
+		if (!modalErrorBox) return;
+		modalErrorBox.textContent = msg;
+		modalErrorBox.classList.remove('hidden');
+	}
+
+	function hideModalError() {
+		if (!modalErrorBox) return;
+		modalErrorBox.classList.add('hidden');
+	}
+
+	function openDeleteModal(id: string, title: string) {
+		courseToDeleteId = id;
+		if (deleteCourseTitle) deleteCourseTitle.textContent = title;
+		deleteModal?.classList.remove('hidden');
+	}
+
+	function closeDeleteModal() {
+		courseToDeleteId = null;
+		deleteModal?.classList.add('hidden');
+	}
+
+	// Event Handlers
+	btnOpenCreateModal?.addEventListener('click', openCreateModal);
+	btnCloseModal?.addEventListener('click', closeModal);
+	btnCancelModal?.addEventListener('click', closeModal);
+	btnCloseDeleteModal?.addEventListener('click', closeDeleteModal);
+	btnCancelDelete?.addEventListener('click', closeDeleteModal);
+
+	btnGenerateSlug?.addEventListener('click', () => {
+		const title = courseTitleInput?.value || '';
+		if (title && courseSlugInput) {
+			courseSlugInput.value = slugify(title);
+		}
+	});
+
+	courseTitleInput?.addEventListener('input', () => {
+		// Auto fill slug if creating new course and slug is empty
+		if (!courseIdInput?.value && courseSlugInput && !courseSlugInput.value) {
+			courseSlugInput.value = slugify(courseTitleInput.value);
+		}
+	});
+
+	// Filter buttons
+	filterBtns.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			filterBtns.forEach((b) => {
+				b.className =
+					'filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]';
+			});
+			btn.className =
+				'filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold';
+			activeFilter = btn.getAttribute('data-status') || 'ALL';
+			renderTable();
+		});
+	});
+
+	// Search input
+	searchInput?.addEventListener('input', () => {
+		searchQuery = searchInput.value;
+		renderTable();
+	});
+
+	// Submit Form (Create or Edit)
+	courseForm?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		hideModalError();
+
+		const id = courseIdInput?.value.trim();
+		const title = courseTitleInput?.value.trim() || '';
+		const slug = courseSlugInput?.value.trim() || '';
+		const description = courseDescInput?.value.trim() || null;
+		const statusEl = document.querySelector(
+			'input[name="course-status"]:checked',
+		) as HTMLInputElement | null;
+		const status = statusEl?.value || 'DRAFT';
+
+		if (!title || !slug) {
+			showModalError('Judul dan slug kursus wajib diisi.');
+			return;
+		}
+
+		if (id) {
+			// Update Course
+			const res = await editAdminCourse(id, {
+				title,
+				slug,
+				description,
+				status,
+			});
+			if (!res.ok) {
+				showModalError(res.error || 'Gagal memperbarui kursus.');
+				return;
+			}
+			closeModal();
+			showToast(`Kursus "${title}" berhasil diperbarui!`);
+			await loadCourses();
+		} else {
+			// Create Course
+			const res = await createAdminCourse({
+				title,
+				slug,
+				description: description || '',
+				status,
+			});
+			if (!res.ok) {
+				showModalError(res.error || 'Gagal membuat kursus baru.');
+				return;
+			}
+			closeModal();
+			showToast(`Kursus "${title}" berhasil dibuat!`);
+			await loadCourses();
+		}
+	});
+
+	// Confirm Delete
+	btnConfirmDelete?.addEventListener('click', async () => {
+		if (!courseToDeleteId) return;
+
+		const res = await deleteAdminCourse(courseToDeleteId);
+		closeDeleteModal();
+
+		if (!res.ok) {
+			showToast(res.error || 'Gagal menghapus kursus.', true);
+			return;
+		}
+
+		showToast('Kursus berhasil dihapus.');
+		await loadCourses();
+	});
+
+	// Initialize
+	(async () => {
+		if (await checkAdminAccess()) {
+			await loadCourses();
+		}
+	})();
+</script>
