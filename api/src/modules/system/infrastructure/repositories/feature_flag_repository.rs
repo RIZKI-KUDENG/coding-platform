@@ -78,7 +78,7 @@ impl FeatureFlagRepository {
     pub async fn is_enabled(&self, key: &str) -> Result<Option<bool>, sqlx::Error> {
         let row = sqlx::query!(
             r#"
-            SELECT 
+            SELECT
                 f.is_enabled,
                 p.is_enabled AS "parent_is_enabled?"
             FROM system.m_feature_flags f
@@ -112,6 +112,40 @@ impl FeatureFlagRepository {
             WHERE key = $1
             "#,
             key
+        )
+        .fetch_optional(&self.pool)
+        .await
+    }
+    pub async fn edit_feature(
+        &self,
+        id: Uuid,
+        key: &str,
+        is_enabled: i32,
+        description: Option<&str>,
+    ) -> Result<Option<FeatureFlag>, sqlx::Error> {
+        sqlx::query_as!(
+            FeatureFlag,
+            r#"
+            UPDATE system.m_feature_flags
+            SET
+                key = $2,
+                is_enabled = $3,
+                description = $4,
+                updated_at = NOW()
+            WHERE id = $1
+            RETURNING
+                id,
+                key,
+                is_enabled,
+                description,
+                created_at,
+                updated_at,
+                parent_id
+            "#,
+            id,
+            key,
+            is_enabled,
+            description
         )
         .fetch_optional(&self.pool)
         .await

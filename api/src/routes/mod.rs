@@ -14,7 +14,7 @@ pub fn create_router(state: AppState) -> Router {
         .route("/api/v1/health", get(health::health_check))
         .merge(identity_routes())
         .merge(execution_routes(state.clone()))
-        .merge(system_routes())
+        .merge(system_routes(state.clone()))
         .merge(learning_routes(state.clone()))
         .with_state(state)
 }
