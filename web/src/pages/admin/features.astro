@@ -1,11 +1,11 @@
 ---
-// web/src/pages/admin/courses.astro
+// web/src/pages/admin/features.astro
 import Layout from "@/layouts/Layout.astro";
 import Navbar from "@/components/organisms/Navbar.astro";
 import Footer from "@/components/organisms/Footer.astro";
 ---
 
-<Layout title="KODINGAN — Admin: Kelola Kursus">
+<Layout title="KODINGAN — Admin: Sakelar Fitur (Feature Flags)">
     <Navbar />
 
     <main class="w-full pt-[76px] pb-16 bg-[#131316] min-h-[calc(100vh-60px)] px-4 md:px-8">
@@ -24,7 +24,7 @@ import Footer from "@/components/organisms/Footer.astro";
                 <p class="text-xs text-[#d1c6ab] max-w-md">
                     Akun Anda tidak memiliki role{" "}
                     <span class="text-[#ffb4ab] font-bold">admin</span> untuk
-                    mengelola konten kurikulum platform.
+                    mengontrol sakelar fitur platform.
                 </p>
                 <div class="flex items-center gap-3 mt-2">
                     <a
@@ -44,47 +44,38 @@ import Footer from "@/components/organisms/Footer.astro";
 
             <!-- Main Admin Container -->
             <div id="admin-main-container" class="flex flex-col gap-6">
-                <!-- Window Title Bar & Navigation Breadcrumbs -->
+                <!-- Window Title Bar & Subnav Tabs -->
                 <div class="w-full bg-[#0e0e11] border-2 border-[#353438] shadow-[4px_4px_0px_#000000] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-center gap-2.5">
                         <span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
                         <span class="font-mono text-xs font-bold text-[#ffecb9] tracking-wider uppercase">
-                            PANEL_ADMIN // MANAJEMEN_KURSUS
+                            PANEL_ADMIN // SAKELAR_FITUR (FEATURE_FLAGS)
                         </span>
                         <span class="font-mono text-[10px] text-[#4edea3] bg-[#003824] px-1.5 py-0.5 border border-[#4edea3]">
                             ROLE: ADMIN
                         </span>
                     </div>
 
+                    <!-- Navigation Tabs -->
                     <div class="flex flex-wrap items-center gap-2">
                         <a
                             href="/admin/courses"
-                            class="font-mono text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border border-black shadow-[2px_2px_0px_#000000]"
+                            class="font-mono text-xs px-3 py-1.5 bg-[#1b1b1e] text-[#d1c6ab] border border-[#353438] hover:bg-[#2a2a2d] hover:text-[#e4e1e6]"
                         >
-                            Kelola Kursus
+                            [ Kelola Kursus ]
                         </a>
                         <a
                             href="/admin/features"
-                            class="font-mono text-xs px-3 py-1.5 bg-[#1b1b1e] text-[#d1c6ab] border border-[#353438] hover:bg-[#2a2a2d] hover:text-[#e4e1e6]"
+                            class="font-mono text-xs px-3 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border border-black shadow-[2px_2px_0px_#000000]"
                         >
-                            Sakelar Fitur
+                            [ Sakelar Fitur ]
                         </a>
                         <a
                             href="/courses"
                             class="font-mono text-xs px-3 py-1.5 bg-[#1b1b1e] text-[#d1c6ab] border border-[#353438] hover:bg-[#2a2a2d] hover:text-[#e4e1e6]"
                         >
-                            Tampilan Siswa
+                            [ Tampilan Siswa ]
                         </a>
-                        <button
-                            id="btn-open-create-modal"
-                            type="button"
-                            class="font-mono text-xs px-3.5 py-1.5 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 cursor-pointer flex items-center gap-1"
-                        >
-                            <span class="material-symbols-outlined text-[16px] leading-none">
-                                add
-                            </span>
-                            <span>Tambah Kursus Baru</span>
-                        </button>
                     </div>
                 </div>
 
@@ -92,11 +83,11 @@ import Footer from "@/components/organisms/Footer.astro";
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[3px_3px_0px_#000000]">
                         <div class="font-mono text-xs text-[#9a9078] uppercase">
-                            Total Kursus
+                            Total Fitur Terdaftar
                         </div>
                         <div
                             class="text-2xl font-bold font-mono text-[#e4e1e6] mt-1"
-                            id="stat-total-courses"
+                            id="stat-total-features"
                         >
                             0
                         </div>
@@ -104,23 +95,23 @@ import Footer from "@/components/organisms/Footer.astro";
                     <div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[3px_3px_0px_#000000]">
                         <div class="font-mono text-xs text-[#4edea3] uppercase flex items-center gap-1.5">
                             <span class="w-2 h-2 bg-[#4edea3] inline-block"></span>
-                            <span>Terpublikasi (Published)</span>
+                            <span>Aktif Normal</span>
                         </div>
                         <div
                             class="text-2xl font-bold font-mono text-[#4edea3] mt-1"
-                            id="stat-published-courses"
+                            id="stat-active-features"
                         >
                             0
                         </div>
                     </div>
                     <div class="bg-[#0e0e11] border-2 border-[#353438] p-4 shadow-[3px_3px_0px_#000000]">
-                        <div class="font-mono text-xs text-[#facc15] uppercase flex items-center gap-1.5">
-                            <span class="w-2 h-2 bg-[#facc15] inline-block"></span>
-                            <span>Konsep (Draft)</span>
+                        <div class="font-mono text-xs text-[#ffb4ab] uppercase flex items-center gap-1.5">
+                            <span class="w-2 h-2 bg-[#ffb4ab] inline-block"></span>
+                            <span>Pemeliharaan / Nonaktif</span>
                         </div>
                         <div
-                            class="text-2xl font-bold font-mono text-[#facc15] mt-1"
-                            id="stat-draft-courses"
+                            class="text-2xl font-bold font-mono text-[#ffb4ab] mt-1"
+                            id="stat-disabled-features"
                         >
                             0
                         </div>
@@ -148,56 +139,74 @@ import Footer from "@/components/organisms/Footer.astro";
                         <input
                             type="text"
                             id="search-input"
-                            placeholder="Cari judul atau slug kursus..."
+                            placeholder="Cari kunci fitur (cth: courses, runner)..."
                             class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-xs font-mono text-[#e4e1e6] placeholder-[#6f6b64] focus:outline-none focus:border-[#facc15]"
                         />
                     </div>
 
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex flex-wrap items-center gap-1.5">
                         <span class="font-mono text-xs text-[#9a9078] mr-1">
-                            Status:
+                            Filter:
                         </span>
                         <button
                             type="button"
                             class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold"
-                            data-status="ALL"
+                            data-filter="ALL"
                         >
                             Semua
                         </button>
                         <button
                             type="button"
                             class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]"
-                            data-status="PUBLISHED"
+                            data-filter="ACTIVE"
                         >
-                            Published
+                            Aktif
                         </button>
                         <button
                             type="button"
                             class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]"
-                            data-status="DRAFT"
+                            data-filter="DISABLED"
                         >
-                            Draft
+                            Nonaktif
+                        </button>
+                        <button
+                            type="button"
+                            class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]"
+                            data-filter="ROOT"
+                        >
+                            Fitur Utama
+                        </button>
+                        <button
+                            type="button"
+                            class="filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#1b1b1e] text-[#d1c6ab] hover:text-[#e4e1e6]"
+                            data-filter="SUB"
+                        >
+                            Sub-Fitur
                         </button>
                     </div>
                 </div>
 
-                <!-- Course List Container -->
+                <!-- Feature Flags Table -->
                 <div class="bg-[#0e0e11] border-2 border-[#353438] shadow-[6px_6px_0px_#000000] overflow-hidden">
                     <div class="w-full overflow-x-auto">
                         <table class="w-full text-left font-mono text-xs border-collapse">
                             <thead>
                                 <tr class="bg-[#1b1b1e] border-b-2 border-[#353438] text-[#9a9078] uppercase text-[11px]">
-                                    <th class="py-3 px-4">Kursus & Slug</th>
+                                    <th class="py-3 px-4 w-60">
+                                        Kunci Fitur (Key)
+                                    </th>
+                                    <th class="py-3 px-4 w-32">Tipe</th>
                                     <th class="py-3 px-4">Deskripsi</th>
-                                    <th class="py-3 px-4 w-32">Status</th>
-                                    <th class="py-3 px-4 w-40">Diperbarui</th>
-                                    <th class="py-3 px-4 w-44 text-right">
-                                        Aksi
+                                    <th class="py-3 px-4 w-40">
+                                        Status Terkini
+                                    </th>
+                                    <th class="py-3 px-4 w-52 text-right">
+                                        Aksi Sakelar
                                     </th>
                                 </tr>
                             </thead>
                             <tbody
-                                id="course-table-body"
+                                id="features-table-body"
                                 class="divide-y divide-[#2a2a2d]"
                             >
                                 <!-- Loading State Placeholder -->
@@ -209,8 +218,8 @@ import Footer from "@/components/organisms/Footer.astro";
                                         <div class="flex items-center justify-center gap-2">
                                             <span class="w-2 h-2 bg-[#facc15] inline-block animate-ping"></span>
                                             <span>
-                                                Memuat daftar kursus dari
-                                                backend...
+                                                Memuat daftar sakelar fitur dari
+                                                sistem...
                                             </span>
                                         </div>
                                     </td>
@@ -225,35 +234,28 @@ import Footer from "@/components/organisms/Footer.astro";
                         class="hidden py-12 px-4 flex-col items-center justify-center text-center font-mono gap-2"
                     >
                         <span class="material-symbols-outlined text-4xl text-[#9a9078]">
-                            menu_book
+                            toggle_off
                         </span>
                         <p class="text-sm font-bold text-[#e4e1e6]">
-                            Tidak ada data kursus yang sesuai.
-                        </p>
-                        <p class="text-xs text-[#9a9078]">
-                            Klik tombol "+ Tambah Kursus Baru" untuk mulai
-                            menyusun materi.
+                            Tidak ada feature flag yang cocok dengan pencarian.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= Modal Create / Edit Course ================= -->
+        <!-- ================= Modal Edit Feature Flag ================= -->
         <div
-            id="course-modal"
+            id="edit-modal"
             class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden backdrop-blur-xs"
         >
-            <div class="w-full max-w-xl bg-[#0e0e11] border-2 border-[#353438] shadow-[8px_8px_0px_#000000] flex flex-col overflow-hidden">
+            <div class="w-full max-w-lg bg-[#0e0e11] border-2 border-[#353438] shadow-[8px_8px_0px_#000000] flex flex-col overflow-hidden">
                 <!-- Modal Header -->
                 <div class="bg-[#1b1b1e] border-b-2 border-[#353438] px-4 py-2.5 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 bg-[#facc15] inline-block border border-black"></span>
-                        <span
-                            id="modal-title"
-                            class="font-mono text-xs font-bold text-[#ffecb9] uppercase tracking-wider"
-                        >
-                            TAMBAH KURSUS BARU
+                        <span class="font-mono text-xs font-bold text-[#ffecb9] uppercase tracking-wider">
+                            EDIT SAKELAR FITUR
                         </span>
                     </div>
                     <button
@@ -267,99 +269,67 @@ import Footer from "@/components/organisms/Footer.astro";
 
                 <!-- Modal Form -->
                 <form
-                    id="course-form"
+                    id="feature-form"
                     class="p-6 flex flex-col gap-4 font-mono text-xs"
                 >
-                    <input type="hidden" id="course-id" value="" />
+                    <input type="hidden" id="modal-feature-id" value="" />
 
-                    <!-- Error alert in modal -->
                     <div
                         id="modal-error-box"
                         class="hidden bg-[#1F080A] border-2 border-[#ffb4ab] p-3 text-[11px] text-[#ffdad6]"
                     ></div>
 
-                    <!-- Title Input -->
+                    <!-- Feature Key (Read-Only) -->
                     <div class="flex flex-col gap-1.5">
                         <label
-                            for="course-title"
+                            for="modal-feature-key"
                             class="font-bold text-[#d1c6ab] uppercase"
                         >
-                            Judul Kursus <span class="text-[#facc15]">*</span>
+                            Kunci Fitur (Identifier)
                         </label>
                         <input
                             type="text"
-                            id="course-title"
-                            required
-                            placeholder="Contoh: Pemrograman Python Modern"
-                            class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-[#e4e1e6] focus:outline-none focus:border-[#facc15]"
+                            id="modal-feature-key"
+                            readonly
+                            class="w-full bg-[#141416] border-2 border-[#2a2a2d] px-3 py-2 text-[#9a9078] cursor-not-allowed select-all"
                         />
                     </div>
 
-                    <!-- Slug Input -->
-                    <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center justify-between">
-                            <label
-                                for="course-slug"
-                                class="font-bold text-[#d1c6ab] uppercase"
-                            >
-                                Slug URL <span class="text-[#facc15]">*</span>
-                            </label>
-                            <button
-                                type="button"
-                                id="btn-generate-slug"
-                                class="text-[11px] text-[#facc15] hover:underline cursor-pointer"
-                            >
-                                [ Auto-generate dari Judul ]
-                            </button>
-                        </div>
-                        <input
-                            type="text"
-                            id="course-slug"
-                            required
-                            placeholder="contoh: python-modern"
-                            class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-[#e4e1e6] focus:outline-none focus:border-[#facc15]"
-                        />
-                        <span class="text-[10px] text-[#9a9078]">
-                            Akan diakses pada rute: /courses/&lt;slug&gt;
-                        </span>
-                    </div>
-
-                    <!-- Status Radio / Select -->
+                    <!-- Status Radio Toggle -->
                     <div class="flex flex-col gap-1.5">
                         <label class="font-bold text-[#d1c6ab] uppercase">
-                            Status Publikasi
+                            Status Fitur
                         </label>
                         <div class="grid grid-cols-2 gap-3">
-                            <label class="flex items-center gap-2 p-2.5 bg-[#1b1b1e] border border-[#353438] cursor-pointer hover:border-[#facc15]">
+                            <label class="flex items-center gap-2.5 p-3 bg-[#1b1b1e] border border-[#353438] cursor-pointer hover:border-[#4edea3]">
                                 <input
                                     type="radio"
-                                    name="course-status"
-                                    value="DRAFT"
-                                    checked
-                                    class="accent-[#facc15]"
-                                />
-                                <div>
-                                    <div class="font-bold text-[#facc15]">
-                                        DRAFT
-                                    </div>
-                                    <div class="text-[10px] text-[#9a9078]">
-                                        Hanya terlihat oleh admin
-                                    </div>
-                                </div>
-                            </label>
-                            <label class="flex items-center gap-2 p-2.5 bg-[#1b1b1e] border border-[#353438] cursor-pointer hover:border-[#4edea3]">
-                                <input
-                                    type="radio"
-                                    name="course-status"
-                                    value="PUBLISHED"
+                                    name="feature-status"
+                                    value="1"
                                     class="accent-[#4edea3]"
                                 />
                                 <div>
                                     <div class="font-bold text-[#4edea3]">
-                                        PUBLISHED
+                                        AKTIF (ENABLED)
                                     </div>
                                     <div class="text-[10px] text-[#9a9078]">
-                                        Bisa diakses oleh semua siswa
+                                        Dapat diakses normal
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-2.5 p-3 bg-[#1b1b1e] border border-[#353438] cursor-pointer hover:border-[#ffb4ab]">
+                                <input
+                                    type="radio"
+                                    name="feature-status"
+                                    value="0"
+                                    class="accent-[#ffb4ab]"
+                                />
+                                <div>
+                                    <div class="font-bold text-[#ffb4ab]">
+                                        MAINTENANCE (OFF)
+                                    </div>
+                                    <div class="text-[10px] text-[#9a9078]">
+                                        Mode pemeliharaan
                                     </div>
                                 </div>
                             </label>
@@ -369,15 +339,15 @@ import Footer from "@/components/organisms/Footer.astro";
                     <!-- Description Textarea -->
                     <div class="flex flex-col gap-1.5">
                         <label
-                            for="course-description"
+                            for="modal-feature-desc"
                             class="font-bold text-[#d1c6ab] uppercase"
                         >
-                            Deskripsi Kursus
+                            Deskripsi / Catatan Fitur
                         </label>
                         <textarea
-                            id="course-description"
+                            id="modal-feature-desc"
                             rows="3"
-                            placeholder="Tuliskan gambaran materi yang dipelajari dalam kursus ini..."
+                            placeholder="Tuliskan keterangan modul atau alasan pemeliharaan..."
                             class="w-full bg-[#1b1b1e] border-2 border-[#353438] px-3 py-2 text-[#e4e1e6] focus:outline-none focus:border-[#facc15]"
                         ></textarea>
                     </div>
@@ -393,74 +363,16 @@ import Footer from "@/components/organisms/Footer.astro";
                         </button>
                         <button
                             type="submit"
-                            id="btn-save-course"
+                            id="btn-save-feature"
                             class="px-4 py-2 bg-[#facc15] text-[#3c2f00] font-bold border-2 border-[#0e0e11] shadow-[3px_3px_0px_#000000] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 cursor-pointer flex items-center gap-1.5"
                         >
                             <span class="material-symbols-outlined text-[16px]">
                                 save
                             </span>
-                            <span id="btn-save-text">Simpan Kursus</span>
+                            <span>Simpan Perubahan</span>
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-
-        <!-- ================= Modal Delete Confirmation ================= -->
-        <div
-            id="delete-modal"
-            class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden backdrop-blur-xs"
-        >
-            <div class="w-full max-w-md bg-[#0e0e11] border-2 border-[#ffb4ab] shadow-[8px_8px_0px_#93000a] flex flex-col font-mono">
-                <div class="bg-[#1F080A] border-b-2 border-[#ffb4ab] px-4 py-2.5 flex items-center justify-between text-[#ffb4ab]">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">
-                            warning
-                        </span>
-                        <span class="text-xs font-bold uppercase">
-                            KONFIRMASI PENGHAPUSAN
-                        </span>
-                    </div>
-                    <button
-                        id="btn-close-delete-modal"
-                        type="button"
-                        class="cursor-pointer font-bold"
-                    >
-                        ✕
-                    </button>
-                </div>
-                <div class="p-6 flex flex-col gap-4 text-xs">
-                    <p class="text-[#ffdad6]">
-                        Apakah Anda yakin ingin menghapus kursus:
-                    </p>
-                    <div
-                        class="p-3 bg-[#1b1b1e] border border-[#353438] font-bold text-[#e4e1e6] text-sm"
-                        id="delete-course-title"
-                    >
-                        -
-                    </div>
-                    <p class="text-[11px] text-[#9a9078] leading-relaxed">
-                        Tindakan ini permanen. Semua bab, materi pelajaran, dan
-                        soal latihan yang terhubung akan ikut terhapus jika
-                        tidak ditautkan ke kursus lain.
-                    </p>
-                    <div class="flex items-center justify-end gap-2 pt-2">
-                        <button
-                            type="button"
-                            id="btn-cancel-delete"
-                            class="px-3.5 py-1.5 bg-[#2a2a2d] text-[#e4e1e6] border border-[#353438] cursor-pointer"
-                        >
-                            Batal
-                        </button>
-                        <button
-                            type="button"
-                            id="btn-confirm-delete"
-                            class="px-4 py-1.5 bg-[#93000a] text-[#ffdad6] font-bold border-2 border-[#ffb4ab] shadow-[2px_2px_0px_#000000] hover:bg-[#b2131f] cursor-pointer"
-                        >
-                            Ya, Hapus Kursus
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
@@ -469,75 +381,51 @@ import Footer from "@/components/organisms/Footer.astro";
 </Layout>
 
 <script>
+    import { isAdmin, isAuthenticated, syncCurrentUser } from "@/lib/auth";
     import {
-        getCurrentUser,
-        isAdmin,
-        isAuthenticated,
-        syncCurrentUser,
-    } from "@/lib/auth";
-    import {
-        fetchAdminCourses,
-        createAdminCourse,
-        editAdminCourse,
-        deleteAdminCourse,
-        type AdminCourse,
-    } from "@/lib/admin-courses";
+        fetchAdminFeatures,
+        updateAdminFeature,
+        type AdminFeatureFlag,
+    } from "@/lib/admin-features";
 
-    let allCourses: AdminCourse[] = [];
+    let allFeatures: AdminFeatureFlag[] = [];
     let activeFilter: string = "ALL";
     let searchQuery: string = "";
-    let courseToDeleteId: string | null = null;
 
     const deniedBox = document.getElementById("admin-denied-box");
     const mainContainer = document.getElementById("admin-main-container");
-    const tableBody = document.getElementById("course-table-body");
+    const tableBody = document.getElementById("features-table-body");
     const emptyState = document.getElementById("empty-state");
     const searchInput = document.getElementById(
         "search-input",
     ) as HTMLInputElement | null;
     const filterBtns = document.querySelectorAll(".filter-btn");
 
-    const statTotal = document.getElementById("stat-total-courses");
-    const statPublished = document.getElementById("stat-published-courses");
-    const statDraft = document.getElementById("stat-draft-courses");
+    const statTotal = document.getElementById("stat-total-features");
+    const statActive = document.getElementById("stat-active-features");
+    const statDisabled = document.getElementById("stat-disabled-features");
 
     const toastBox = document.getElementById("toast-box");
     const toastMessage = document.getElementById("toast-message");
     const toastClose = document.getElementById("toast-close");
 
     // Modal elements
-    const courseModal = document.getElementById("course-modal");
-    const modalTitle = document.getElementById("modal-title");
-    const courseForm = document.getElementById(
-        "course-form",
+    const editModal = document.getElementById("edit-modal");
+    const featureForm = document.getElementById(
+        "feature-form",
     ) as HTMLFormElement | null;
-    const courseIdInput = document.getElementById(
-        "course-id",
+    const modalFeatureId = document.getElementById(
+        "modal-feature-id",
     ) as HTMLInputElement | null;
-    const courseTitleInput = document.getElementById(
-        "course-title",
+    const modalFeatureKey = document.getElementById(
+        "modal-feature-key",
     ) as HTMLInputElement | null;
-    const courseSlugInput = document.getElementById(
-        "course-slug",
-    ) as HTMLInputElement | null;
-    const courseDescInput = document.getElementById(
-        "course-description",
+    const modalFeatureDesc = document.getElementById(
+        "modal-feature-desc",
     ) as HTMLTextAreaElement | null;
     const modalErrorBox = document.getElementById("modal-error-box");
-    const btnSaveText = document.getElementById("btn-save-text");
-    const btnOpenCreateModal = document.getElementById("btn-open-create-modal");
     const btnCloseModal = document.getElementById("btn-close-modal");
     const btnCancelModal = document.getElementById("btn-cancel-modal");
-    const btnGenerateSlug = document.getElementById("btn-generate-slug");
-
-    // Delete modal elements
-    const deleteModal = document.getElementById("delete-modal");
-    const deleteCourseTitle = document.getElementById("delete-course-title");
-    const btnCloseDeleteModal = document.getElementById(
-        "btn-close-delete-modal",
-    );
-    const btnCancelDelete = document.getElementById("btn-cancel-delete");
-    const btnConfirmDelete = document.getElementById("btn-confirm-delete");
 
     function showToast(message: string, isError = false) {
         if (!toastBox || !toastMessage) return;
@@ -552,26 +440,14 @@ import Footer from "@/components/organisms/Footer.astro";
         toastBox?.classList.add("hidden");
     });
 
-    function slugify(text: string): string {
-        return text
-            .toLowerCase()
-            .trim()
-            .replace(/[\s\W-]+/g, "-")
-            .replace(/^-+|-+$/g, "");
-    }
-
     async function checkAdminAccess(): Promise<boolean> {
         if (!isAuthenticated()) {
             window.location.href = "/login";
             return false;
         }
 
-        // Sinkronkan data user dengan backend (/api/v1/auth/me) agar jika role
-        // baru saja diubah di database, otomatis ter-update di browser tanpa harus relogin manual!
         const syncedUser = await syncCurrentUser();
-        const userRole = syncedUser?.role || getCurrentUser()?.role;
-
-        if (userRole !== "admin") {
+        if (syncedUser?.role !== "admin" && !isAdmin()) {
             if (deniedBox && mainContainer) {
                 deniedBox.classList.remove("hidden");
                 deniedBox.classList.add("flex");
@@ -590,34 +466,38 @@ import Footer from "@/components/organisms/Footer.astro";
     }
 
     function updateStats() {
-        const total = allCourses.length;
-        const published = allCourses.filter(
-            (c) => c.status === "PUBLISHED",
-        ).length;
-        const draft = allCourses.filter((c) => c.status === "DRAFT").length;
+        const total = allFeatures.length;
+        const active = allFeatures.filter((f) => f.is_enabled === 1).length;
+        const disabled = allFeatures.filter((f) => f.is_enabled === 0).length;
 
         if (statTotal) statTotal.textContent = String(total);
-        if (statPublished) statPublished.textContent = String(published);
-        if (statDraft) statDraft.textContent = String(draft);
+        if (statActive) statActive.textContent = String(active);
+        if (statDisabled) statDisabled.textContent = String(disabled);
     }
 
     function renderTable() {
         if (!tableBody) return;
 
-        let filtered = allCourses;
+        let filtered = allFeatures;
 
-        // Filter status
-        if (activeFilter !== "ALL") {
-            filtered = filtered.filter((c) => c.status === activeFilter);
+        // Filter
+        if (activeFilter === "ACTIVE") {
+            filtered = filtered.filter((f) => f.is_enabled === 1);
+        } else if (activeFilter === "DISABLED") {
+            filtered = filtered.filter((f) => f.is_enabled === 0);
+        } else if (activeFilter === "ROOT") {
+            filtered = filtered.filter((f) => !f.parent_id);
+        } else if (activeFilter === "SUB") {
+            filtered = filtered.filter((f) => Boolean(f.parent_id));
         }
 
-        // Filter search query
+        // Search
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase().trim();
             filtered = filtered.filter(
-                (c) =>
-                    c.title.toLowerCase().includes(q) ||
-                    c.slug.toLowerCase().includes(q),
+                (f) =>
+                    f.key.toLowerCase().includes(q) ||
+                    (f.description && f.description.toLowerCase().includes(q)),
             );
         }
 
@@ -632,51 +512,57 @@ import Footer from "@/components/organisms/Footer.astro";
         emptyState?.classList.remove("flex");
 
         tableBody.innerHTML = filtered
-            .map((course) => {
-                const isPublished = course.status === "PUBLISHED";
-                const statusBadge = isPublished
-                    ? `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#003824] text-[#4edea3] border border-[#4edea3]">PUBLISHED</span>`
-                    : `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#3c2f00] text-[#facc15] border border-[#facc15]">DRAFT</span>`;
+            .map((feature) => {
+                const isEnabled = feature.is_enabled === 1;
+                const isSub = Boolean(feature.parent_id);
 
-                const desc = course.description
-                    ? course.description.length > 70
-                        ? course.description.slice(0, 70) + "..."
-                        : course.description
+                const typeBadge = isSub
+                    ? `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#1f1f22] text-[#d1c6ab] border border-[#4d4632]">SUB-FITUR</span>`
+                    : `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#3c2f00] text-[#ffecb9] border border-[#facc15]">FITUR UTAMA</span>`;
+
+                const statusBadge = isEnabled
+                    ? `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#003824] text-[#4edea3] border border-[#4edea3] inline-flex items-center gap-1"><span class="w-1.5 h-1.5 bg-[#4edea3] inline-block"></span> AKTIF</span>`
+                    : `<span class="px-2 py-0.5 text-[10px] font-bold bg-[#1F080A] text-[#ffb4ab] border border-[#ffb4ab] inline-flex items-center gap-1"><span class="w-1.5 h-1.5 bg-[#ffb4ab] inline-block"></span> NONAKTIF</span>`;
+
+                const toggleBtn = isEnabled
+                    ? `<button
+							type="button"
+							class="btn-quick-toggle px-2 py-1 bg-[#1F080A] text-[#ffb4ab] hover:bg-[#93000a] border border-[#ffb4ab] cursor-pointer"
+							data-id="${feature.id}"
+							data-target="0"
+						>
+							Nonaktifkan
+						</button>`
+                    : `<button
+							type="button"
+							class="btn-quick-toggle px-2 py-1 bg-[#003824] text-[#4edea3] hover:bg-[#00a572] hover:text-[#00311f] border border-[#4edea3] cursor-pointer font-bold"
+							data-id="${feature.id}"
+							data-target="1"
+						>
+							Aktifkan
+						</button>`;
+
+                const desc = feature.description
+                    ? escapeHtml(feature.description)
                     : '<span class="text-[#6f6b64] italic">Tidak ada deskripsi</span>';
-
-                const updatedDate = new Date(
-                    course.updated_at,
-                ).toLocaleDateString("id-ID", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                });
 
                 return `
 					<tr class="hover:bg-[#1b1b1e] transition-colors">
 						<td class="py-3 px-4">
-							<div class="font-bold text-[#e4e1e6] font-['Space_Grotesk'] text-sm">${escapeHtml(course.title)}</div>
-							<div class="text-[11px] text-[#9a9078] mt-0.5">/courses/${escapeHtml(course.slug)}</div>
+							<div class="font-bold text-[#e4e1e6] text-xs font-mono">${escapeHtml(feature.key)}</div>
 						</td>
-						<td class="py-3 px-4 text-[#d1c6ab] text-[11px]">${escapeHtml(desc)}</td>
+						<td class="py-3 px-4">${typeBadge}</td>
+						<td class="py-3 px-4 text-[#d1c6ab] text-[11px]">${desc}</td>
 						<td class="py-3 px-4">${statusBadge}</td>
-						<td class="py-3 px-4 text-[#9a9078] text-[11px]">${updatedDate}</td>
 						<td class="py-3 px-4 text-right">
 							<div class="flex items-center justify-end gap-1.5">
+								${toggleBtn}
 								<button
 									type="button"
-									class="btn-edit-course px-2.5 py-1 bg-[#2a2a2d] text-[#ffecb9] hover:bg-[#353438] border border-[#353438] cursor-pointer"
-									data-id="${course.id}"
+									class="btn-edit-feature px-2 py-1 bg-[#2a2a2d] text-[#ffecb9] hover:bg-[#353438] border border-[#353438] cursor-pointer"
+									data-id="${feature.id}"
 								>
 									Edit
-								</button>
-								<button
-									type="button"
-									class="btn-delete-course px-2 py-1 bg-[#1F080A] text-[#ffb4ab] hover:bg-[#93000a] border border-[#ffb4ab] cursor-pointer"
-									data-id="${course.id}"
-									data-title="${escapeHtml(course.title)}"
-								>
-									Hapus
 								</button>
 							</div>
 						</td>
@@ -685,19 +571,22 @@ import Footer from "@/components/organisms/Footer.astro";
             })
             .join("");
 
-        // Attach edit & delete listeners
-        document.querySelectorAll(".btn-edit-course").forEach((btn) => {
-            btn.addEventListener("click", () => {
+        // Attach quick toggle listeners
+        document.querySelectorAll(".btn-quick-toggle").forEach((btn) => {
+            btn.addEventListener("click", async () => {
                 const id = btn.getAttribute("data-id");
-                if (id) openEditModal(id);
+                const targetStatus = Number(
+                    btn.getAttribute("data-target") || "1",
+                );
+                if (id) await handleQuickToggle(id, targetStatus);
             });
         });
 
-        document.querySelectorAll(".btn-delete-course").forEach((btn) => {
+        // Attach edit listeners
+        document.querySelectorAll(".btn-edit-feature").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const id = btn.getAttribute("data-id");
-                const title = btn.getAttribute("data-title") || "Kursus";
-                if (id) openDeleteModal(id, title);
+                if (id) openEditModal(id);
             });
         });
     }
@@ -711,8 +600,8 @@ import Footer from "@/components/organisms/Footer.astro";
             .replace(/'/g, "&#039;");
     }
 
-    async function loadCourses() {
-        const res = await fetchAdminCourses();
+    async function loadFeatures() {
+        const res = await fetchAdminFeatures();
         if (!res.ok) {
             if (res.status === 401) {
                 window.location.href = "/login";
@@ -726,47 +615,62 @@ import Footer from "@/components/organisms/Footer.astro";
                 }
                 return;
             }
-            showToast(res.error || "Gagal memuat kursus dari server.", true);
+            showToast(
+                res.error || "Gagal memuat status fitur dari server.",
+                true,
+            );
             return;
         }
 
-        allCourses = res.data;
+        allFeatures = res.data;
         updateStats();
         renderTable();
     }
 
-    function openCreateModal() {
-        if (courseForm) courseForm.reset();
-        if (courseIdInput) courseIdInput.value = "";
-        if (modalTitle) modalTitle.textContent = "TAMBAH KURSUS BARU";
-        if (btnSaveText) btnSaveText.textContent = "Simpan Kursus Baru";
-        hideModalError();
-        courseModal?.classList.remove("hidden");
+    async function handleQuickToggle(id: string, targetStatus: number) {
+        const feature = allFeatures.find((f) => f.id === id);
+        if (!feature) return;
+
+        const res = await updateAdminFeature({
+            id: feature.id,
+            key: feature.key,
+            is_enabled: targetStatus,
+            description: feature.description || "",
+        });
+
+        if (!res.ok) {
+            showToast(res.error || "Gagal mengubah status fitur.", true);
+            return;
+        }
+
+        const statusText =
+            targetStatus === 1
+                ? "diaktifkan"
+                : "dinonaktifkan (mode maintenance)";
+        showToast(`Fitur "${feature.key}" berhasil ${statusText}!`);
+        await loadFeatures();
     }
 
     function openEditModal(id: string) {
-        const course = allCourses.find((c) => c.id === id);
-        if (!course) return;
+        const feature = allFeatures.find((f) => f.id === id);
+        if (!feature) return;
 
-        if (courseIdInput) courseIdInput.value = course.id;
-        if (courseTitleInput) courseTitleInput.value = course.title;
-        if (courseSlugInput) courseSlugInput.value = course.slug;
-        if (courseDescInput) courseDescInput.value = course.description || "";
+        if (modalFeatureId) modalFeatureId.value = feature.id;
+        if (modalFeatureKey) modalFeatureKey.value = feature.key;
+        if (modalFeatureDesc)
+            modalFeatureDesc.value = feature.description || "";
 
         const radio = document.querySelector(
-            `input[name="course-status"][value="${course.status}"]`,
+            `input[name="feature-status"][value="${feature.is_enabled}"]`,
         ) as HTMLInputElement | null;
         if (radio) radio.checked = true;
 
-        if (modalTitle)
-            modalTitle.textContent = "EDIT KURSUS // " + course.title;
-        if (btnSaveText) btnSaveText.textContent = "Perbarui Kursus";
         hideModalError();
-        courseModal?.classList.remove("hidden");
+        editModal?.classList.remove("hidden");
     }
 
     function closeModal() {
-        courseModal?.classList.add("hidden");
+        editModal?.classList.add("hidden");
     }
 
     function showModalError(msg: string) {
@@ -780,41 +684,9 @@ import Footer from "@/components/organisms/Footer.astro";
         modalErrorBox.classList.add("hidden");
     }
 
-    function openDeleteModal(id: string, title: string) {
-        courseToDeleteId = id;
-        if (deleteCourseTitle) deleteCourseTitle.textContent = title;
-        deleteModal?.classList.remove("hidden");
-    }
-
-    function closeDeleteModal() {
-        courseToDeleteId = null;
-        deleteModal?.classList.add("hidden");
-    }
-
     // Event Handlers
-    btnOpenCreateModal?.addEventListener("click", openCreateModal);
     btnCloseModal?.addEventListener("click", closeModal);
     btnCancelModal?.addEventListener("click", closeModal);
-    btnCloseDeleteModal?.addEventListener("click", closeDeleteModal);
-    btnCancelDelete?.addEventListener("click", closeDeleteModal);
-
-    btnGenerateSlug?.addEventListener("click", () => {
-        const title = courseTitleInput?.value || "";
-        if (title && courseSlugInput) {
-            courseSlugInput.value = slugify(title);
-        }
-    });
-
-    courseTitleInput?.addEventListener("input", () => {
-        // Auto fill slug if creating new course and slug is empty
-        if (
-            !courseIdInput?.value &&
-            courseSlugInput &&
-            !courseSlugInput.value
-        ) {
-            courseSlugInput.value = slugify(courseTitleInput.value);
-        }
-    });
 
     // Filter buttons
     filterBtns.forEach((btn) => {
@@ -825,7 +697,7 @@ import Footer from "@/components/organisms/Footer.astro";
             });
             btn.className =
                 "filter-btn font-mono text-xs px-2.5 py-1 border border-[#353438] bg-[#facc15] text-[#3c2f00] font-bold";
-            activeFilter = btn.getAttribute("data-status") || "ALL";
+            activeFilter = btn.getAttribute("data-filter") || "ALL";
             renderTable();
         });
     });
@@ -836,78 +708,45 @@ import Footer from "@/components/organisms/Footer.astro";
         renderTable();
     });
 
-    // Submit Form (Create or Edit)
-    courseForm?.addEventListener("submit", async (e) => {
+    // Submit Modal Form
+    featureForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideModalError();
 
-        const id = courseIdInput?.value.trim();
-        const title = courseTitleInput?.value.trim() || "";
-        const slug = courseSlugInput?.value.trim() || "";
-        const description = courseDescInput?.value.trim() || null;
+        const id = modalFeatureId?.value.trim() || "";
+        const key = modalFeatureKey?.value.trim() || "";
+        const description = modalFeatureDesc?.value.trim() || "";
         const statusEl = document.querySelector(
-            'input[name="course-status"]:checked',
+            'input[name="feature-status"]:checked',
         ) as HTMLInputElement | null;
-        const status = statusEl?.value || "DRAFT";
+        const is_enabled = Number(statusEl?.value ?? "1");
 
-        if (!title || !slug) {
-            showModalError("Judul dan slug kursus wajib diisi.");
+        if (!id || !key) {
+            showModalError("ID dan kunci fitur tidak valid.");
             return;
         }
 
-        if (id) {
-            // Update Course
-            const res = await editAdminCourse(id, {
-                title,
-                slug,
-                description,
-                status,
-            });
-            if (!res.ok) {
-                showModalError(res.error || "Gagal memperbarui kursus.");
-                return;
-            }
-            closeModal();
-            showToast(`Kursus "${title}" berhasil diperbarui!`);
-            await loadCourses();
-        } else {
-            // Create Course
-            const res = await createAdminCourse({
-                title,
-                slug,
-                description: description || "",
-                status,
-            });
-            if (!res.ok) {
-                showModalError(res.error || "Gagal membuat kursus baru.");
-                return;
-            }
-            closeModal();
-            showToast(`Kursus "${title}" berhasil dibuat!`);
-            await loadCourses();
-        }
-    });
-
-    // Confirm Delete
-    btnConfirmDelete?.addEventListener("click", async () => {
-        if (!courseToDeleteId) return;
-
-        const res = await deleteAdminCourse(courseToDeleteId);
-        closeDeleteModal();
+        const res = await updateAdminFeature({
+            id,
+            key,
+            is_enabled,
+            description,
+        });
 
         if (!res.ok) {
-            showToast(res.error || "Gagal menghapus kursus.", true);
+            showModalError(res.error || "Gagal menyimpan perubahan fitur.");
             return;
         }
 
-        showToast("Kursus berhasil dihapus.");
-        await loadCourses();
+        closeModal();
+        showToast(`Sakelar fitur "${key}" berhasil diperbarui!`);
+        await loadFeatures();
     });
 
     // Initialize
     (async () => {
         if (await checkAdminAccess()) {
-            await loadCourses();
+            await loadFeatures();
         }
     })();
 </script>

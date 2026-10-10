@@ -41,6 +41,31 @@ pub async fn get_features(State(state): State<AppState>) -> impl IntoResponse {
     }
 }
 
+pub async fn get_admin_features(State(state): State<AppState>) -> impl IntoResponse {
+    let repo = FeatureFlagRepository::new(state.db.clone());
+
+    match repo.get_all().await {
+        Ok(flags) => (
+            StatusCode::OK,
+            Json(json!({
+                "data": flags
+            })),
+        ),
+        Err(err) => {
+            eprintln!("Database error fetching admin feature flags: {:?}", err);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "message": "Gagal membaca daftar feature flag admin."
+                    }
+                })),
+            )
+        }
+    }
+}
+
 pub async fn edit_feature_flags(
     State(state): State<AppState>,
     Json(command): Json<EditFeatureFlagsCommand>,

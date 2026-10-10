@@ -13,7 +13,7 @@ pub fn system_routes(state: AppState) -> Router<AppState> {
         .route("/api/v1/features", put(feature_flags::edit_feature_flags))
         .route(
             "/api/v1/admin/features",
-            put(feature_flags::edit_feature_flags),
+            get(feature_flags::get_admin_features).put(feature_flags::edit_feature_flags),
         )
         .route_layer(middleware::from_fn_with_state(state, require_admin));
 
