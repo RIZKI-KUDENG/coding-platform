@@ -1,4 +1,5 @@
 use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
+use crate::modules::shared::error::InfrastructureError;
 
 pub struct CreateCourseCommand {
     pub title: String,
@@ -16,7 +17,7 @@ impl CreateCourseCommandHandler {
         Self { repository }
     }
 
-    pub async fn handle(&self, command: CreateCourseCommand) -> Result<(), sqlx::Error> {
+    pub async fn handle(&self, command: CreateCourseCommand) -> Result<(), InfrastructureError> {
         self.repository
             .create_course(
                 &command.title,

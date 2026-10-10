@@ -1,10 +1,13 @@
 use axum::{
     Json,
     extract::{Path, State},
-    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use serde_json::json;
+
+use crate::modules::shared::http::ApiError;
+
+use crate::modules::execution::presentation::dtos::RunResultResponse;
 use uuid::Uuid;
 
 use crate::modules::shared::authentication::authenticated_user::AuthenticatedUser;
@@ -17,9 +20,7 @@ use crate::modules::execution::infrastructure::repositories::submission_reposito
 use crate::modules::execution::infrastructure::runners::podman_runner::PodmanRunner;
 use crate::modules::execution::presentation::dtos::submission_request::SubmissionRequest;
 use crate::state::AppState;
-use crate::modules::learning::{
-    ExerciseTestCaseRepository, GetTestCaseByExerciseIdQueryHandler,
-};
+use crate::modules::learning::GetTestCaseByExerciseIdQueryHandler;
 
 pub async fn submit(
     State(state): State<AppState>,
@@ -37,8 +38,7 @@ pub async fn submit(
     .await?;
 
     let repo = SubmissionRepository::new(state.db.clone());
-    let test_case_repo = ExerciseTestCaseRepository::new(state.db.clone());
-    let test_case_handler = GetTestCaseByExerciseIdQueryHandler::new(test_case_repo);
+    let test_case_handler = GetTestCaseByExerciseIdQueryHandler::from_pool(state.db.clone());
     let runner = PodmanRunner::new();
     let handler = ExecuteCodeCommandHandler::new(repo, test_case_handler, runner);
 
@@ -49,20 +49,12 @@ pub async fn submit(
         language: request.language,
     };
 
-    match handler.handle(command).await {
-        Ok(result) => Ok((
-            StatusCode::OK,
-            Json(json!({
-                "data": result
-            })),
-        )),
-        Err(err) => Ok((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": {
-                    "message": err.to_string()
-                }
-            })),
-        )),
-    }
+    let result = handler
+        .handle(command)
+        .await
+        .map_err(|e| ApiError::from(e).into_response())?;
+
+    Ok(Json(json!({
+        "data": RunResultResponse::from(result)
+    })))
 }

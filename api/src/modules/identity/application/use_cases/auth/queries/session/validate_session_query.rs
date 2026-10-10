@@ -1,3 +1,4 @@
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 use crate::modules::identity::{
@@ -16,10 +17,16 @@ pub struct ValidateSessionQueryHandler {
 #[derive(Debug)]
 pub enum ValidateSessionError {
     InvalidOrExpiredToken,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 impl ValidateSessionQueryHandler {
+    /// Public contract for other modules: build the handler without touching
+    /// this module's infrastructure.
+    pub fn from_pool(pool: sqlx::PgPool) -> Self {
+        Self::new(SessionRepository::new(pool))
+    }
+
     pub fn new(session_repository: SessionRepository) -> Self {
         Self { session_repository }
     }
@@ -31,7 +38,7 @@ impl ValidateSessionQueryHandler {
             .session_repository
             .find_user_by_valid_token(&token_hash)
             .await
-            .map_err(ValidateSessionError::DatabaseError)?;
+            .map_err(|e| ValidateSessionError::DatabaseError(e.into()))?;
 
         user_id.ok_or(ValidateSessionError::InvalidOrExpiredToken)
     }

@@ -1,5 +1,6 @@
 use crate::modules::learning::domain::entities::course::Course;
 use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
+use crate::modules::shared::error::InfrastructureError;
 
 pub struct GetCourseAdminQueryHandler {
     repository: CourseRepository,
@@ -10,16 +11,8 @@ impl GetCourseAdminQueryHandler {
         Self { repository }
     }
 
-    pub async fn handle(&self) -> Result<Vec<Course>, Box<dyn std::error::Error>> {
-        let course = self.repository.get_all_admin().await?;
-
-        if course.is_empty() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "No courses found",
-            )));
-        }
-
-        Ok(course)
+    /// Returns every course for admin; an empty list is a valid result.
+    pub async fn handle(&self) -> Result<Vec<Course>, InfrastructureError> {
+        Ok(self.repository.get_all_admin().await?)
     }
 }

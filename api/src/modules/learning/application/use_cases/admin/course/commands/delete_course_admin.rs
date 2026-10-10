@@ -1,4 +1,5 @@
 use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 pub struct DeleteCourseCommand {
@@ -8,7 +9,7 @@ pub struct DeleteCourseCommand {
 #[derive(Debug)]
 pub enum DeleteCourseError {
     CourseNotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct DeleteCourseCommandHandler {
@@ -25,7 +26,7 @@ impl DeleteCourseCommandHandler {
             .repository
             .delete_course(command.course_id)
             .await
-            .map_err(DeleteCourseError::DatabaseError)?;
+            .map_err(|e| DeleteCourseError::DatabaseError(e.into()))?;
 
         if !deleted {
             return Err(DeleteCourseError::CourseNotFound);

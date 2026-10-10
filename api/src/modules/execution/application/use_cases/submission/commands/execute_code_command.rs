@@ -1,3 +1,5 @@
+use crate::modules::execution::application::errors::ExecutionError;
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 use crate::modules::execution::application::ports::code_runner::{
@@ -6,6 +8,10 @@ use crate::modules::execution::application::ports::code_runner::{
 use crate::modules::execution::domain::entities::submission::SubmissionStatus;
 use crate::modules::execution::infrastructure::repositories::submission_repository::SubmissionRepository;
 use crate::modules::learning::{GetTestCaseByExerciseIdQuery, GetTestCaseByExerciseIdQueryHandler};
+
+fn persistence_error(err: sqlx::Error) -> ExecutionError {
+    ExecutionError::Persistence(err.into())
+}
 
 pub struct ExecuteCodeCommand {
     pub user_id: Uuid,
@@ -39,10 +45,14 @@ where
         }
     }
 
-    pub async fn handle(
-        &self,
-        command: ExecuteCodeCommand,
-    ) -> Result<RunResult, Box<dyn std::error::Error>> {
+    async fn run_code(&self, request: RunRequest) -> Result<RunResult, ExecutionError> {
+        self.code_runner
+            .run(request)
+            .await
+            .map_err(|e| ExecutionError::RunnerUnavailable(InfrastructureError::new(e.to_string())))
+    }
+
+    pub async fn handle(&self, command: ExecuteCodeCommand) -> Result<RunResult, ExecutionError> {
         let test_cases = self
             .test_case_handler
             .handle(GetTestCaseByExerciseIdQuery {
@@ -68,7 +78,7 @@ where
                 code: command.code.clone(),
                 input: None,
             };
-            let result = self.code_runner.run(request).await?;
+            let result = self.run_code(request).await?;
             total_duration_ms = result.duration_ms;
             final_status = if result.exit_code == Some(124) {
                 SubmissionStatus::Timeout
@@ -90,7 +100,7 @@ where
                     },
                 };
 
-                let result = self.code_runner.run(request).await?;
+                let result = self.run_code(request).await?;
                 total_duration_ms += result.duration_ms;
                 last_result = result.clone();
 
@@ -127,7 +137,8 @@ where
                 &command.code,
                 &command.language,
             )
-            .await?;
+            .await
+            .map_err(persistence_error)?;
 
         self.submission_repository
             .update_status(
@@ -135,7 +146,8 @@ where
                 final_status.clone(),
                 Some(total_duration_ms as i32),
             )
-            .await?;
+            .await
+            .map_err(persistence_error)?;
 
         last_result.success = final_status == SubmissionStatus::Passed;
         last_result.duration_ms = total_duration_ms;

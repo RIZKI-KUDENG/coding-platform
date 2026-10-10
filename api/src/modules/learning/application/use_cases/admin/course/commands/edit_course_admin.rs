@@ -1,4 +1,5 @@
 use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 pub struct EditCourseCommand {
@@ -12,7 +13,7 @@ pub struct EditCourseCommand {
 #[derive(Debug)]
 pub enum EditCourseError {
     CourseNotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct EditCourseCommandHandler {
@@ -29,7 +30,7 @@ impl EditCourseCommandHandler {
             .repository
             .get_course_by_id(command.id)
             .await
-            .map_err(EditCourseError::DatabaseError)?
+            .map_err(|e| EditCourseError::DatabaseError(e.into()))?
             .ok_or(EditCourseError::CourseNotFound)?;
 
         course.update(
@@ -49,7 +50,7 @@ impl EditCourseCommandHandler {
                 &course.status,
             )
             .await
-            .map_err(EditCourseError::DatabaseError)?;
+            .map_err(|e| EditCourseError::DatabaseError(e.into()))?;
 
         Ok(success)
     }

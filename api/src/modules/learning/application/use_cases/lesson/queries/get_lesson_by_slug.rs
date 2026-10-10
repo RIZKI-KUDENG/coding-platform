@@ -1,5 +1,6 @@
 use crate::modules::learning::domain::entities::lesson::Lesson;
 use crate::modules::learning::infrastructure::repositories::lesson_repository::LessonRepository;
+use crate::modules::shared::error::InfrastructureError;
 
 pub struct GetLessonBySlugQuery {
     pub slug: String,
@@ -8,7 +9,7 @@ pub struct GetLessonBySlugQuery {
 #[derive(Debug)]
 pub enum GetLessonBySlugError {
     NotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct GetLessonBySlugQueryHandler {
@@ -27,7 +28,7 @@ impl GetLessonBySlugQueryHandler {
         self.repository
             .get_by_slug(&query.slug)
             .await
-            .map_err(GetLessonBySlugError::DatabaseError)
+            .map_err(|e| GetLessonBySlugError::DatabaseError(e.into()))
             .and_then(|o| o.ok_or(GetLessonBySlugError::NotFound))
     }
 }

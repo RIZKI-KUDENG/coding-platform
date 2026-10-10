@@ -1,5 +1,5 @@
+use crate::modules::shared::error::InfrastructureError;
 use chrono::{Duration, Utc};
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::modules::identity::application::security::password_hasher::hash_password;
@@ -23,10 +23,10 @@ pub enum RegisterError {
     EmailAlreadyExists,
     UsernameAlreadyExists,
     PasswordHashing,
-    Database(sqlx::Error),
+    Database(InfrastructureError),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct UserSummary {
     pub id: Uuid,
     pub email: String,
@@ -34,7 +34,7 @@ pub struct UserSummary {
     pub role: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct RegisterResult {
     pub user: UserSummary,
     pub access_token: String,
@@ -67,9 +67,9 @@ impl RegisterCommandHandler {
                         return Err(RegisterError::UsernameAlreadyExists);
                     }
                 }
-                return Err(RegisterError::Database(sqlx::Error::Database(err)));
+                return Err(RegisterError::Database(sqlx::Error::Database(err).into()));
             }
-            Err(err) => return Err(RegisterError::Database(err)),
+            Err(err) => return Err(RegisterError::Database(err.into())),
         };
 
         let session_token = generate_session_token();
@@ -78,7 +78,7 @@ impl RegisterCommandHandler {
         self.session_repository
             .create(user.id, session_token.hash, expires_at)
             .await
-            .map_err(RegisterError::Database)?;
+            .map_err(|e| RegisterError::Database(e.into()))?;
 
         Ok(RegisterResult {
             user: UserSummary {

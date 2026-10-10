@@ -2,12 +2,13 @@ use crate::modules::learning::{
     domain::entities::course::Course,
     infrastructure::repositories::course_repository::CourseRepository,
 };
+use crate::modules::shared::error::InfrastructureError;
 
 pub struct GetAllCourseQuery;
 
 #[derive(Debug)]
 pub enum GetAllCourseError {
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct GetAllCourseQueryHandler {
@@ -26,6 +27,6 @@ impl GetAllCourseQueryHandler {
         self.repository
             .get_all()
             .await
-            .map_err(GetAllCourseError::DatabaseError)
+            .map_err(|e| GetAllCourseError::DatabaseError(e.into()))
     }
 }

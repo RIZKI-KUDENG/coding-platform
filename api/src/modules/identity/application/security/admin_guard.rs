@@ -1,19 +1,20 @@
 use axum::{
-    Json,
     extract::{Request, State},
-    http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
-    modules::identity::{
-        ValidateSessionQuery, ValidateSessionQueryHandler,
-        infrastructure::repositories::{
-            session_repository::SessionRepository, user_repository::UserRepository,
+    modules::{
+        identity::{
+            ValidateSessionError, ValidateSessionQuery, ValidateSessionQueryHandler,
+            application::use_cases::auth::queries::get_current_user_query::{
+                GetCurrentUserError, GetCurrentUserQuery, GetCurrentUserQueryHandler,
+            },
+            infrastructure::repositories::user_repository::UserRepository,
         },
+        shared::{authentication::authenticated_user::bearer_token, http::ApiError},
     },
     state::AppState,
 };
@@ -28,77 +29,34 @@ pub async fn require_admin(
     mut req: Request,
     next: Next,
 ) -> Result<Response, Response> {
-    let token = match req
-        .headers()
-        .get("Authorization")
-        .and_then(|h| h.to_str().ok())
-        .and_then(|h| h.strip_prefix("Bearer "))
-    {
-        Some(token) if !token.is_empty() => token,
-        _ => {
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                Json(json!({
-                    "error": {
-                        "code": "AUTH_UNAUTHORIZED",
-                        "message": "missing or invalid Authorization header"
-                    }
-                })),
-            )
-                .into_response());
-        }
-    };
+    let token = bearer_token(req.headers()).ok_or_else(|| {
+        ApiError::unauthorized("Missing or invalid Authorization header").into_response()
+    })?;
 
-    let session_repo = SessionRepository::new(state.db.clone());
-    let handler = ValidateSessionQueryHandler::new(session_repo);
-    let user_id = match handler
+    let user_id = ValidateSessionQueryHandler::from_pool(state.db.clone())
         .handle(ValidateSessionQuery {
             raw_token: token.to_string(),
         })
         .await
-    {
-        Ok(id) => id,
-        Err(_) => {
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                Json(json!({
-                    "error": {
-                        "code": "AUTH_UNAUTHORIZED",
-                        "message": "Invalid or expired token"
-                    }
-                })),
-            )
-                .into_response());
-        }
-    };
+        .map_err(|err| match err {
+            ValidateSessionError::InvalidOrExpiredToken => {
+                ApiError::unauthorized("Invalid or expired token").into_response()
+            }
+            ValidateSessionError::DatabaseError(e) => ApiError::internal(&e).into_response(),
+        })?;
 
-    let user_repo = UserRepository::new(state.db.clone());
-    let user = match user_repo.find_by_id(user_id).await {
-        Ok(Some(u)) => u,
-        _ => {
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                Json(json!({
-                    "error": {
-                        "code": "USER_NOT_FOUND",
-                        "message": "User not found"
-                    }
-                })),
-            )
-                .into_response());
-        }
-    };
+    let user = GetCurrentUserQueryHandler::new(UserRepository::new(state.db.clone()))
+        .handle(GetCurrentUserQuery { user_id })
+        .await
+        .map_err(|err| match err {
+            GetCurrentUserError::UserNotFound => {
+                ApiError::unauthorized("User not found").into_response()
+            }
+            GetCurrentUserError::DatabaseError(e) => ApiError::internal(&e).into_response(),
+        })?;
+
     if user.role.as_deref() != Some("admin") {
-        return Err((
-            StatusCode::FORBIDDEN,
-            Json(json!({
-                "error": {
-                    "code": "FORBIDDEN_RESOURCE",
-                    "message": "Access hanya untuk admin"
-                }
-            })),
-        )
-            .into_response());
+        return Err(ApiError::forbidden("Access hanya untuk admin").into_response());
     }
 
     req.extensions_mut().insert(AdminUser { user_id });

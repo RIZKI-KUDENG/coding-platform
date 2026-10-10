@@ -2,17 +2,23 @@ use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use serde_json::json;
 
 use crate::{
-    modules::identity::{
-        application::use_cases::auth::commands::{
-            login::login_user_command::{LoginCommand, LoginCommandHandler, LoginError},
-            register::register_user_command::{
-                RegisterCommand, RegisterCommandHandler, RegisterError,
+    modules::{
+        identity::{
+            application::use_cases::auth::{
+                commands::{
+                    login::login_user_command::{LoginCommand, LoginCommandHandler},
+                    register::register_user_command::{RegisterCommand, RegisterCommandHandler},
+                },
+                queries::get_current_user_query::{
+                    GetCurrentUserQuery, GetCurrentUserQueryHandler,
+                },
             },
+            infrastructure::repositories::{
+                session_repository::SessionRepository, user_repository::UserRepository,
+            },
+            presentation::dtos::{AuthResponse, LoginRequest, RegisterRequest, UserResponse},
         },
-        infrastructure::repositories::{
-            session_repository::SessionRepository, user_repository::UserRepository,
-        },
-        presentation::dtos::{LoginRequest, RegisterRequest},
+        shared::{authentication::authenticated_user::AuthenticatedUser, http::ApiError},
     },
     state::AppState,
 };
@@ -20,172 +26,71 @@ use crate::{
 pub async fn register(
     State(state): State<AppState>,
     Json(request): Json<RegisterRequest>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, ApiError> {
     if request.email.trim().is_empty()
         || request.username.trim().is_empty()
         || request.password.trim().is_empty()
     {
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(json!({
-                "error": {
-                    "code": "VALIDATION_ERROR",
-                    "message": "Email, username, and password are required."
-                }
-            })),
-        );
+        return Err(ApiError::validation(
+            "Email, username, and password are required.",
+        ));
     }
 
-    let user_repo = UserRepository::new(state.db.clone());
-    let session_repo = SessionRepository::new(state.db.clone());
-    let handler = RegisterCommandHandler::new(user_repo, session_repo);
+    let handler = RegisterCommandHandler::new(
+        UserRepository::new(state.db.clone()),
+        SessionRepository::new(state.db.clone()),
+    );
 
-    let command = RegisterCommand {
-        username: request.username,
-        email: request.email,
-        password: request.password,
-    };
+    let result = handler
+        .handle(RegisterCommand {
+            username: request.username,
+            email: request.email,
+            password: request.password,
+        })
+        .await?;
 
-    match handler.handle(command).await {
-        Ok(result) => (
-            StatusCode::CREATED,
-            Json(json!({
-                "data": result
-            })),
-        ),
-        Err(RegisterError::EmailAlreadyExists) => (
-            StatusCode::CONFLICT,
-            Json(json!({
-                "error": {
-                    "code": "EMAIL_ALREADY_EXISTS",
-                    "message": "Email is already registered."
-                }
-            })),
-        ),
-        Err(RegisterError::UsernameAlreadyExists) => (
-            StatusCode::CONFLICT,
-            Json(json!({
-                "error": {
-                    "code": "USERNAME_ALREADY_EXISTS",
-                    "message": "Username is already taken."
-                }
-            })),
-        ),
-        Err(RegisterError::PasswordHashing) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": {
-                    "code": "INTERNAL_ERROR",
-                    "message": "Failed to process password."
-                }
-            })),
-        ),
-        Err(RegisterError::Database(err)) => {
-            eprintln!("Database error during registration: {:?}", err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": {
-                        "code": "INTERNAL_ERROR",
-                        "message": "An unexpected database error occurred."
-                    }
-                })),
-            )
-        }
-    }
+    Ok((
+        StatusCode::CREATED,
+        Json(json!({ "data": AuthResponse::from(result) })),
+    ))
 }
 
 pub async fn login(
     State(state): State<AppState>,
     Json(request): Json<LoginRequest>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, ApiError> {
     if request.identifier.trim().is_empty() || request.password.trim().is_empty() {
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(json!({
-                "error" : {
-                    "code": "VALIDATION_ERROR",
-                    "message": "email/username and password are required."
-                }
-            })),
-        );
+        return Err(ApiError::validation(
+            "email/username and password are required.",
+        ));
     }
 
-    let user_repo = UserRepository::new(state.db.clone());
-    let session_repo = SessionRepository::new(state.db.clone());
+    let handler = LoginCommandHandler::new(
+        UserRepository::new(state.db.clone()),
+        SessionRepository::new(state.db.clone()),
+    );
 
-    let handler = LoginCommandHandler::new(user_repo, session_repo);
+    let result = handler
+        .handle(LoginCommand {
+            identifier: request.identifier,
+            password: request.password,
+        })
+        .await?;
 
-    let command = LoginCommand {
-        identifier: request.identifier,
-        password: request.password,
-    };
-
-    match handler.handle(command).await {
-        Ok(result) => (
-            StatusCode::OK,
-            Json(json!({
-                "data": result
-            })),
-        ),
-        Err(LoginError::InvalidCredentials) => (
-            StatusCode::UNAUTHORIZED,
-            Json(json!({
-                "error": {
-                    "code": "INVALID_CREDENTIALS",
-                    "message": "Invalid email/username or password."
-                }
-            })),
-        ),
-        Err(LoginError::DatabaseError(err)) => {
-            eprintln!("Database error during login: {:?}", err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": {
-                        "code": "INTERNAL_ERROR",
-                        "message": "An unexpected database error occurred."
-                    }
-                })),
-            )
-        }
-    }
+    Ok(Json(json!({ "data": AuthResponse::from(result) })))
 }
 
 pub async fn get_me(
     State(state): State<AppState>,
-    user: crate::modules::shared::authentication::authenticated_user::AuthenticatedUser,
-) -> impl IntoResponse {
-    let user_repo = UserRepository::new(state.db.clone());
-    match user_repo.find_by_id(user.user_id).await {
-        Ok(Some(u)) => (
-            StatusCode::OK,
-            Json(json!({
-                "data": {
-                    "id": u.id,
-                    "email": u.email,
-                    "username": u.username,
-                    "role": u.role,
-                }
-            })),
-        ),
-        Ok(None) => (
-            StatusCode::NOT_FOUND,
-            Json(json!({
-                "error": {
-                    "code": "USER_NOT_FOUND",
-                    "message": "User not found"
-                }
-            })),
-        ),
-        Err(err) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": {
-                    "code": "INTERNAL_ERROR",
-                    "message": err.to_string()
-                }
-            })),
-        ),
-    }
+    user: AuthenticatedUser,
+) -> Result<impl IntoResponse, ApiError> {
+    let handler = GetCurrentUserQueryHandler::new(UserRepository::new(state.db.clone()));
+
+    let current_user = handler
+        .handle(GetCurrentUserQuery {
+            user_id: user.user_id,
+        })
+        .await?;
+
+    Ok(Json(json!({ "data": UserResponse::from(current_user) })))
 }

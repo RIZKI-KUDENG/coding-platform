@@ -1,5 +1,6 @@
 use crate::modules::learning::domain::entities::course::Course;
 use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 pub struct GetCourseByIdQuery {
@@ -8,7 +9,7 @@ pub struct GetCourseByIdQuery {
 #[derive(Debug)]
 pub enum GetCourseByIdError {
     CourseNotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct GetCourseByIdQueryHandler {
@@ -24,7 +25,7 @@ impl GetCourseByIdQueryHandler {
         self.course_repository
             .get_course_by_id(query.id)
             .await
-            .map_err(GetCourseByIdError::DatabaseError)
+            .map_err(|e| GetCourseByIdError::DatabaseError(e.into()))
             .and_then(|course| course.ok_or(GetCourseByIdError::CourseNotFound))
     }
 }

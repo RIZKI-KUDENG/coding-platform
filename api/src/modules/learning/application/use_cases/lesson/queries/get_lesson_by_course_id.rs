@@ -1,5 +1,6 @@
 use crate::modules::learning::domain::entities::lesson::Lesson;
 use crate::modules::learning::infrastructure::repositories::lesson_repository::LessonRepository;
+use crate::modules::shared::error::InfrastructureError;
 
 use uuid::Uuid;
 
@@ -9,7 +10,7 @@ pub struct GetLessonByCourseIdQuery {
 
 #[derive(Debug)]
 pub enum GetLessonByCourseIdError {
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct GetLessonByCourseIdQueryHandler {
@@ -28,6 +29,6 @@ impl GetLessonByCourseIdQueryHandler {
         self.repository
             .get_by_course_id(query.id)
             .await
-            .map_err(GetLessonByCourseIdError::DatabaseError)
+            .map_err(|e| GetLessonByCourseIdError::DatabaseError(e.into()))
     }
 }

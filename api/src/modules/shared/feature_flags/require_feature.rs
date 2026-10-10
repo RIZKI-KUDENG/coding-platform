@@ -1,14 +1,9 @@
-use axum::{
-    Json,
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
-use serde_json::json;
+use axum::response::{IntoResponse, Response};
 
 use crate::{
-    modules::system::{
-        IsFeatureEnabledQuery, IsFeatureEnabledQueryHandler,
-        infrastructure::repositories::feature_flag_repository::FeatureFlagRepository,
+    modules::{
+        shared::http::ApiError,
+        system::{IsFeatureEnabledQuery, IsFeatureEnabledQueryHandler},
     },
     state::AppState,
 };
@@ -25,47 +20,37 @@ pub async fn check_feature(
     key: &str,
     display_name: Option<&str>,
 ) -> Result<(), Response> {
-    let repo = FeatureFlagRepository::new(state.db.clone());
-    let handler = IsFeatureEnabledQueryHandler::new(repo);
-
+    let handler = IsFeatureEnabledQueryHandler::from_pool(state.db.clone());
     let name = display_name.unwrap_or(key);
 
     match handler.handle(IsFeatureEnabledQuery::new(key)).await {
         Ok(Some(true)) => Ok(()),
-        Ok(Some(false)) => Err((
-            StatusCode::SERVICE_UNAVAILABLE,
-            Json(json!({
-                "error": {
-                    "code": "FEATURE_MAINTENANCE",
-                    "message": format!("Fitur '{}' sedang dalam pemeliharaan berkala.", name),
-                    "feature": key
-                }
-            })),
+        Ok(Some(false)) => Err(ApiError::service_unavailable(
+            "FEATURE_MAINTENANCE",
+            format!("Fitur '{}' sedang dalam pemeliharaan berkala.", name),
         )
-            .into_response()),
-        Ok(None) => Err((
-            StatusCode::SERVICE_UNAVAILABLE,
-            Json(json!({
-                "error": {
-                    "code": "FEATURE_NOT_FOUND",
-                    "message": format!("Fitur '{}' belum terdaftar atau belum diaktifkan pada sistem.", name),
-                    "feature": key
-                }
-            })),
+        .with_feature(key)
+        .into_response()),
+        Ok(None) => Err(ApiError::service_unavailable(
+            "FEATURE_NOT_FOUND",
+            format!(
+                "Fitur '{}' belum terdaftar atau belum diaktifkan pada sistem.",
+                name
+            ),
         )
-            .into_response()),
+        .with_feature(key)
+        .into_response()),
         Err(err) => {
-            eprintln!("Database error saat memeriksa status feature flag '{}': {:?}", key, err);
-            Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": {
-                        "code": "INTERNAL_ERROR",
-                        "message": "Gagal membaca status fitur dari database."
-                    }
-                })),
+            eprintln!(
+                "Error saat memeriksa status feature flag '{}': {:?}",
+                key, err
+            );
+            Err(ApiError::new(
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                "INTERNAL_ERROR",
+                "Gagal membaca status fitur dari database.",
             )
-                .into_response())
+            .into_response())
         }
     }
 }

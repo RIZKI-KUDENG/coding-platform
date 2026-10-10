@@ -1,77 +1,48 @@
-use crate::state::AppState;
 use axum::{
     Json,
     extract::{Path, State},
-    http::StatusCode,
     response::IntoResponse,
 };
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::modules::learning::application::use_cases::exercise::queries::get_exercise_by_id::{GetExerciseByIdError,GetExerciseByIdQuery,GetExerciseByIdQueryHandler};
-use crate::modules::learning::application::use_cases::exercise::queries::get_exercise_by_lesson_id::{GetExerciseByLessonIdError,GetExerciseByLessonIdQuery,GetExerciseByLessonIdQueryHandler};
-use crate::modules::learning::infrastructure::repositories::exercise_repository::ExerciseRepository;
+use crate::modules::learning::{
+    application::use_cases::exercise::queries::{
+        get_exercise_by_id::{GetExerciseByIdQuery, GetExerciseByIdQueryHandler},
+        get_exercise_by_lesson_id::{
+            GetExerciseByLessonIdQuery, GetExerciseByLessonIdQueryHandler,
+        },
+    },
+    infrastructure::repositories::exercise_repository::ExerciseRepository,
+    presentation::dtos::ExerciseResponse,
+};
+use crate::modules::shared::http::ApiError;
+use crate::state::AppState;
 
 pub async fn get_exercise_by_lesson_id(
     State(state): State<AppState>,
     Path(lesson_id): Path<Uuid>,
-) -> impl IntoResponse {
-    let repo = ExerciseRepository::new(state.db.clone());
-    let handler = GetExerciseByLessonIdQueryHandler::new(repo);
+) -> Result<impl IntoResponse, ApiError> {
+    let handler = GetExerciseByLessonIdQueryHandler::new(ExerciseRepository::new(state.db.clone()));
 
-    match handler
+    let exercises = handler
         .handle(GetExerciseByLessonIdQuery { id: lesson_id })
-        .await
-    {
-        Ok(exercise) => (
-            StatusCode::OK,
-            Json(json!({
-                "data": exercise
-            })),
-        ),
-        Err(GetExerciseByLessonIdError::InternalServerError(err)) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": err.to_string()
-            })),
-        ),
-        Err(GetExerciseByLessonIdError::NotFound) => (
-            StatusCode::NOT_FOUND,
-            Json(json!({
-                "error": "Exercise not found"
-            })),
-        ),
-    }
+        .await?;
+
+    Ok(Json(json!({
+        "data": exercises.into_iter().map(ExerciseResponse::from).collect::<Vec<_>>(),
+    })))
 }
 
 pub async fn get_exercise_by_id(
     State(state): State<AppState>,
     Path(exercise_id): Path<Uuid>,
-) -> impl IntoResponse {
-    let repo = ExerciseRepository::new(state.db.clone());
-    let handler = GetExerciseByIdQueryHandler::new(repo);
+) -> Result<impl IntoResponse, ApiError> {
+    let handler = GetExerciseByIdQueryHandler::new(ExerciseRepository::new(state.db.clone()));
 
-    match handler
+    let exercise = handler
         .handle(GetExerciseByIdQuery { id: exercise_id })
-        .await
-    {
-        Ok(exercise) => (
-            StatusCode::OK,
-            Json(json!({
-                "data": exercise
-            })),
-        ),
-        Err(GetExerciseByIdError::DatabaseError(err)) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": err.to_string()
-            })),
-        ),
-        Err(GetExerciseByIdError::NotFound) => (
-            StatusCode::NOT_FOUND,
-            Json(json!({
-                "error": "Exercise not found"
-            })),
-        ),
-    }
+        .await?;
+
+    Ok(Json(json!({ "data": ExerciseResponse::from(exercise) })))
 }

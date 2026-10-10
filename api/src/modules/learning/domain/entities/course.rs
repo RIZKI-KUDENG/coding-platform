@@ -1,8 +1,7 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Course {
     pub id: Uuid,
     pub title: String,

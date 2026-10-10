@@ -1,13 +1,11 @@
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct RunRequest {
     pub language: String,
     pub code: String,
     pub input: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct RunResult {
     pub success: bool,
     pub stdout: String,

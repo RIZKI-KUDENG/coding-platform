@@ -1,22 +1,29 @@
 use axum::{
-    Json,
     extract::FromRequestParts,
-    http::{StatusCode, request::Parts},
+    http::request::Parts,
     response::{IntoResponse, Response},
 };
-use serde_json::json;
 use uuid::Uuid;
 
 use crate::{
-    modules::identity::{
-        ValidateSessionQuery, ValidateSessionQueryHandler,
-        infrastructure::repositories::session_repository::SessionRepository,
+    modules::{
+        identity::{ValidateSessionError, ValidateSessionQuery, ValidateSessionQueryHandler},
+        shared::http::ApiError,
     },
     state::AppState,
 };
 
 pub struct AuthenticatedUser {
     pub user_id: Uuid,
+}
+
+/// Extracts a non-empty bearer token from the `Authorization` header.
+pub fn bearer_token(headers: &axum::http::HeaderMap) -> Option<&str> {
+    headers
+        .get("Authorization")
+        .and_then(|h| h.to_str().ok())
+        .and_then(|h| h.strip_prefix("Bearer "))
+        .filter(|token| !token.is_empty())
 }
 
 impl FromRequestParts<AppState> for AuthenticatedUser {
@@ -26,46 +33,25 @@ impl FromRequestParts<AppState> for AuthenticatedUser {
         parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
-        let token = match parts
-            .headers
-            .get("Authorization")
-            .and_then(|h| h.to_str().ok())
-            .and_then(|h| h.strip_prefix("Bearer "))
+        let token = bearer_token(&parts.headers).ok_or_else(|| {
+            ApiError::unauthorized("Missing or invalid Authorization header").into_response()
+        })?;
+
+        let handler = ValidateSessionQueryHandler::from_pool(state.db.clone());
+
+        match handler
+            .handle(ValidateSessionQuery {
+                raw_token: token.to_string(),
+            })
+            .await
         {
-            Some(token) if !token.is_empty() => token,
-            _ => {
-                return Err((
-                    StatusCode::UNAUTHORIZED,
-                    Json(json!({
-                        "error": {
-                            "code": "AUTH_UNAUTHORIZED",
-                            "message": "Missing or invalid Authorization header"
-                        }
-                    })),
-                )
-                    .into_response());
-            }
-        };
-
-        let repo = SessionRepository::new(state.db.clone());
-        let handler = ValidateSessionQueryHandler::new(repo);
-
-        let query = ValidateSessionQuery {
-            raw_token: token.to_string(),
-        };
-
-        match handler.handle(query).await {
             Ok(user_id) => Ok(AuthenticatedUser { user_id }),
-            Err(_) => Err((
-                StatusCode::UNAUTHORIZED,
-                Json(json!({
-                    "error": {
-                        "code": "AUTH_UNAUTHORIZED",
-                        "message": "Invalid or expired session token"
-                    }
-                })),
-            )
-                .into_response()),
+            Err(ValidateSessionError::InvalidOrExpiredToken) => {
+                Err(ApiError::unauthorized("Invalid or expired session token").into_response())
+            }
+            Err(ValidateSessionError::DatabaseError(e)) => {
+                Err(ApiError::internal(&e).into_response())
+            }
         }
     }
 }

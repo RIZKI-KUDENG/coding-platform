@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
 
@@ -16,8 +15,7 @@ pub struct Submission {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SubmissionStatus {
     Pending,
     Running,

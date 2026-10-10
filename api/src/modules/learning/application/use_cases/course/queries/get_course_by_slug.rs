@@ -1,5 +1,6 @@
 use crate::modules::learning::domain::entities::course::Course;
 use crate::modules::learning::infrastructure::repositories::course_repository::CourseRepository;
+use crate::modules::shared::error::InfrastructureError;
 
 pub struct GetCourseBySlugQuery {
     pub slug: String,
@@ -8,7 +9,7 @@ pub struct GetCourseBySlugQuery {
 #[derive(Debug)]
 pub enum GetCourseBySlugError {
     CourseNotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct GetCourseBySlugQueryHandler {
@@ -28,7 +29,7 @@ impl GetCourseBySlugQueryHandler {
             .course_repository
             .get_by_slug(&query.slug)
             .await
-            .map_err(GetCourseBySlugError::DatabaseError)?;
+            .map_err(|e| GetCourseBySlugError::DatabaseError(e.into()))?;
         course.ok_or(GetCourseBySlugError::CourseNotFound)
     }
 }

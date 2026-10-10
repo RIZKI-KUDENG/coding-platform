@@ -1,6 +1,8 @@
+use crate::modules::execution::application::errors::ExecutionError;
 use crate::modules::execution::application::ports::code_runner::{
     CodeRunner, RunRequest, RunResult,
 };
+use crate::modules::shared::error::InfrastructureError;
 
 pub struct RunCodeCommand {
     pub language: String,
@@ -22,16 +24,15 @@ where
         Self { code_runner }
     }
 
-    pub async fn handle(
-        &self,
-        command: RunCodeCommand,
-    ) -> Result<RunResult, Box<dyn std::error::Error>> {
+    pub async fn handle(&self, command: RunCodeCommand) -> Result<RunResult, ExecutionError> {
         let request = RunRequest {
             language: command.language.clone(),
             code: command.code.clone(),
             input: None,
         };
-        let result = self.code_runner.run(request).await?;
+        let result = self.code_runner.run(request).await.map_err(|e| {
+            ExecutionError::RunnerUnavailable(InfrastructureError::new(e.to_string()))
+        })?;
         Ok(result)
     }
 }

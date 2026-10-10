@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use crate::modules::system::domain::entities::feature_flag::{FeatureFlag, FeatureFlagDetail};
+use crate::modules::system::domain::entities::feature_flag::FeatureFlag;
 use sqlx::PgPool;
 
 #[derive(Clone)]
@@ -30,32 +30,6 @@ impl FeatureFlagRepository {
         )
         .fetch_all(&self.pool)
         .await
-    }
-
-    pub async fn get_flags_detail_map(
-        &self,
-    ) -> Result<HashMap<String, FeatureFlagDetail>, sqlx::Error> {
-        let flags = self.get_all().await?;
-        let id_status: HashMap<Uuid, bool> = flags.iter().map(|f| (f.id, f.is_active())).collect();
-
-        let mut map = HashMap::new();
-        for flag in &flags {
-            let parent_active = flag
-                .parent_id
-                .and_then(|pid| id_status.get(&pid).copied())
-                .unwrap_or(true);
-
-            let active = flag.is_active() && parent_active;
-            map.insert(
-                flag.key.clone(),
-                FeatureFlagDetail {
-                    is_enabled: active,
-                    is_sub_feature: flag.is_sub_feature(),
-                    parent_id: flag.parent_id,
-                },
-            );
-        }
-        Ok(map)
     }
 
     pub async fn get_flags_map(&self) -> Result<HashMap<String, bool>, sqlx::Error> {

@@ -1,9 +1,9 @@
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 use crate::modules::system::domain::entities::feature_flag::FeatureFlag;
 use crate::modules::system::infrastructure::repositories::feature_flag_repository::FeatureFlagRepository;
 
-#[derive(serde::Deserialize)]
 pub struct EditFeatureFlagsCommand {
     pub id: Uuid,
     pub key: String,
@@ -23,7 +23,7 @@ impl EditFeatureFlagsCommandHandler {
     pub async fn handle(
         &self,
         command: EditFeatureFlagsCommand,
-    ) -> Result<Option<FeatureFlag>, sqlx::Error> {
+    ) -> Result<Option<FeatureFlag>, InfrastructureError> {
         let result = self
             .repository
             .edit_feature(

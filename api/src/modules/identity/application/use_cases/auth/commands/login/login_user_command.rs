@@ -1,5 +1,5 @@
+use crate::modules::shared::error::InfrastructureError;
 use chrono::{Duration, Utc};
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::modules::identity::application::security::password_hasher::verify_password;
@@ -20,10 +20,10 @@ pub struct LoginCommandHandler {
 #[derive(Debug)]
 pub enum LoginError {
     InvalidCredentials,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct UserSummary {
     pub id: Uuid,
     pub email: String,
@@ -31,7 +31,7 @@ pub struct UserSummary {
     pub role: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct LoginResult {
     pub user: UserSummary,
     pub access_token: String,
@@ -50,7 +50,7 @@ impl LoginCommandHandler {
             .user_repository
             .find_by_email_or_username(&command.identifier)
             .await
-            .map_err(LoginError::DatabaseError)?;
+            .map_err(|e| LoginError::DatabaseError(e.into()))?;
 
         let user = match user {
             Some(user) => user,
@@ -72,7 +72,7 @@ impl LoginCommandHandler {
         self.session_repository
             .create(user.id, session_token.hash, expires_at)
             .await
-            .map_err(LoginError::DatabaseError)?;
+            .map_err(|e| LoginError::DatabaseError(e.into()))?;
 
         Ok(LoginResult {
             user: UserSummary {

@@ -1,3 +1,4 @@
+use crate::modules::shared::error::InfrastructureError;
 use crate::modules::system::infrastructure::repositories::feature_flag_repository::FeatureFlagRepository;
 
 pub struct IsFeatureEnabledQuery {
@@ -16,12 +17,18 @@ pub struct IsFeatureEnabledQueryHandler {
 
 #[derive(Debug)]
 pub enum IsFeatureEnabledError {
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 impl IsFeatureEnabledQueryHandler {
     pub fn new(repository: FeatureFlagRepository) -> Self {
         Self { repository }
+    }
+
+    /// Public contract for other modules: build the handler without touching
+    /// this module's infrastructure.
+    pub fn from_pool(pool: sqlx::PgPool) -> Self {
+        Self::new(FeatureFlagRepository::new(pool))
     }
 
     pub async fn handle(
@@ -31,6 +38,6 @@ impl IsFeatureEnabledQueryHandler {
         self.repository
             .is_enabled(&query.key)
             .await
-            .map_err(IsFeatureEnabledError::DatabaseError)
+            .map_err(|e| IsFeatureEnabledError::DatabaseError(e.into()))
     }
 }

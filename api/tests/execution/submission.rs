@@ -8,7 +8,7 @@ use api::modules::execution::application::use_cases::submission::commands::execu
 };
 use api::modules::execution::infrastructure::repositories::submission_repository::SubmissionRepository;
 use api::modules::execution::infrastructure::runners::podman_runner::PodmanRunner;
-use api::modules::learning::{ExerciseTestCaseRepository, GetTestCaseByExerciseIdQueryHandler};
+use api::modules::learning::GetTestCaseByExerciseIdQueryHandler;
 use api::state::AppState;
 
 /// Mock runner for testing execution business logic without Docker/Podman
@@ -37,8 +37,7 @@ async fn test_execute_code_status_lifecycle_with_mock() {
     let config = Config::load();
     let state = AppState::new(&config).await;
     let repo = SubmissionRepository::new(state.db.clone());
-    let tc_repo = ExerciseTestCaseRepository::new(state.db.clone());
-    let tc_handler = GetTestCaseByExerciseIdQueryHandler::new(tc_repo);
+    let tc_handler = GetTestCaseByExerciseIdQueryHandler::from_pool(state.db.clone());
 
     let user_id = Uuid::new_v4();
     let exercise_id = Uuid::new_v4();
@@ -111,8 +110,7 @@ async fn test_real_podman_runner_python() {
     let config = Config::load();
     let state = AppState::new(&config).await;
     let repo = SubmissionRepository::new(state.db.clone());
-    let tc_repo = ExerciseTestCaseRepository::new(state.db.clone());
-    let tc_handler = GetTestCaseByExerciseIdQueryHandler::new(tc_repo);
+    let tc_handler = GetTestCaseByExerciseIdQueryHandler::from_pool(state.db.clone());
     let runner = PodmanRunner::new();
     let handler = ExecuteCodeCommandHandler::new(repo.clone(), tc_handler, runner);
 
@@ -164,8 +162,7 @@ async fn test_execute_code_evaluates_test_cases() {
     let config = Config::load();
     let state = AppState::new(&config).await;
     let repo = SubmissionRepository::new(state.db.clone());
-    let tc_repo = ExerciseTestCaseRepository::new(state.db.clone());
-    let tc_handler = GetTestCaseByExerciseIdQueryHandler::new(tc_repo);
+    let tc_handler = GetTestCaseByExerciseIdQueryHandler::from_pool(state.db.clone());
     let runner = PodmanRunner::new();
     let handler = ExecuteCodeCommandHandler::new(repo.clone(), tc_handler, runner);
 

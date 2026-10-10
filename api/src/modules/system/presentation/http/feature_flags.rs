@@ -1,4 +1,4 @@
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{Json, extract::State, response::IntoResponse};
 
 use crate::{
     modules::system::{
@@ -9,88 +9,52 @@ use crate::{
             queries::{GetFeatureFlagsError, GetFeatureFlagsQuery, GetFeatureFlagsQueryHandler},
         },
         infrastructure::repositories::feature_flag_repository::FeatureFlagRepository,
+        presentation::dtos::{EditFeatureFlagsRequest, FeatureFlagResponse, status_map_response},
     },
     state::AppState,
 };
 use serde_json::json;
 
-pub async fn get_features(State(state): State<AppState>) -> impl IntoResponse {
-    let repo = FeatureFlagRepository::new(state.db.clone());
+use crate::modules::shared::http::ApiError;
 
-    let handler = GetFeatureFlagsQueryHandler::new(repo);
+pub async fn get_features(State(state): State<AppState>) -> Result<impl IntoResponse, ApiError> {
+    let handler = GetFeatureFlagsQueryHandler::new(FeatureFlagRepository::new(state.db.clone()));
 
-    match handler.handle(GetFeatureFlagsQuery).await {
-        Ok(flags) => (
-            StatusCode::OK,
-            Json(json!({
-                "data": flags
-            })),
-        ),
-        Err(GetFeatureFlagsError::DatabaseError(err)) => {
-            eprintln!("Database error fetching feature flags {:?}", err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": {
-                        "code": "INTERNAL_SERVER_ERROR",
-                        "message": "Gagal membaca status fitur."
-                    }
-                })),
-            )
-        }
-    }
+    let flags = handler
+        .handle(GetFeatureFlagsQuery)
+        .await
+        .map_err(|err| match err {
+            GetFeatureFlagsError::DatabaseError(e) => ApiError::internal(&e),
+        })?;
+
+    Ok(Json(json!({ "data": status_map_response(flags) })))
 }
 
-pub async fn get_admin_features(State(state): State<AppState>) -> impl IntoResponse {
+pub async fn get_admin_features(
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse, ApiError> {
     let repo = FeatureFlagRepository::new(state.db.clone());
 
-    match repo.get_all().await {
-        Ok(flags) => (
-            StatusCode::OK,
-            Json(json!({
-                "data": flags
-            })),
-        ),
-        Err(err) => {
-            eprintln!("Database error fetching admin feature flags: {:?}", err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": {
-                        "code": "INTERNAL_SERVER_ERROR",
-                        "message": "Gagal membaca daftar feature flag admin."
-                    }
-                })),
-            )
-        }
-    }
+    let flags = repo
+        .get_all()
+        .await
+        .map_err(|e| ApiError::internal(&e.into()))?;
+
+    Ok(Json(json!({
+        "data": flags.into_iter().map(FeatureFlagResponse::from).collect::<Vec<_>>()
+    })))
 }
 
 pub async fn edit_feature_flags(
     State(state): State<AppState>,
-    Json(command): Json<EditFeatureFlagsCommand>,
-) -> impl IntoResponse {
-    let repo = FeatureFlagRepository::new(state.db.clone());
-    let handler = EditFeatureFlagsCommandHandler::new(repo);
+    Json(request): Json<EditFeatureFlagsRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    let handler = EditFeatureFlagsCommandHandler::new(FeatureFlagRepository::new(state.db.clone()));
 
-    match handler.handle(command).await {
-        Ok(_) => (
-            StatusCode::OK,
-            Json(json!({
-                "message": "Fitur berhasil diperbarui."
-            })),
-        ),
-        Err(err) => {
-            eprintln!("Error editing feature flags: {:?}", err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": {
-                        "code": "INTERNAL_SERVER_ERROR",
-                        "message": "Gagal memperbarui status fitur."
-                    }
-                })),
-            )
-        }
-    }
+    handler
+        .handle(EditFeatureFlagsCommand::from(request))
+        .await
+        .map_err(|e| ApiError::internal(&e))?;
+
+    Ok(Json(json!({ "message": "Fitur berhasil diperbarui." })))
 }

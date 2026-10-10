@@ -1,3 +1,4 @@
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 use crate::modules::learning::domain::entities::exercise::Exercise;
@@ -10,7 +11,7 @@ pub struct GetExerciseByIdQuery {
 #[derive(Debug)]
 pub enum GetExerciseByIdError {
     NotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 pub struct GetExerciseByIdQueryHandler {
@@ -25,16 +26,11 @@ impl GetExerciseByIdQueryHandler {
     pub async fn handle(
         &self,
         query: GetExerciseByIdQuery,
-    ) -> Result<Option<Exercise>, GetExerciseByIdError> {
-        let exercise = self
-            .repository
+    ) -> Result<Exercise, GetExerciseByIdError> {
+        self.repository
             .get_exercise_by_id(query.id)
             .await
-            .map_err(GetExerciseByIdError::DatabaseError)?;
-
-        if exercise.is_none() {
-            return Err(GetExerciseByIdError::NotFound);
-        }
-        Ok(exercise)
+            .map_err(|e| GetExerciseByIdError::DatabaseError(e.into()))?
+            .ok_or(GetExerciseByIdError::NotFound)
     }
 }

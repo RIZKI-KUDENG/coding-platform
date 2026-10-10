@@ -1,10 +1,13 @@
 use axum::{
     Json,
     extract::State,
-    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use serde_json::json;
+
+use crate::modules::shared::http::ApiError;
+
+use crate::modules::execution::presentation::dtos::RunResultResponse;
 
 use crate::{
     modules::{
@@ -41,20 +44,12 @@ pub async fn run(
         code: request.code,
     };
 
-    match handler.handle(command).await {
-        Ok(result) => Ok((
-            StatusCode::OK,
-            Json(json!({
-                "data": result
-            })),
-        )),
-        Err(err) => Ok((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": {
-                    "message": err.to_string()
-                }
-            })),
-        )),
-    }
+    let result = handler
+        .handle(command)
+        .await
+        .map_err(|e| ApiError::from(e).into_response())?;
+
+    Ok(Json(json!({
+        "data": RunResultResponse::from(result)
+    })))
 }

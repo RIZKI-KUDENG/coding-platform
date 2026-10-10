@@ -1,3 +1,4 @@
+use crate::modules::shared::error::InfrastructureError;
 use uuid::Uuid;
 
 use crate::modules::learning::domain::entities::exercise_test_case::ExerciseTestCase;
@@ -10,7 +11,7 @@ pub struct GetTestCaseByExerciseIdQuery {
 #[derive(Debug)]
 pub enum GetTestCaseByExerciseIdError {
     NotFound,
-    DatabaseError(sqlx::Error),
+    DatabaseError(InfrastructureError),
 }
 
 #[derive(Clone)]
@@ -23,6 +24,12 @@ impl GetTestCaseByExerciseIdQueryHandler {
         Self { repository }
     }
 
+    /// Public contract for other modules: lets them build the handler without
+    /// touching this module's infrastructure.
+    pub fn from_pool(pool: sqlx::PgPool) -> Self {
+        Self::new(ExerciseTestCaseRepository::new(pool))
+    }
+
     pub async fn handle(
         &self,
         query: GetTestCaseByExerciseIdQuery,
@@ -31,7 +38,7 @@ impl GetTestCaseByExerciseIdQueryHandler {
             .repository
             .get_test_case_by_exercise_id(query.exercise_id)
             .await
-            .map_err(GetTestCaseByExerciseIdError::DatabaseError)?;
+            .map_err(|e| GetTestCaseByExerciseIdError::DatabaseError(e.into()))?;
 
         if test_cases.is_empty() {
             return Err(GetTestCaseByExerciseIdError::NotFound);
